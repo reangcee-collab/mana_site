@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Credit Score{% endblock %}
+
+{% block content %}
+<style>
+  /* page layout: top */
+  .wrap{
+    align-items:flex-start;
+    justify-content:center;
+    padding-top: 92px;
+    padding-bottom: 40px;
+  }
+  @media(max-width:480px){
+    .wrap{ padding-top: 78px; }
+  }
+
+  /* small card like user card */
+  .cs-card{
+    width:min(520px, 94vw);
+    background: rgba(20, 28, 28, .58);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    border-radius: 18px;
+    padding: 14px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-align:left;
+    animation: cardSwipe .45s ease both;
+  }
+  @keyframes cardSwipe{
+    from{ opacity:0; transform: translateX(16px) scale(.99); }
+    to{ opacity:1; transform: translateX(0) scale(1); }
+  }
+
+  .cs-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .cs-title{
+    font-size:18px;
+    font-weight:950;
+    color:#fff;
+    line-height:1.1;
+  }
+  .cs-sub{
+    font-size:12px;
+    color: rgba(255,255,255,.72);
+    margin-top:2px;
+  }
+  .cs-pill{
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.25);
+    color:#dfffe9;
+    font-weight:900;
+    font-size:12px;
+    white-space:nowrap;
+  }
+
+  .cs-scorebox{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:12px 12px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.22);
+  }
+  .cs-label{
+    font-weight:900;
+    color:#fff;
+    font-size:13px;
+  }
+  .cs-note{
+    font-size:11px;
+    opacity:.75;
+    color:#eafff1;
+    margin-top:2px;
+  }
+  .cs-score{
+    font-size:28px;
+    font-weight:950;
+    letter-spacing:.02em;
+    color:#fff;
+  }
+
+  .cs-actions{
+    margin-top:12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .cs-actions .btn{
+    padding:10px 16px;
+    font-size:13px;
+  }
+</style>
+
+<div class="cs-card">
+  <div class="cs-head">
+    <div>
+      <div class="cs-title">Credit Score</div>
+      <div class="cs-sub">Managed by MoneyTap</div>
+    </div>
+    <div class="cs-pill">Score</div>
+  </div>
+
+  <div class="cs-scorebox">
+    <div>
+      <div class="cs-label">Current Score</div>
+      <div class="cs-note">Based on account history</div>
+    </div>
+    <div class="cs-score">{{ request.user.credit_score|default:"650" }}</div>
+  </div>
+
+  <div class="cs-actions">
+    <a class="btn btn-ghost" href="/profile/">Back</a>
+    <a class="btn btn-primary" href="/dashboard/">Dashboard</a>
+  </div>
+</div>
+{% endblock %}

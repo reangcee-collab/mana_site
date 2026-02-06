@@ -1,0 +1,928 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+/* ===== Notification Bell (with badge + small alert animation) ===== */
+/* ✅ Dashboard ONLY: reserve space for top bar */
+.wrap{
+  padding-top:78px !important;
+}
+.notify-wrap{
+  width:34px;
+  height:34px;
+  border-radius:12px;
+  background:rgba(0,0,0,.18);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex: 0 0 auto;
+  text-decoration:none;
+  position: relative; /* ✅ for badge */
+}
+
+/* badge number */
+.notify-badge{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  min-width:18px;
+  height:18px;
+  padding:0 6px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:11px;
+  font-weight:950;
+  color:#fff;
+
+  background:#ef4444;
+  box-shadow: 0 6px 14px rgba(0,0,0,.35);
+  border: 2px solid rgba(0,0,0,.25);
+}
+/* ===== Unread pulse (CSS only) ===== */
+.notify-wrap.has-unread{
+  animation: notifPulse 1.35s ease-in-out infinite;
+}
+
+@keyframes notifPulse{
+  0%   { box-shadow: 0 0 0 0 rgba(239,68,68,.45); }
+  70%  { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+  100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+}
+
+/* ===== Red dot mode (no number) ===== */
+/* ✅ if you want dot-only, add class "dot-only" on <a class="notify-wrap ..."> */
+.notify-wrap.dot-only .notify-badge{
+  min-width:10px;
+  width:10px;
+  height:10px;
+  padding:0;
+  border-radius:999px;
+  font-size:0;          /* hide number */
+  line-height:0;
+  top: -4px;
+  right: -4px;
+}
+
+/* bell base */
+.bell-container{
+  --color:#ffffff;
+  --size:22px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  font-size:var(--size);
+  fill:var(--color);
+  text-decoration:none;
+  color: inherit;
+}
+.bell-container input{ display:none; }
+
+.bell-regular,
+.bell-solid{
+  width:22px;
+  height:22px;
+  position:absolute;
+  transition:transform .3s ease, opacity .3s ease;
+}
+.bell-solid{ opacity:0; }
+
+.bell-container input:checked ~ .bell-regular{
+  transform:rotate(-15deg);
+  opacity:0;
+}
+.bell-container input:checked ~ .bell-solid{
+  opacity:1;
+  animation:ring .5s ease;
+}
+
+/* ✅ alert animation when there is unread */
+.notify-wrap.has-unread{
+  animation: pop .28s ease;
+}
+.notify-wrap.has-unread .bell-regular{
+  animation: bellShake 1.2s ease-in-out infinite;
+  transform-origin: 50% 10%;
+}
+@keyframes bellShake{
+  0%{ transform: rotate(0); }
+  10%{ transform: rotate(-12deg); }
+  20%{ transform: rotate(12deg); }
+  30%{ transform: rotate(-9deg); }
+  40%{ transform: rotate(9deg); }
+  50%{ transform: rotate(-6deg); }
+  60%{ transform: rotate(6deg); }
+  70%{ transform: rotate(-3deg); }
+  80%{ transform: rotate(3deg); }
+  100%{ transform: rotate(0); }
+}
+@keyframes pop{
+  from{ transform: scale(.92); }
+  to{ transform: scale(1); }
+}
+
+@keyframes ring{
+  0%{transform:rotate(0)}
+  25%{transform:rotate(-15deg)}
+  50%{transform:rotate(15deg)}
+  75%{transform:rotate(-10deg)}
+  100%{transform:rotate(0)}
+}
+
+
+  /* ===== Account Status Badge ===== */
+.status-badge{
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .5px;
+}
+
+/* ACTIVE */
+.status-active{
+  background: #16a34a; /* green */
+  color: #fff;
+}
+
+/* FROZEN / ERROR / REJECT */
+.status-danger{
+  background: #dc2626; /* red */
+  color: #fff;
+}
+  /* if base.html uses wrapper flex causing “twist” */
+  .wrap{
+    padding-top:0 !important;
+    display:block !important;
+    width:100% !important;
+  }
+
+  html, body{
+    width:100%;
+    overflow-x:hidden; /* stop sideways jump/twist */
+  }
+
+  /* ===== Dashboard page layout (center on PC/phone) ===== */
+  .dash-wrap{
+    width: min(520px, 94vw);
+    margin: 0 auto;
+    padding: 74px 14px 24px; /* ✅ bottom padding small (bar is not fixed now) */
+    box-sizing: border-box;
+  }
+
+  /* ===== Background fixed ===== */
+  body{
+    margin: 0;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:
+      linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.78)),
+      url("{% static 'img/SL-012322-48100-03.jpg' %}") center / cover no-repeat fixed !important;
+  }
+
+  /* ===== Top bar (mini only) ===== */
+  .topbar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 80;
+    background: linear-gradient(90deg, #023617, #27dd75);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,.18);
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    transform: translateY(0);
+    transition: transform .22s ease;
+  }
+  .topbar.hide-bar{
+    transform: translateY(-110%);
+  }
+
+  .topbar-inner{
+  width: min(520px, 94vw);   /* ✅ same as dash-wrap */
+  margin: 0 auto;
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height: 40px;
+  padding: 0 14px;          /* ✅ same padding as dash-wrap */
+  box-sizing: border-box;
+
+  max-width: none;          /* ✅ important: stop old max-width behavior */
+}
+
+  /* Brand mini still center absolutely for logo */
+  .brand-mini{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#fff;
+    text-decoration:none;
+    font-weight:900;
+  }
+  .brand-mini .logo{
+    width:34px;height:34px;
+    border-radius:10px;
+    background: rgba(0,0,0,.18);
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+  }
+
+  /* === Topbar left & right buttons tweak for pixel alignment === */
+  .topbar-left,
+  .topbar-right{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .topbar-left{
+    margin-left: 0px; /* Tweak so button aligns to left edge of .cardx (profile card) */
+  }
+  .topbar-right{
+    margin-right: 0px; /* Tweak so button aligns to right edge of .cardx (profile card) */
+  }
+
+  .info-btn{
+    width:34px;height:34px;border-radius:12px;
+    border:0;
+    background: rgba(0,0,0,.18);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+  }
+
+  /* ===== Cards ===== */
+  .cardx{
+    position: relative;
+    background: rgba(0, 0, 0, 0.589);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 2px 2px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Swipe in animation (left/right) ===== */
+  .reveal{
+    opacity:0;
+    transform: translateX(0);
+    will-change: transform, opacity;
+  }
+  .from-left{ transform: translateX(-18px); }
+  .from-right{ transform: translateX(18px); }
+  .reveal.on{
+    opacity:1;
+    transform: translateX(0);
+    transition: opacity .45s ease, transform .45s ease;
+  }
+
+  /* ===== Profile card ===== */
+  .profile-card{ display:flex; gap:12px; align-items:flex-start; }
+  .avatar{
+    width:44px;height:44px;border-radius:14px;
+    background: rgba(255, 255, 255, 0.699);
+    display:flex;align-items:center;justify-content:center;
+    flex:0 0 auto;
+    border:1px solid rgba(255,255,255,.10);
+  }
+  .avatar svg{ width:22px; height:22px; opacity:.9; }
+  .profile-main{ flex:1 1 auto; min-width:0; }
+  .row1{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .title{ color:#fff; font-weight:900; font-size:18px; line-height:1.1; }
+  .subline{ color:rgba(255,255,255,.72); font-size:12px; margin-top:2px; }
+  .pill{
+    padding:6px 12px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(5, 43, 10, 0.884);
+    color:#dfffe9;
+    font-weight:800;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .amount{
+    font-size:34px;font-weight:950;letter-spacing:.02em;
+    color:#fff;margin-top:10px;
+  }
+  .status{ margin-top:6px;font-size:12px;font-weight:900;color:#d5ffe7; }
+
+  /* ===== Section title ===== */
+  .section-title{
+    margin: 14px 2px 10px;
+    color:#e9fff1;
+    font-weight:950;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    opacity:.9;
+  }
+
+  /* ===== Why choose ===== */
+  .why-card{ padding: 14px; }
+  .why-head{
+    display:flex;justify-content:center;align-items:center;gap:6px;
+    font-weight:950;font-size:18px;color:#fff;margin-bottom:10px;
+  }
+  .why-head .green{ color:#25d66c; }
+  .ad-frame{
+    border-radius: 16px; overflow:hidden;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0, 0, 0, 0.219);
+    position:relative;
+    height: 132px;
+  }
+  .ovelion-head{
+  font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+  .ad-slide{
+    position:absolute; inset:0;
+    opacity:0;
+    transform: translateX(16px);
+    transition: opacity .45s ease, transform .45s ease;
+    display:flex;
+    align-items:stretch;
+    justify-content:stretch;
+  }
+  .ad-slide.on{ opacity:1; transform: translateX(0); }
+  .ad-slide img{
+    width:100%; height:100%;
+    object-fit:cover;
+    filter: contrast(1.06) saturate(1.05);
+  }
+  .ad-overlay{
+    position:absolute; inset:0;
+    background: linear-gradient(90deg, rgba(0,0,0,.60), rgba(0,0,0,.12));
+    pointer-events:none;
+  }
+  .ad-text{
+    position:absolute; left:14px; top:14px; right: 92px;
+    color:#fff; z-index:2;
+  }
+  .ad-text h4{ margin:0; font-size:16px; font-weight:950; letter-spacing:.01em; }
+  .ad-text p{ margin:4px 0 0; font-size:12px; opacity:.86; }
+  .ad-btn{
+    position:absolute; left:14px; bottom:12px; z-index:2;
+    display:inline-flex; align-items:center; gap:8px;
+    padding:7px 12px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.16);
+    background: rgba(0,0,0,.28);
+    color:#fff; font-weight:900; font-size:12px;
+    text-decoration:none;
+  }
+  .dots{ display:flex; gap:6px; justify-content:center; margin-top:10px; opacity:.9; }
+  .dot{ width:7px;height:7px;border-radius:99px;background: rgba(255,255,255,.25); }
+  .dot.on{ background: #24d96d; }
+
+  /* ===== Quick loan ===== */
+  .quick{
+    margin-top: 14px;
+    width: 100%;
+    border:0;
+    padding: 14px 16px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #023617, #27dd75);
+    color:#fff;
+    font-weight:950;
+    letter-spacing:.06em;
+    text-transform: none;
+    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    cursor:pointer;
+    position: relative;
+    overflow:hidden;
+  }
+  .quick{
+  text-decoration: none !important;
+}
+
+.quick::after{
+  display: none !important;
+  content: none !important;
+}  
+  .quick .go{
+    width:30px;height:30px;border-radius:999px;
+    background: rgba(0,0,0,.20);
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.20);
+  }
+  .quick .go svg{ width:16px;height:16px; fill:#fff; opacity:.95; }
+
+  /* ===== Video section ===== */
+  .video-card{
+    border-radius: 16px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.28);
+    height: 160px;
+    position:relative;
+  }
+  .video-card video{
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    display:block;
+    border-radius: 16px
+  }
+
+  /* ===== Currency table card ===== */
+  .table-card{ padding: 12px; }
+
+  /* ===== Bottom nav (IN-FLOW, Quick-loan style) ===== */
+  .bottom-nav{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -50px!important;  /* iOS safe area */
+  z-index: 80;
+
+  width: min(350px, 92vw);   /* short + responsive */
+  margin: 0;                 /* fixed bar no margin needed */
+  padding: 12px 14px;
+
+  background: linear-gradient(90deg, #023617, #27dd75);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 22px;
+
+  box-shadow: 0 16px 40px rgba(0,0,0,.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  overflow: hidden;
+}
+@media (min-width: 600px){
+  .bottom-nav{
+    width:520px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+    border-radius: 22px;
+    bottom: 10px;
+  }
+}
+
+  .bottom-nav.hide-bar{ transform:none !important; }
+
+  .nav-inner{
+    display:flex;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .nav-item{
+    flex: 1 1 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:6px;
+
+    padding: 10px 8px;
+    border-radius: 16px;
+
+    color:#fff;
+    text-decoration:none;
+    font-weight:900;
+    font-size:10px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    opacity:.92;
+
+    transition: transform .08s ease, background .2s ease, opacity .2s ease;
+  }
+  .nav-item:active{ transform: scale(.98); }
+  .nav-item svg{ width:20px;height:20px; fill:#fff; opacity:.95; }
+  .nav-item.active{
+    opacity:1;
+    background: rgba(0,0,0,.18);
+    border: 1px solid rgba(255,255,255,.14);
+  }
+
+  /* ===== Exchange rate ===== */
+  .fx-scroll{
+    max-height: 260px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 2px;
+  }
+  .fx-scroll::-webkit-scrollbar{ width: 6px; }
+  .fx-scroll::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.18); border-radius: 99px; }
+  .fx-table{ width:100%; border-collapse: collapse; }
+  .fx-table thead th{
+    position: sticky;
+    top: 0;
+    background: rgba(0,0,0,.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2;
+  }
+  .fx-table th, .fx-table td{ padding: 10px 10px; }
+  .fx-table th{
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .85;
+  }
+  .fx-table td{ border-top: 1px solid rgba(255,255,255,.08); color:#f2fff7; }
+  .fx-left{ display:flex; align-items:center; gap:10px; min-width: 0; }
+  .fx-flag{
+    width: 22px; height: 16px;
+    object-fit: cover;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.15);
+    flex: 0 0 auto;
+  }
+  .fx-code{ font-weight: 950; letter-spacing: .04em; }
+  .fx-country{
+    font-size: 11px;
+    opacity: .7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fx-meta{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    margin-top: 8px;
+    font-size: 11px;
+    opacity: .85;
+    color:#eafff1;
+  }
+  .fx-auto{ opacity: .75; }
+</style>
+
+<div id="top"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+<!-- Left side: Logout button, aligned with left profile card edge -->
+<div class="topbar-left" style="gap:8px;">
+  <div style="
+    color:#fff;
+    font-weight:900;
+    font-size:14px;
+    white-space:nowrap;
+  ">
+    Welcome
+  </div>
+      </form>
+    </div>
+
+    <a class="brand-mini" href="#top" aria-label="Top">
+    </a>
+
+    <!-- Right side: Notification and Info buttons, aligned with right profile card edge -->
+    <div class="topbar-right">
+      <a class="notify-wrap dot-only {% if notif_count|default:0|add:0 > 0 %}has-unread{% endif %}"
+        href="{% url 'notifications' %}"
+        aria-label="Notifications">
+     
+       {% if notif_count|default:0|add:0 > 0 %}
+         <span class="notify-badge">
+           {% if notif_count > 99 %}99+{% else %}{{ notif_count }}{% endif %}
+         </span>
+       {% endif %}
+     
+       <label class="bell-container">
+         <input type="checkbox" {% if notif_count|default:0|add:0 > 0 %}checked{% endif %}>
+         <svg class="bell-regular" viewBox="0 0 24 24">
+           <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 1 0-12 0v5L4 18v1h16v-1l-2-2z"/>
+         </svg>
+         <svg class="bell-solid" viewBox="0 0 24 24">
+           <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm6-6V11a6 6 0 1 0-12 0v5L4 18v1h16v-1l-2-2z"/>
+         </svg>
+       </label>
+     </a>
+    
+    </div>    
+  </div>
+</div>
+
+<div class="dash-wrap">
+
+  <!-- Profile card -->
+  <div class="cardx profile-card metal reveal from-left">
+    <div class="avatar" aria-hidden="true">
+      {% if selfie_url %}
+        <img src="{{ selfie_url }}" alt="Selfie" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
+      {% else %}
+        <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.42 0-8 2-8 4.5V21h16v-2.5C20 16 16.42 14 12 14z"/></svg>
+      {% endif %}
+    </div>
+
+    <div class="profile-main">
+      <div class="row1">
+        <div>
+          <div class="title ovelion">{{ request.user.phone }}</div>
+          <div class="subline ovelion">Account</div>
+        </div>
+        <div class="pill ovelion">Balance</div>
+      </div>
+
+      <div class="amount">Rs <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
+      <div class="muted" style="margin-top:6px;">
+        {# Dashboard status badge #}
+        <span id="accStatusBadge"
+        class="status-badge {% if request.user.account_status|lower == 'active' %}status-active{% else %}status-danger{% endif %}">
+    {{ request.user.account_status|upper }}
+  </span>
+      </div>      
+    </div>
+  </div>
+
+  <!-- Why choose -->
+  <div class="cardx why-card metal reveal from-right" style="margin-top:14px;">
+    <div class="why-head ovelion">
+      Why Choose <span class="green ovelion">MoneyTap</span>?
+    </div>
+
+    <div class="ad-frame" aria-label="Why choose slider">
+      <div class="ad-slide on" data-i="0">
+        <img src="{% static 'img/ads/ad1.jpg' %}" alt="Ad 1">
+        <div class="ad-overlay"></div>
+        <div class="ad-text">
+          <h4>Fast approval</h4>
+          <p>Clear process • quick verification • secure system</p>
+        </div>
+        <a class="ad-btn" href="#">Learn more <span style="opacity:.85;">›</span></a>
+      </div>
+
+      <div class="ad-slide" data-i="1">
+        <img src="{% static 'img/ads/ad2.jpg' %}" alt="Ad 2">
+        <div class="ad-overlay"></div>
+        <div class="ad-text">
+          <h4>Trusted service</h4>
+          <p>No hidden fees • transparent policy • 24/7 support</p>
+        </div>
+        <a class="ad-btn" href="#">Details <span style="opacity:.85;">›</span></a>
+      </div>
+
+      <div class="ad-slide" data-i="2">
+        <img src="{% static 'img/ads/ad3.jpg' %}" alt="Ad 3">
+        <div class="ad-overlay"></div>
+        <div class="ad-text">
+          <h4>Easy to use</h4>
+          <p>Mobile-friendly dashboard • simple steps • strong security</p>
+        </div>
+        <a class="ad-btn" href="#">Start now <span style="opacity:.85;">›</span></a>
+      </div>
+    </div>
+
+    <div class="dots" aria-hidden="true" id="adsDots">
+      <div class="dot on"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- Quick loan -->
+  <a href="{% url 'quick_loan' %}" class="quick reveal from-left ovelion-head">
+    Quick Loan →
+    <span class="go" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </span>
+  </a>
+
+  <!-- Client last status (video) -->
+  <div class="section-title reveal from-right ovelion" id="status">Our Services</div>
+  <div class="cardx video-card metal reveal from-right">
+    <video id="statusVideo" autoplay muted loop playsinline preload="auto">
+      <source src="{% static 'video/video.mp4' %}" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- Currency -->
+  <div class="section-title reveal from-left ovelion" id="currency">CURRENCY</div>
+
+  <div class="cardx table-card reveal from-left">
+    <div class="fx-scroll" aria-label="Exchange rates list">
+      <table class="fx-table">
+        <thead>
+          <tr>
+            <th>CURRENCY</th>
+            <th>USD</th>
+            <th>CONVERT</th>
+          </tr>
+        </thead>
+        <tbody id="fxRows"></tbody>
+      </table>
+    </div>
+
+    <div class="fx-meta">
+      <div id="fxUpdated">Updated: —</div>
+      <div class="fx-auto">Auto daily</div>
+    </div>
+  </div>
+
+  <!-- ✅ Bottom nav now UNDER currency card (in-flow) -->
+  <nav class="bottom-nav" role="navigation" aria-label="Bottom Navigation">
+    <div class="nav-inner">
+      <a class="nav-item" href="#top" data-nav="home" aria-label="Home">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        HOME
+      </a>
+      <a class="nav-item" href="/wallet/" data-nav="wallet" aria-label="Wallet">
+        <svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2h-6a2 2 0 0 0 0 4h6v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M20 11h-5a1 1 0 0 0 0 2h5z" opacity=".75"/></svg>
+        WALLET
+      </a>
+      <a class="nav-item" href="{% url 'contact' %}" data-nav="contact" aria-label="Contact">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v12H7l-3 3z"/><path d="M7 8h10M7 11h7" stroke="rgba(0,0,0,.35)" stroke-width="2" stroke-linecap="round"/></svg>
+        CONTACT
+      </a>
+      <a class="nav-item" href="/profile/" data-nav="profile" aria-label="Profile">
+        <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.42 0-8 2-8 4.5V21h16v-2.5C20 16 16.42 14 12 14z"/></svg>
+        PROFILE
+      </a>
+    </div>
+  </nav>
+
+</div>
+
+<script>
+/* ===== Reveal animation on load (swipe left/right) ===== */
+(function(){
+  const nodes = Array.from(document.querySelectorAll('.reveal'));
+  if(!nodes.length) return;
+  requestAnimationFrame(() => nodes.forEach((el, i) => setTimeout(() => el.classList.add('on'), 60 + i*70)));
+})();
+</script>
+
+<script>
+/* ===== Make video show/play from first load ===== */
+(function(){
+  const v = document.getElementById('statusVideo');
+  if(!v) return;
+
+  const tryPlay = () => {
+    const p = v.play();
+    if(p && typeof p.catch === "function") p.catch(()=>{});
+  };
+
+  if(document.readyState === "complete" || document.readyState === "interactive"){
+    setTimeout(tryPlay, 50);
+  }else{
+    document.addEventListener("DOMContentLoaded", () => setTimeout(tryPlay, 50));
+  }
+  document.addEventListener("visibilitychange", () => {
+    if(!document.hidden) setTimeout(tryPlay, 50);
+  });
+})();
+</script>
+
+<script>
+/* ===== Ad slider ===== */
+(function(){
+  const slides = Array.from(document.querySelectorAll('.ad-slide'));
+  const dots = Array.from(document.querySelectorAll('#adsDots .dot'));
+  if(!slides.length) return;
+
+  let i = 0;
+  setInterval(() => {
+    slides[i].classList.remove('on');
+    dots[i].classList.remove('on');
+    i = (i + 1) % slides.length;
+    slides[i].classList.add('on');
+    dots[i].classList.add('on');
+  }, 3500);
+})();
+</script>
+
+<script>
+/* ===== Bottom nav active highlight ===== */
+(function(){
+  const items = Array.from(document.querySelectorAll(".bottom-nav .nav-item"));
+  if(!items.length) return;
+
+  function setActiveFromHash(){
+    const h = (location.hash || "#top").toLowerCase();
+    items.forEach(a => a.classList.remove("active"));
+    const hit = items.find(a => (a.getAttribute("href") || "").toLowerCase() === h);
+    (hit || items[0]).classList.add("active");
+  }
+  window.addEventListener("hashchange", setActiveFromHash);
+  setActiveFromHash();
+})();
+</script>
+
+<script>
+/* ===== Currency exchange (auto) ===== */
+(function(){
+  const rowsEl = document.getElementById('fxRows');
+  const updatedEl = document.getElementById('fxUpdated');
+  if(!rowsEl) return;
+
+  const currencies = [
+    { code:'AFN', country:'Afghanistan', flag:"{% static 'img/flags/Afghanistan.png' %}" },
+    { code:'INR', country:'India',       flag:"{% static 'img/flags/india.png' %}" },
+    { code:'IDR', country:'Indonesia',   flag:"{% static 'img/flags/Indonesia.png' %}" },
+    { code:'KES', country:'Kenya',       flag:"{% static 'img/flags/Kenyan.png' %}" },
+    { code:'MYR', country:'Malaysia',    flag:"{% static 'img/flags/Malaysia.png' %}" },
+    { code:'OMR', country:'Oman',        flag:"{% static 'img/flags/Oman.png' %}" },
+    { code:'PKR', country:'Pakistan',    flag:"{% static 'img/flags/pakistan.png' %}" },
+    { code:'PHP', country:'Philippines', flag:"{% static 'img/flags/Philippines.png' %}" },
+    { code:'SAR', country:'Saudi',       flag:"{% static 'img/flags/saudi arabian.png' %}" },
+    { code:'VND', country:'Vietnam',     flag:"{% static 'img/flags/vietnam.png' %}" },
+  ];
+
+  function fmtRate(x){
+    if(!isFinite(x)) return '—';
+    if(x >= 1000) return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(x);
+    if(x >= 100)  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(x);
+    if(x >= 1)    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 }).format(x);
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 4 }).format(x);
+  }
+
+  function render(rates, dateStr){
+    rowsEl.innerHTML = '';
+    currencies.forEach(c => {
+      const rate = rates && rates[c.code];
+      const tr = document.createElement('tr');
+
+      const td1 = document.createElement('td');
+      td1.innerHTML = `
+        <div class="fx-left">
+          <img class="fx-flag" src="${c.flag}" alt="${c.country}">
+          <div style="min-width:0">
+            <div class="fx-code">${c.code}</div>
+            <div class="fx-country">${c.country}</div>
+          </div>
+        </div>
+      `;
+
+      const td2 = document.createElement('td');
+      td2.textContent = '1 USD';
+
+      const td3 = document.createElement('td');
+      td3.style.textAlign = 'right';
+      td3.textContent = (rate ? `${fmtRate(rate)} ${c.code}` : `— ${c.code}`);
+
+      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+      rowsEl.appendChild(tr);
+    });
+
+    const now = new Date();
+    updatedEl.textContent = 'Updated: ' + (dateStr || now.toLocaleString());
+  }
+
+  fetch('https://api.frankfurter.app/latest?from=USD')
+    .then(r => r.ok ? r.json() : Promise.reject(r))
+    .then(data => render(data.rates || {}, data.date))
+    .catch(() => render(null, null));
+})();
+</script>
+
+<script>
+/* ===== Smart hide/show TOP bar on scroll (keep in-flow bottom nav) ===== */
+(function(){
+  const topBar = document.querySelector('.topbar');
+  if(!topBar) return;
+
+  topBar.classList.remove('hide-bar');
+
+  let lastY = window.scrollY || 0;
+  const SCROLL_THRESHOLD = 6;
+
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY || 0;
+    const diff = y - lastY;
+    if(Math.abs(diff) < SCROLL_THRESHOLD) return;
+
+    if(diff > 0) topBar.classList.add('hide-bar');
+    else topBar.classList.remove('hide-bar');
+
+    lastY = y;
+  }, { passive:true });
+})();
+</script>
+<script>
+  /* ✅ Auto-clear dot/badge immediately when user opens notifications */
+  (function(){
+    const a = document.querySelector('.notify-wrap');
+    if(!a) return;
+  
+    a.addEventListener('click', function(){
+      a.classList.remove('has-unread');
+      const b = a.querySelector('.notify-badge');
+      if(b) b.style.display = 'none';
+    }, {passive:true});
+  })();
+  </script>
+
+{% endblock %}

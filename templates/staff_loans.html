@@ -1,0 +1,67 @@
+{% extends "staff_base.html" %}
+{% block title %}Staff - Loans{% endblock %}
+{% block content %}
+  <div class="card-h">
+    <div>
+      <div class="h1">Loan Applications</div>
+      <div class="muted">Edit status only</div>
+    </div>
+    <form method="get" style="display:flex;gap:10px;align-items:center;">
+      <input name="q" value="{{ q }}" placeholder="Search phone..." style="width:240px;">
+      <input name="status" value="{{ status }}" placeholder="Status (PENDING/REVIEW/APPROVED/REJECTED)" style="width:320px;">
+      <button class="savebtn" type="submit">Filter</button>
+    </form>
+  </div>
+
+  <div class="content" style="overflow:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Amount</th>
+          <th>Term</th>
+          <th>Status</th>
+          <th>Save</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in page.object_list %}
+        <tr>
+          <form method="post" action="{% url 'staff_loan_update' loan.id %}">
+            {% csrf_token %}
+            <td>#{{ loan.id }}</td>
+            <td>
+              <a class="u-link" href="{% url 'staff_loan_detail' loan.id %}">
+                {{ loan.user.phone }}
+              </a>
+            </td>
+            <td>{{ loan.amount }}</td>
+            <td>{{ loan.term_months }}</td>
+            <td>
+              <select name="status">
+                {% for v,label in loan.STATUS_CHOICES %}
+                  <option value="{{ v }}" {% if loan.status == v %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td><button class="savebtn" type="submit">Save</button></td>
+          </form>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="muted">No loans</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="pager">
+      {% if page.has_previous %}
+        <a href="?q={{ q }}&status={{ status }}&page={{ page.previous_page_number }}">← Prev</a>
+      {% endif %}
+      <span class="muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}
+        <a href="?q={{ q }}&status={{ status }}&page={{ page.next_page_number }}">Next →</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

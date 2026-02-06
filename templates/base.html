@@ -1,0 +1,668 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}GreenBank{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<style>
+:root{
+  --g1:#0f7a3a;
+  --g2:#22c55e;
+}
+@font-face{
+  font-family: "Ovelion";
+  src: url("/static/fonts/Ovelion-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+.ovelion{
+  font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+  font-weight: 400;
+  letter-spacing: .04em;
+}
+/* ✅ Global responsive & bottom-bar space (apply to all pages) */
+*{ box-sizing:border-box; }
+img,video{ max-width:100%; height:auto; }
+html{ -webkit-text-size-adjust:100%; }
+
+/* bar height + gap សម្រាប់ជាទម្រង់ទំនេរខាងក្រោម */
+:root{ --bar-h:68px; --bar-gap:14px; }
+/* ដាក់ទំហំទំនេរឲ្យ content ពីព្រោះមាន bottom bar fixed */
+body{ padding-bottom: calc(var(--bar-h) + var(--bar-gap)); }
+
+/* ===== Account Status Badge (GLOBAL) ===== */
+.status-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 16px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:13px;
+  letter-spacing:.6px;
+  text-transform:uppercase;
+}
+
+/* ACTIVE (dashboard green) */
+.status-active{
+  background: linear-gradient(180deg,#16a34a,#0f7a3a);
+  color:#ecfdf5;
+  box-shadow: 0 0 0 1px rgba(34,197,94,.45),
+              0 6px 18px rgba(34,197,94,.35);
+}
+
+/* FROZEN / REJECT / ERROR (dashboard red) */
+.status-danger{
+  background: linear-gradient(180deg,#dc2626,#991b1b);
+  color:#fff;
+  box-shadow: 0 0 0 1px rgba(239,68,68,.55),
+              0 6px 18px rgba(239,68,68,.35);
+}
+
+/* ===== BODY (Dashboard background) ===== */
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  background:
+    linear-gradient(rgba(0,0,0,.58),rgba(0,0,0,.78)),
+    url("{% static 'img/SL-012322-48100-03.jpg' %}") center/cover no-repeat fixed;
+  color:#fff;
+  /* Reserve space for fixed bottom bar (height + offset) */
+  padding-bottom: calc(var(--bar-h) + var(--bar-gap));
+}
+
+/* ===== PAGE ENTER/LEAVE ANIMATION ===== */
+.page-enter{
+  animation: pageIn .45s ease both;
+}
+@keyframes pageIn{
+  from{ opacity:0; transform: translateX(16px); }
+  to{ opacity:1; transform: translateX(0); }
+}
+.page-leave{
+  animation: pageOut .22s ease both;
+}
+@keyframes pageOut{
+  from{ opacity:1; transform: translateX(0); }
+  to{ opacity:0; transform: translateX(-14px); }
+}
+
+/* ===== PAGE WRAP ===== */
+.wrap{
+  padding-top:20px;        /* ✅ REMOVE global top space */
+  padding-bottom:26px;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+}
+@media(max-width:480px){
+  .wrap{
+  padding-top: 20;
+}
+
+.wrap.has-topbar{
+  padding-top: 72px; /* ONLY dashboard */
+}
+}
+
+/* ===== GLASS CARD ===== */
+.card{
+  width:100%;
+  max-width:420px;
+  padding:28px;
+  border-radius:18px;
+  background:rgba(255,255,255,.14);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 30px 70px rgba(0,0,0,.45);
+  animation: zoomIn .45s ease;
+  text-align:center;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes zoomIn{
+  from{transform:scale(.85);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+
+/* ===== SILVER RUN TEXT ===== */
+.silver-run{
+  background:linear-gradient(
+    120deg,
+    rgba(255,255,255,.7),
+    rgba(255,255,255,1),
+    rgba(200,200,200,.85),
+    rgba(255,255,255,1),
+    rgba(255,255,255,.7)
+  );
+  background-size:220% 100%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  animation:silverRun 2.6s linear infinite;
+}
+@keyframes silverRun{
+  from{background-position:0%}
+  to{background-position:220%}
+}
+
+/* ===== WAVE EXCLAMATION ===== */
+.wave-bang{
+  display:inline-block;
+  transform-origin:40% 70%;
+  animation:waveBang 1.6s ease-in-out infinite;
+}
+
+@keyframes waveBang{
+  0%{transform:rotate(0)}
+  20%{transform:rotate(-12deg)}
+  40%{transform:rotate(14deg)}
+  60%{transform:rotate(-8deg)}
+  80%{transform:rotate(10deg)}
+  100%{transform:rotate(0)}
+}
+
+/* ===== GRID SYSTEM ===== */
+.grid{
+  display:grid;
+  gap: 12px;
+  grid-template-columns: repeat(12, 1fr);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 14px;
+}
+.col-12{ grid-column: span 12; }
+.col-6{ grid-column: span 6; }
+.col-4{ grid-column: span 4; }
+@media (max-width: 780px){
+  .col-6,.col-4{ grid-column: span 12; }
+}
+
+/* ===== UTILITY CLASSES ===== */
+.row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+h1,h2,h3{ margin:0 0 10px; }
+.muted{
+  color: rgba(255,255,255,.7);
+  font-size: 14px;
+}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration:none;
+  transition: transform .08s ease, opacity .2s ease;
+  user-select:none;
+  white-space:nowrap;
+  font-size: 14px;
+}
+.btn:active{ transform: scale(.98); }
+.btn-primary{
+  background: linear-gradient(90deg, var(--g1), var(--g2));
+  color:#fff;
+}
+.btn-ghost{
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff;
+}
+
+/* ===== FORM STYLES ===== */
+.field{ margin-bottom:12px; }
+label{
+  display:block;
+  font-weight:600;
+  margin-bottom:6px;
+  color: rgba(255,255,255,.9);
+}
+input, select, textarea{
+  width:100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  outline:none;
+  font-size: 14px;
+}
+input::placeholder, textarea::placeholder{
+  color: rgba(255,255,255,.5);
+}
+input:focus, select:focus, textarea:focus{
+  border-color: var(--g2);
+  background: rgba(255,255,255,.15);
+}
+
+/* ===== BADGES ===== */
+.badge{
+  display:inline-block;
+  padding: 6px 12px;
+  border-radius:999px;
+  font-size: 12px;
+  font-weight: 700;
+  border:1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+}
+.b-pending{ background: rgba(245,158,11,.2); border-color: rgba(245,158,11,.4); }
+.b-approved{ background: rgba(34,197,94,.2); border-color: rgba(34,197,94,.4); }
+.b-otp{ background: rgba(59,130,246,.2); border-color: rgba(59,130,246,.4); }
+.b-paid{ background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.45); }
+.b-rejected{ background: rgba(239,68,68,.2); border-color: rgba(239,68,68,.4); }
+
+/* ===== CARD OVERRIDES FOR GRID ===== */
+.grid .card{
+  max-width: 100%;
+  text-align: left;
+}
+
+/* ===== FIXED BOTTOM BAR ===== */
+.fixed-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  height: 60px;
+  background: linear-gradient(90deg, var(--g1), var(--g2));
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  margin: 0 auto;
+  max-width: 800px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.fixed-bottom-bar-content {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap page-enter" id="pageRoot">
+  {% block content %}{% endblock %}
+</div>
+
+<script>
+// Back navigation handling: prefer history back; fallback to /dashboard/. Used globally.
+// Prevent stuck or blank screens on back (including mobile bfcache/pageshow issues).
+
+function flowBack() {
+  // If there's a history (user navigated), go back. Otherwise, fallback.
+  if (window.history.length > 1) {
+    // Try to go back in history. For some browsers this may not leave the app; in those cases, fallback elsewhere.
+    window.history.back();
+
+    // Defensive: after a short timeout, if still same page, do fallback.
+    setTimeout(function() {
+      if (document.visibilityState !== 'hidden' && (performance.navigation && performance.navigation.type !== 2)) {
+        // Not actually navigating back, so fallback.
+        window.location.href = "/dashboard/";
+      }
+    }, 500);
+  } else {
+    window.location.href = "/dashboard/";
+  }
+}
+
+// Prevent stuck/blank screens on page restore from bfcache (pageshow's persisted).
+// If a transition was interrupted, reinstate the correct content and scroll.
+
+(function () {
+  const root = document.getElementById('pageRoot');
+  if (!root) return;
+
+  function saveScroll() {
+    try {
+      sessionStorage.setItem('page-scrollY', window.scrollY.toString());
+      sessionStorage.setItem('page-scrollX', window.scrollX.toString());
+    } catch (e) {}
+  }
+  function restoreScroll() {
+    try {
+      const scrollY = parseInt(sessionStorage.getItem('page-scrollY') || '', 10);
+      const scrollX = parseInt(sessionStorage.getItem('page-scrollX') || '', 10);
+      if (!isNaN(scrollY)) window.scrollTo(scrollX || 0, scrollY);
+    } catch (e) {}
+  }
+  function setNavFlag() {
+    try { sessionStorage.setItem('page-navigate', '1'); } catch (e) {}
+  }
+  function clearNavFlag() {
+    try { sessionStorage.removeItem('page-navigate'); } catch (e) {}
+  }
+  function hasNavFlag() {
+    try { return sessionStorage.getItem('page-navigate') === '1'; }
+    catch (e) { return false; }
+  }
+
+  document.addEventListener('click', function (e) {
+    const a = e.target.closest('a');
+    if (!a) return;
+    const href = a.getAttribute('href') || '';
+    const target = a.getAttribute('target');
+    if (target && target !== '_self') return;
+    if (href.startsWith('#') || href.startsWith('javascript:')) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
+    e.preventDefault();
+    saveScroll();
+    setNavFlag();
+
+    root.classList.remove('page-enter');
+    root.classList.add('page-leave');
+
+    setTimeout(function () {
+      window.location.href = href;
+    }, 180);
+  }, true);
+
+  // Fix for blank/stuck screens on mobile and Safari back/forward navigation (bfcache).
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted || (performance.getEntriesByType("navigation")[0]?.type === "back_forward")) {
+      if (hasNavFlag()) {
+        clearNavFlag();
+        restoreScroll();
+        if (root) {
+          root.classList.remove('page-leave');
+          root.classList.add('page-enter');
+        }
+      } else {
+        // In rare cases, forcibly restore .page-enter
+        if (root && !root.classList.contains('page-enter')) {
+          root.classList.remove('page-leave');
+          root.classList.add('page-enter');
+        }
+      }
+    }
+  });
+
+  clearNavFlag();
+})();
+</script>
+<script>
+  (function(){
+    const API_URL = "/api/realtime/";
+    const INTERVAL_MS = 2000;
+  
+    let timer = null;
+    let lastWithdrawalStatus = null;
+    let lastBalance = null;
+  
+    function qs(sel){ return document.querySelector(sel); }
+  
+    function updateNotif(count){
+      const a = document.querySelector('.notify-wrap');
+      if(!a) return;
+  
+      const n = parseInt(count || 0, 10) || 0;
+  
+      a.classList.toggle('has-unread', n > 0);
+     
+      
+  
+      let b = a.querySelector('.notify-badge');
+      if(n > 0){
+        if(!b){
+          b = document.createElement('span');
+          b.className = 'notify-badge';
+          a.appendChild(b);
+        }
+        if(a.classList.contains('dot-only')){
+          b.textContent = '';
+        }else{
+          b.textContent = (n > 99) ? '99+' : String(n);
+        }
+        b.style.display = 'flex';
+      }else{
+        if(b) b.style.display = 'none';
+      }
+    }
+  
+    function formatStatusText(s){
+  if(!s) return "Active";
+  return String(s)
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function updateAccountStatus(status){
+  const badge = document.getElementById("accStatusBadge");
+  if(!badge) return;
+
+  const st = (status || "active").toLowerCase();
+
+  // ✅ nice label (no _)
+  badge.textContent = formatStatusText(st);
+
+  badge.classList.remove("status-active","status-danger");
+  badge.classList.add(st === "active" ? "status-active" : "status-danger");
+}
+  
+    function applyState(data){
+      if(!data || !data.ok) return;
+  
+      // ✅ notif dot/badge
+      updateNotif(data.notif_count);
+  
+      // ✅ status badge realtime (ALWAYS)
+      updateAccountStatus(data.account_status);
+      const alertBox = document.getElementById("statusAlert");
+if(alertBox){
+  const st = (data.account_status || "active").toLowerCase();
+  const msg = (data.status_message || "").trim();
+
+  if(st === "active"){
+    alertBox.style.display = "none";
+    alertBox.textContent = "";
+  }else{
+    alertBox.style.display = "block";
+    alertBox.textContent = msg || ("Your account is " + formatStatusText(st) + ". Please contact company department.");
+  }
+}
+  
+      // ✅ balance realtime (only update when changed)
+      const balEl = document.querySelector("[data-balance]");
+      if(balEl && data.balance !== undefined && data.balance !== lastBalance){
+        lastBalance = data.balance;
+        balEl.textContent = data.balance;
+      }
+  
+      // ✅ OTP required flag (wallet page)
+      if(typeof window.__setOtpRequired === "function"){
+        window.__setOtpRequired(!!data.otp_required);
+      }
+  
+      // ✅ withdrawal timeline (wallet)
+const status = (data.withdrawal && data.withdrawal.status) || "";
+const holdUntil = window.__walletHoldUntil || 0;
+const now = Date.now();
+
+function setBulletCheck(el){
+  if(!el) return;
+  el.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>';
+}
+function setBulletX(el){
+  if(!el) return;
+  el.innerHTML = '<svg viewBox="0 0 24 24"><path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z"/></svg>';
+}
+
+if(status){
+  const timeline = qs("#timelineBox");
+  const b1 = qs("#b1"), b2 = qs("#b2"), b3 = qs("#b3"), b4 = qs("#b4");
+
+  function on(el){ if(el) el.classList.add("on"); }
+  function off(el){ if(el) el.classList.remove("on"); }
+  function resetBullet(el){
+    if(!el) return;
+    el.classList.remove("rej","rejected","on");
+    setBulletCheck(el);
+  }
+
+  if(timeline) timeline.style.display = "block";
+
+  if(now < holdUntil && status === "processing"){ return; }
+
+  if(status !== lastWithdrawalStatus){
+    lastWithdrawalStatus = status;
+
+    [b1,b2,b3,b4].forEach(resetBullet);
+
+    // reset text
+    const t4 = document.getElementById("t4");
+    const t4msg = document.getElementById("t4msg");
+    if(t4){
+      t4.textContent = "Payment sent";
+      t4.classList.remove("rejected");
+    }
+    if(t4msg){
+      t4msg.textContent = "Only Company can mark this as sent";
+    }
+
+    if(status === "processing"){ on(b1); }
+    if(status === "waiting"){ on(b1); on(b2); }
+    if(status === "reviewed"){ on(b1); on(b2); on(b3); }
+
+    if(status === "paid"){
+      on(b1); on(b2); on(b3); on(b4);
+      setBulletCheck(b4);
+      if(t4) t4.textContent = "Payment sent";
+    }
+
+    if(status === "rejected"){
+      // 1-3 passed
+      on(b1); on(b2); on(b3);
+
+      // 4 = red + X
+      if(b4){
+        b4.classList.add("rejected");
+        b4.classList.remove("on");
+        setBulletX(b4);
+      }
+      if(t4){
+        t4.textContent = "Rejected";
+        t4.classList.add("rejected");
+      }
+      if(t4msg){
+        t4msg.textContent = "Your withdrawal request was rejected.";
+      }
+    }
+  }
+}
+  
+      // ✅ disable withdraw button if balance 0
+      const btn = qs("#withdrawBtn");
+      if(btn){
+        const balNum = parseFloat((data.balance || "0").replace(/,/g,"")) || 0;
+        btn.disabled = !(balNum > 0);
+        btn.style.opacity = btn.disabled ? "0.55" : "1";
+        btn.style.pointerEvents = btn.disabled ? "none" : "auto";
+      }
+    }
+  
+    async function tick(){
+      if(document.hidden) return;
+      try{
+        const res = await fetch(API_URL, {cache:"no-store", credentials:"same-origin"});
+        const data = await res.json();
+        applyState(data);
+      }catch(e){}
+    }
+  
+    function start(){
+      if(timer) return;
+      tick();
+      timer = setInterval(tick, INTERVAL_MS);
+    }
+    function stop(){
+      if(timer){ clearInterval(timer); timer = null; }
+    }
+  
+    document.addEventListener("visibilitychange", function(){
+      if(document.hidden) stop();
+      else start();
+    });
+  
+    start();
+  })();
+  </script>
+  <script>
+    function formatStatus(s){
+    if(!s) return "ACTIVE";
+    return s
+      .toLowerCase()
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+    async function refreshRealtime(){
+      try{
+        const r = await fetch("/api/realtime/", { cache: "no-store" });
+        const data = await r.json();
+  
+        const status = (data.status || data.account_status || "active").toLowerCase();
+  
+        // BADGE
+        const badge = document.getElementById("accStatusBadge");
+        if(badge){
+          badge.textContent = formatStatus(status);
+          badge.classList.remove("status-active","status-danger");
+          badge.classList.add(status === "active" ? "status-active" : "status-danger");
+        }
+  
+        // ALERT
+        const alertBox = document.getElementById("statusAlert");
+        if(alertBox){
+          if(status === "active"){
+            alertBox.style.display = "none";
+          }else{
+            alertBox.style.display = "block";
+            alertBox.textContent =
+            ((data.message || data.status_message || "").trim())
+? (data.message || data.status_message).trim()
+: ("Your account has been " + formatStatus(status) + ". Please contact company department!");
+          }
+        }
+  
+        // BALANCE
+        const balEl = document.querySelector("[data-balance]");
+        if(balEl && data.balance !== undefined){
+          balEl.textContent = data.balance;
+        }
+  
+      }catch(e){}
+    }
+  
+    // refreshRealtime();
+// setInterval(refreshRealtime, 2000);
+    
+  </script>
+  
+</body>
+</html>

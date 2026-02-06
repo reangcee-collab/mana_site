@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block title %}Payment Method{% endblock %}
+
+{% block content %}
+<style>
+  /* ===== Page wrapper ===== */
+  .dash-wrap{
+    width: min(520px, 94vw);
+    margin: 0 auto;
+    padding: 74px 14px 120px; /* leave space for bottom nav */
+    box-sizing: border-box;
+  }
+
+  /* ===== CardX (match dashboard) ===== */
+  .cardx{
+    position: relative;
+    background: rgba(9, 10, 10, 0.788);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 3px 4px rgba(245,245,245,.55),
+                inset 0 1px 0 rgba(163,157,157,.918);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .muted{ color: rgba(255,255,255,.78); }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.16);
+    color:#fff;
+    white-space: nowrap;
+  }
+
+  .pm-section{
+    margin:12px 0;
+    padding:12px;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.16);
+    background:rgba(0,0,0,.14);
+  }
+
+  .pm-title{ font-weight:950; margin-bottom:6px; color:#fff; }
+  .pm-sub{ font-size:12px; margin-bottom:10px; }
+
+  /* make Django inputs look consistent (safe) */
+  .pm-section input, .pm-section select, .pm-section textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(0,0,0,.22);
+    color:#fff;
+    outline:none;
+  }
+  /* ✅ When saved: lock inputs (looks disabled but clean) */
+.pm-locked input,
+.pm-locked select,
+.pm-locked textarea{
+  pointer-events: none;
+  opacity: .65;
+  filter: grayscale(.15);
+}
+
+.pm-locked .muted{
+  opacity: .85;
+}
+  .pm-section input::placeholder{ color: rgba(255,255,255,.55); }
+
+  .hint{
+    margin-top:10px;
+    font-size:12px;
+    line-height:1.4;
+    opacity:.85;
+  }
+
+  .rule-note{
+    margin-top:14px;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.06);
+    font-size: 12px;
+    line-height: 1.45;
+    color: rgba(255,255,255,.82);
+  }
+
+  /* ===== Bottom Nav (MATCH DASHBOARD PILL STYLE) ===== */
+  .bottom-nav{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 18px !important;
+    z-index: 80;
+
+    width: min(520px, 94vw);
+    padding: 12px 14px;
+
+    background: linear-gradient(90deg, #023617, #27dd75);
+    border: 1px solid rgba(255,255,255,.10);
+    border-radius: 26px;
+
+    box-shadow: 0 -10px 30px rgba(0,0,0,.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .nav-inner{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap: 10px;
+  }
+
+  .nav-btn{
+    flex: 1 1 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    padding: 12px 12px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.18);
+
+    color:#fff;
+    text-decoration:none;
+    font-weight:950;
+    letter-spacing:.04em;
+    cursor:pointer;
+  }
+
+  .nav-btn.primary{
+    background: rgba(0,0,0,.25);
+    border-color: rgba(255,255,255,.14);
+  }
+
+  .nav-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+  }
+
+  .lock-note{
+    margin-top:10px;
+    font-size:12px;
+    color: rgba(255,255,255,.72);
+  }
+</style>
+
+<div class="dash-wrap">
+  <div class="cardx">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px;">
+      <div>
+        <h2 style="margin:0;font-size:26px;font-weight:950;">
+          <span class="silver-run">Payment Method</span>
+        </h2>
+        <div class="muted">Add or update your payout details</div>
+      </div>
+
+      <span class="badge">
+        Status:
+        {% if saved %}Saved{% else %}Not set{% endif %}
+      </span>
+    </div>
+
+    <div class="rule-note">
+      ✅ You must complete at least <b>ONE</b> payout method before saving:<br>
+      • Mobile Wallet: <b>Account name + Phone number</b><br>
+      • Bank: <b>Account name + Account number</b><br>
+      PayPal email is optional.
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      <!-- Bank -->
+      <div class="pm-section {% if saved %}pm-locked{% endif %}">
+        <div class="pm-title">Bank</div>
+
+        <div style="display:grid;gap:10px;">
+          <div>
+            <div class="muted" style="font-size:12px;margin-bottom:6px;">Account name</div>
+            {{ form.bank_name }}
+          </div>
+          <div>
+            <div class="muted" style="font-size:12px;margin-bottom:6px;">Account number</div>
+            {{ form.bank_account }}
+          </div>
+        </div>
+      </div>
+      <div class="pm-section {% if saved %}pm-locked{% endif %}">
+        <div class="pm-title">Mobile Wallet</div>
+
+        <div style="display:grid;gap:10px;">
+          <div>
+            <div class="muted" style="font-size:12px;margin-bottom:6px;">Account name</div>
+            {{ form.wallet_name }}
+          </div>
+          <div>
+            <div class="muted" style="font-size:12px;margin-bottom:6px;">Phone number</div>
+            {{ form.wallet_phone }}
+          </div>
+        </div>
+      </div>
+
+      <!-- PayPal (optional) -->
+      <div class="pm-section {% if saved %}pm-locked{% endif %}">
+        <div class="pm-title">PayPal (Optional)</div>
+        <div class="muted pm-sub">Bind PayPal email (safe)</div>
+
+        <div>
+          <div class="muted" style="font-size:12px;margin-bottom:6px;">PayPal email</div>
+          {{ form.paypal_email }}
+          <div class="muted hint">
+            Note: For security, we don’t store card/CVV here. PayPal handles payments on their side.
+          </div>
+        </div>
+      </div>
+
+      {% if locked %}
+        <div class="lock-note">Locked: Please contact staff to update.</div>
+      {% endif %}
+
+      <div class="bottom-nav">
+        <div class="nav-inner">
+          <a class="nav-btn" href="{% url 'dashboard' %}">Back</a>
+
+          {% if locked %}
+            <button class="nav-btn primary" type="button" disabled>Saved</button>
+          {% else %}
+            <button class="nav-btn primary" type="submit">Save</button>
+          {% endif %}
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{% block title %}Staff{% endblock %}</title>
+  {% load static %}
+
+  <style>
+/* ===============================
+   MODALS
+   =============================== */
+.logout-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);z-index:9999;padding:18px 14px;box-sizing:border-box}
+.logout-modal.show{display:flex}
+.logout-box{width:min(420px,92vw);background:rgba(25,25,25,.92);border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:16px;color:#fff}
+.logout-title{font-weight:950;font-size:16px;margin-bottom:6px}
+.logout-text{font-size:13px;opacity:.9;line-height:1.45;margin-bottom:14px}
+.logout-actions{display:flex;gap:10px;justify-content:flex-end}
+.btn-cancel{height:40px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;font-weight:900;cursor:pointer}
+.btn-confirm{height:40px;padding:0 16px;border-radius:999px;border:0;font-weight:900;cursor:pointer;background:linear-gradient(90deg,#044a72,#969fac);color:#fff}
+
+/* ✅ Message Modal (ONLY ONE in base) */
+#msgModal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+#msgModal .modal-box{
+  width: min(720px, 94vw);
+  background: rgba(248, 248, 248, 0.979);
+  border-radius: 18px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.747);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+#msgModal h3{
+  margin: 0 0 12px;
+  font-family: 'Ovelion', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+#msgTextarea{
+  width: 100%;
+  max-width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.25);
+  background: rgba(0, 0, 0, 0.856);
+  color: #fff;
+  font-family: 'Ovelion', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  outline: none;
+}
+#msgTextarea:focus{
+  border-color: rgba(0, 0, 0, 0.76);
+  box-shadow: 0 0 0 1px rgba(84, 92, 87, 0.61);
+}
+#msgModal .modal-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ===============================
+   FONT
+   =============================== */
+@font-face{
+  font-family: "Ovelion";
+  src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+.user-font{
+  font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+  font-weight: 400 !important;
+  letter-spacing: .04em;
+}
+.u-link{ text-decoration:none; font-weight:800; display:inline-block; }
+
+/* ===============================
+   ANIMATIONS
+   =============================== */
+@keyframes slideInRightToLeft {
+  from { transform: translateX(70px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slideInLeftToRight {
+  from { transform: translateX(-70px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slideInTopToBottom{
+  from { transform: translateY(-18px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+.pill.pill-anim-top{ animation: slideInTopToBottom 1200ms ease-out both; will-change: transform, opacity; }
+.card.card-anim{ animation: slideInRightToLeft 1200ms ease-out both; }
+.card.card-anim-left{ animation: slideInLeftToRight 1200ms ease-out both; }
+
+/* ===============================
+   THEME
+   =============================== */
+:root{
+  --bg1:#061a10; --bg2:#02130a;
+  --card:rgba(213, 233, 218, 0.582);
+  --stroke:rgba(255,255,255,.10);
+  --txt:rgba(255,255,255,.98);
+  --muted:rgba(255,255,255,.84);
+  --green:#22c55e;
+}
+
+html, body{ height:100%; }
+body{
+  font-family: 'Ovelion', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background:
+    linear-gradient(rgba(6,26,16,.55), rgba(2,19,10,.75)),
+    url("{% static 'img/staff-bg.jpg' %}");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+}
+
+.wrap{
+  width: calc(100vw - 20px);
+  margin: 10px auto;
+  padding: 0;
+  box-sizing: border-box;
+  height: calc(100vh - 20px);
+}
+
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:16px;
+}
+.brand{font-family: 'Ovelion', inherit;font-weight: 400;letter-spacing: .04em;}
+.pill{
+  display:inline-flex; gap:10px; align-items:center;
+  padding:10px 14px; border-radius:14px;
+  background:rgba(0,0,0,.35); border:1px solid var(--stroke);
+  backdrop-filter:blur(14px);
+}
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  gap:10px;
+  padding:10px 14px; border-radius:14px;
+  color:var(--txt); text-decoration:none; font-weight:800;
+  border:1px solid var(--stroke);
+  background:rgba(0,0,0,.45);
+  font-family: 'Ovelion', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+.btn:hover{ transform:translateY(-1px); }
+
+.card{
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:20px;
+  box-shadow:0 18px 50px rgba(92, 92, 92, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.801);
+  backdrop-filter:blur(18px);
+  overflow:hidden;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+/* ✅ Allow inner card scroll on detail pages */
+.card{ min-height:0; }        /* already ok but keep */
+.content{
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ✅ IMPORTANT: allow scroll inside form pages too */
+/* ✅ IMPORTANT: allow scroll inside form pages too (ONLY direct page form, not table forms) */
+.card > form{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  height:100%;
+}
+.card > form > .content{
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+}
+.card-h{
+  padding:16px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid rgba(255, 255, 255, 0.856);
+}
+.h1{
+  font-family: 'Ovelion', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: .04em;
+}
+.muted{ color:var(--muted); font-size:14px; }
+
+.grid{
+  display:grid;
+  gap: 12px;
+  height: 100%;
+  align-items: stretch;
+}
+@media(min-width:900px){
+  .grid{ grid-template-columns: 300px 1fr; }
+}
+
+.dot{
+  width:10px; height:10px; border-radius:999px;
+  background:rgba(34,197,94,.9);
+  box-shadow:0 0 16px rgba(34,197,94,.55);
+}
+
+/* ===== Menu items ===== */
+.menu-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding:12px 14px; border-radius:14px;
+  text-decoration:none; color:var(--txt);
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.22);
+  margin:10px 12px;
+
+  font-family: 'Ovelion', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: .02em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.menu-left{ display:flex; align-items:center; gap:12px; }
+.menu-icon{ width:22px; height:22px; object-fit:contain; flex:0 0 22px; }
+.menu-text{ font-weight:800; }
+.menu-arrow{ opacity:.75; }
+
+.menu-item:hover{
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.623),
+    0 8px 22px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.18);
+  border-color:rgba(34,197,94,.26);
+}
+.menu-item.active{
+  border-color: rgba(255,255,255,.28);
+  background: linear-gradient(135deg, rgb(255, 255, 255), rgba(5, 166, 241, 0.349));
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.623),
+    0 0 22px rgba(0, 0, 0, 0.384),
+    inset 0 1px 0 rgba(255,255,255,.22);
+  color:#0b2430;
+}
+.menu-item.active .menu-arrow,
+.menu-item.active .menu-text{ color:#0b2430; }
+
+.menu-item:active{
+  background: rgba(255,255,255,.85);
+  color: #0b2430;
+  border-color: rgba(12, 11, 11, 0.65);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,.22),
+    0 0 0 1px rgba(255,255,255,.35);
+  transform: translateY(1px);
+}
+.menu-item:active .menu-arrow{ opacity:.8; }
+
+/* ===== Main scroll area inside card ===== */
+.content{
+  padding:14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 90px;   /* ✅ ចុងក្រោយមិនបាត់ */
+  scroll-padding-bottom: 90px;
+}
+/* ✅ Professional scrollbar spacing */
+.content{
+  scrollbar-gutter: stable both-edges; /* Chrome/Edge */
+  padding-right: 18px;                /* space for scrollbar */
+}
+.content{
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+/* Chrome/Edge scrollbar */
+.content::-webkit-scrollbar{ width: 10px; }
+.content::-webkit-scrollbar-track{
+  background: rgba(0,0,0,.15);
+  border-radius: 999px;
+}
+.content::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.28);
+  border-radius: 999px;
+}
+.content::-webkit-scrollbar-thumb:hover{
+  background: rgba(255,255,255,.38);
+}
+/* ===== Table baseline (works for staff pages) ===== */
+table{ width:100%; border-collapse:collapse; table-layout: fixed; }
+thead tr{ border-bottom: 1px solid rgba(255, 255, 255, 0.911); }
+tbody tr{ border-bottom: 1px solid rgba(255, 255, 255, 0.911); }
+th,td{
+  padding:10px 10px;
+  border-bottom: 0;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+td{ color: rgba(255,255,255,.96); }
+th{ text-align:left; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.90); }
+
+input,select{
+  width:100%; box-sizing:border-box;
+  padding:10px 12px; border-radius:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0, 0, 0, 0.829);
+  color:var(--txt);
+  outline:none;
+}
+
+.row-actions{ display:flex; gap:8px; }
+
+.savebtn{
+  padding: 14px 16px;
+  min-width: 74px;
+  border-radius:12px;
+  font-size: 13px;
+  border:1px solid rgba(255,255,255,.22);
+  background: linear-gradient(135deg, rgba(18, 122, 170, 0.89), rgba(0, 0, 0, 0.911));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.12),
+    0 0 22px rgba(34,197,94,.14),
+    inset 0 1px 0 rgba(26, 25, 25, 0.22);
+  color:var(--txt);
+  cursor:pointer;
+  font-family: 'Ovelion', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.savebtn:active{
+  background: rgba(255,255,255,.85);
+  color: #0b2430;
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,.25),
+    0 0 0 1px rgba(255,255,255,.6);
+  transform: translateY(1px);
+}
+.savebtn:focus{
+  outline: none;
+  background: rgba(255,255,255,.78);
+  color: #0b2430;
+}
+
+.pager{ display:flex; gap:10px; align-items:center; justify-content:flex-end; padding:12px 14px; }
+.pager a{ color:var(--txt); text-decoration:none; font-weight:800; opacity:.85; }
+.pager a:hover{ opacity:1; }
+
+/* ===== Status select styling ===== */
+.status-select{ background: rgba(0,0,0,.35); color:#fff; font-weight:600; border: 1px solid rgba(255,255,255,.18); }
+.status-select option.status-active{ background-color:#22c55e; color:#fff; }
+.status-select option.status-danger{ background-color:#ef4444; color:#fff; }
+.status-select:has(option:checked.status-danger){
+  background:#FF2C2C;
+  border-color:#FF2C2C;
+  color:#fff;
+  box-shadow: 0 0 0 2px rgba(255,44,44,.95), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.status-select:has(option:checked.status-active){
+  border-color: rgba(34,197,94,.7);
+  box-shadow: 0 0 0 1px rgba(34,197,94,.35);
+}
+.inline-form{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap: nowrap;
+    }
+    .inline-form select{
+      width:auto !important;
+      min-width: 180px;
+      flex: 1 1 auto;
+    }
+    .inline-form .savebtn{
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="pill pill-anim-top">
+        <div class="brand">Login By</div>
+        <div class="muted">({{ request.user.phone }})</div>
+      </div>
+      <div class="pill pill-anim-top">
+        <a class="btn" href="{% url 'staff_dashboard' %}">Dashboard</a>
+        <a class="btn" href="#" id="staffLogoutBtn">Logout</a>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT MENU -->
+      <div class="card side card-anim-left">
+        <div class="card-h">
+          <div class="h1">Menu</div>
+          <span class="dot"></span>
+        </div>
+
+        <a href="{% url 'staff_users' %}"
+           class="menu-item {% if request.resolver_match.url_name == 'staff_users' %}active{% endif %}">
+          <span class="menu-left">
+            <img src="{% static 'icons/users.png' %}" class="menu-icon" alt="">
+            <span class="menu-text">Users</span>
+          </span>
+          <span class="menu-arrow">→</span>
+        </a>
+
+        <a href="{% url 'staff_loans' %}"
+           class="menu-item {% if request.resolver_match.url_name == 'staff_loans' %}active{% endif %}">
+          <span class="menu-left">
+            <img src="{% static 'icons/loans.png' %}" class="menu-icon" alt="">
+            <span class="menu-text">Loans</span>
+          </span>
+          <span class="menu-arrow">→</span>
+        </a>
+
+        <a href="{% url 'staff_withdrawals' %}"
+           class="menu-item {% if request.resolver_match.url_name == 'staff_withdrawals' %}active{% endif %}">
+          <span class="menu-left">
+            <img src="{% static 'icons/withdrawals.png' %}" class="menu-icon" alt="">
+            <span class="menu-text">Withdrawals</span>
+          </span>
+          <span class="menu-arrow">→</span>
+        </a>
+
+        <a href="{% url 'staff_payment_methods' %}"
+           class="menu-item {% if request.resolver_match.url_name == 'staff_payment_methods' %}active{% endif %}">
+          <span class="menu-left">
+            <img src="{% static 'icons/payments.png' %}" class="menu-icon" alt="">
+            <span class="menu-text">Payment Methods</span>
+          </span>
+          <span class="menu-arrow">→</span>
+        </a>
+      </div>
+
+      <!-- RIGHT CONTENT -->
+      <div class="card card-anim">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ ONE Message Modal (shared for ALL staff pages) -->
+  <div id="msgModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-label="Edit Message">
+      <h3 id="msgTitle">Edit message</h3>
+      <textarea id="msgTextarea" placeholder="Type message here..."></textarea>
+      <div class="modal-actions">
+        <button type="button" class="btn" onclick="applyMsg()">OK</button>
+        <button type="button" class="btn" onclick="closeMsgModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Staff Logout Confirm Modal -->
+  <div id="staffLogoutModal" class="logout-modal" aria-hidden="true">
+    <div class="logout-box" role="dialog" aria-modal="true" aria-label="Confirm Logout">
+      <div class="logout-title">Confirm Logout</div>
+      <div class="logout-text">Are you sure you want to logout?</div>
+
+      <div class="logout-actions">
+        <button type="button" class="btn-cancel" id="staffLogoutCancel">Cancel</button>
+
+        <form method="post" action="{% url 'staff_logout' %}" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-confirm">Logout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Scripts MUST be inside body -->
+  <script>
+    // ============ Staff Logout Modal ============
+    (function(){
+      const btn = document.getElementById("staffLogoutBtn");
+      const modal = document.getElementById("staffLogoutModal");
+      const cancel = document.getElementById("staffLogoutCancel");
+      if(!btn || !modal) return;
+
+      function openModal(e){
+        if(e) e.preventDefault();
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden","false");
+      }
+      function closeModal(){
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden","true");
+      }
+
+      btn.addEventListener("click", openModal);
+      if(cancel) cancel.addEventListener("click", closeModal);
+
+      modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+      document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+    })();
+
+    // ============ Message Modal (shared) ============
+    window.__msgModalInput = window.__msgModalInput || null;
+
+    function openMsgModal(input){
+      window.__msgModalInput = input;
+
+      const modal = document.getElementById("msgModal");
+      const textarea = document.getElementById("msgTextarea");
+      const title = document.getElementById("msgTitle");
+
+      textarea.value = input.value || "";
+      title.textContent = (input.dataset.type === "alert")
+        ? "Edit ALERT message"
+        : "Edit CONGRATULATION message";
+
+      modal.style.display = "flex";
+      modal.setAttribute("aria-hidden","false");
+      textarea.focus();
+    }
+
+    function closeMsgModal(){
+      const modal = document.getElementById("msgModal");
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden","true");
+      window.__msgModalInput = null;
+    }
+
+    function applyMsg(){
+      if(!window.__msgModalInput) return;
+      const textarea = document.getElementById("msgTextarea");
+      window.__msgModalInput.value = textarea.value;
+      closeMsgModal();
+    }
+  </script>
+</body>
+</html>

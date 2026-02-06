@@ -1,0 +1,216 @@
+from decimal import Decimal
+from django.conf import settings
+from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+
+
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, phone, password, **extra_fields):
+        if not phone:
+            raise ValueError("The phone number must be set")
+        phone = str(phone).strip()
+
+        user = self.model(phone=phone, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault("is_active", True)
+        return self._create_user(phone, password, **extra_fields)
+
+    def create_superuser(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True.")
+
+        return self._create_user(phone, password, **extra_fields)
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+
+    ACCOUNT_STATUS_CHOICES = [
+    ("ACTIVE", "Active"),
+    ("FROZEN", "Frozen"),
+    ("REJECTED", "Rejected"),
+    ("NEW_OTP_CODE", "New OTP code"),
+    ("INVALID_BANK_ACCOUNT", "Invalid bank account number"),
+    ("LOW_CREDIT_SCORE", "Low Credit Score"),
+    ("NEW_DOCUMENTS_REQUIRED", "New Documents Required"),
+    ("TAX_VERIFICATION", "Tax Verification"),
+    ("VIP_CHANNEL", "VIP Channel"),
+    ("OVERDUE", "Overdue"),
+]
+# Notification message (admin -> user)
+    notification_message = models.TextField(blank=True, default="")
+    notification_updated_at = models.DateTimeField(null=True, blank=True)
+    # ✅ NEW (approval / success message)
+    success_message = models.TextField(blank=True, default="")
+    success_message_updated_at = models.DateTimeField(null=True, blank=True)
+    # ✅ read flags (keep message, but hide dot after read)
+    notification_is_read = models.BooleanField(default=True)
+    success_is_read = models.BooleanField(default=True)
+
+    phone = models.CharField(max_length=20, unique=True)
+    balance = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0.00"))
+    status_message = models.CharField(max_length=220, blank=True, default="")
+
+    account_status = models.CharField(
+        max_length=22,
+        choices=ACCOUNT_STATUS_CHOICES,
+        default="active"
+    )
+
+    withdraw_otp = models.CharField(max_length=10, blank=True, default="")
+
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    objects = UserManager()
+
+    USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return self.phone
+
+
+
+class LoanConfig(models.Model):
+    """
+    Admin can change interest/min/max later (no code change).
+    Keep only 1 row in DB.
+    """
+    interest_rate_monthly = models.DecimalField(
+        max_digits=10, decimal_places=6, default=Decimal("0.000300")
+    )  # 0.03% = 0.0003
+    min_amount = models.DecimalField(
+        max_digits=14, decimal_places=2, default=Decimal("200000.00")
+    )
+    max_amount = models.DecimalField(
+        max_digits=14, decimal_places=2, default=Decimal("60000000.00")
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Loan Config"
+    
+
+
+class LoanApplication(models.Model):
+    STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("REVIEW", "In Review"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="loan_applications",
+    )
+
+    # 1) information required
+    full_name = models.CharField(max_length=120)
+    age = models.PositiveIntegerField()
+    current_living = models.CharField(max_length=160)
+    hometown = models.CharField(max_length=160)
+    income = models.CharField(max_length=120, blank=True)
+    monthly_expenses = models.CharField(max_length=120, blank=True)
+
+    guarantor_contact = models.CharField(max_length=80)
+    guarantor_current_living = models.CharField(max_length=160)
+    identity_name = models.CharField(max_length=120)
+    identity_number = models.CharField(max_length=80)
+
+    income_proof = models.FileField(upload_to="income_proof/", blank=True, null=True)
+
+    id_front = models.ImageField(upload_to="id_cards/", blank=True, null=True)
+    id_back = models.ImageField(upload_to="id_cards/", blank=True, null=True)
+    selfie_with_id = models.ImageField(upload_to="id_cards/", blank=True, null=True)
+    signature_image = models.ImageField(upload_to="signatures/", blank=True, null=True)
+
+    # 2) apply loan
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
+    term_months = models.PositiveIntegerField()
+
+    # snapshot values (keep correct old applications if rate changes later)
+    interest_rate_monthly = models.DecimalField(max_digits=10, decimal_places=6)
+    monthly_repayment = models.DecimalField(max_digits=14, decimal_places=2)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
+    created_at = models.DateTimeField(auto_now_add=True)
+    loan_purposes = models.JSONField(default=list, blank=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.amount} - {self.term_months}m - {self.status}"
+class PaymentMethod(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="payment_method"
+    )
+
+    # Mobile wallet
+    wallet_name  = models.CharField(max_length=120, blank=True)
+    wallet_phone = models.CharField(max_length=40, blank=True)
+
+    # Bank
+    bank_name    = models.CharField(max_length=120, blank=True)
+    bank_account = models.CharField(max_length=80, blank=True)
+
+    # PayPal
+    paypal_email = models.EmailField(blank=True)
+
+    # lock after first submit
+    locked = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} PaymentMethod"        
+
+class WithdrawalRequest(models.Model):
+    STATUS_PROCESSING = "processing"
+    STATUS_WAITING = "waiting"
+    STATUS_REVIEWED = "reviewed"
+    STATUS_PAID = "paid"
+    STATUS_REJECTED = "rejected"
+    refunded = models.BooleanField(default=False)
+    staff_otp = models.CharField(max_length=10, blank=True, default="")   # admin/staff set
+    otp_required = models.BooleanField(default=False)                     # admin toggle
+
+
+
+    STATUS_CHOICES = [
+        (STATUS_PROCESSING, "Processing"),
+        (STATUS_WAITING, "Waiting for approval"),
+        (STATUS_REVIEWED, "Reviewed"),
+        (STATUS_PAID, "Payment sent"),
+        (STATUS_REJECTED, "Rejected"),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="withdrawals")
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    currency = models.CharField(max_length=10, default="PKR")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PROCESSING)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user} {self.amount} {self.currency} ({self.status})"

@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contract{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --c1:#023617;
+    --c2:#27dd75;
+    --ink:#0b0f0c;
+    --paper:#ffffff;
+    --mut:#4b5563;
+    --line:#e7e7e7;
+  }
+
+  /* container */
+  .ct-wrap{
+  width: min(900px, 94vw);
+  margin: 0 auto;
+  padding: 14px 14px 26px;   /* ✅ remove big top space */
+  box-sizing: border-box;
+}
+
+/* ✅ Mobile: little tighter */
+@media (max-width: 520px){
+  .ct-wrap{
+    padding: 10px 12px 20px;
+  }
+}
+
+  .paper{
+  background: var(--paper);
+  color: #111827;
+  border-radius: 18px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.35);
+  overflow: hidden;
+
+  position: relative; /* ✅ add this */
+}
+
+
+/* Back button shape like picture */
+.back-btn{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 42px;
+  padding: 0 22px 0 28px;   /* left a bit bigger */
+  border-radius: 12px;
+
+  background: #e7e7e7;
+  color: #111827;
+  font-weight: 800;
+  text-decoration: none;
+
+  border: 1px solid rgba(0,0,0,.18);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+/* left arrow tip */
+.back-btn::before{
+  content:"";
+  position:absolute;
+  left: -14px;
+  width: 0; height: 0;
+  border-top: 21px solid transparent;
+  border-bottom: 21px solid transparent;
+  border-right: 14px solid #e7e7e7; /* same as button */
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,.16));
+}
+
+/* hover/active */
+.back-btn:hover{
+  transform: translateY(-1px);
+}
+.back-btn:active{
+  transform: translateY(0px);
+  opacity: .92;
+}
+
+/* Mobile adjustments */
+@media (max-width:520px){
+  .top-actions{ padding: 10px 12px 0; }
+  .top-actions-line{ margin: 10px 12px 0; }
+  .back-btn{ height: 40px; padding: 0 18px 0 24px; font-size: 13px; }
+  .back-btn::before{
+    left: -13px;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-right: 13px solid #e7e7e7;
+  }
+}
+
+  /* header like sample */
+  .head{
+  position: relative;
+  padding: 16px 18px 14px;   /* ⬅️ បន្ថយ top padding */
+  border-bottom: 1px solid var(--line);
+
+  background: linear-gradient(
+    90deg,
+    rgba(2,54,23,.95),
+    rgba(39,221,117,.85)
+  );
+
+  color: #fff;
+  /* ✅ align ជាមួយ paper */
+}
+
+  .head-inner{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 16px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    min-width: 220px;
+  }
+  .brand-logo{
+    width:54px;height:54px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.22);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    flex: 0 0 auto;
+  }
+  .brand-logo img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .brand-title{
+    line-height: 1.05;
+    font-weight: 950;
+    letter-spacing: .02em;
+    font-size: 20px;
+  }
+  .brand-sub{
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: .92;
+    font-weight: 700;
+  }
+
+  .contact{
+    text-align:right;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: .95;
+    max-width: 360px;
+  }
+  .contact .row{ display:flex; gap:8px; justify-content:flex-end; }
+  .contact b{ font-weight: 900; }
+
+  /* body */
+  .body{
+    padding: 18px;
+  }
+
+  .top-grid{
+    display:grid;
+    grid-template-columns: 1fr; /* ✅ DATE removed */
+    gap: 14px;
+    align-items:start;
+  }
+
+  .box{
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    background: #fbfbfb;
+  }
+
+  .box h4{
+    margin: 0 0 10px;
+    font-size: 13px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #111827;
+  }
+
+  .kv{
+  display: grid;
+  grid-template-columns: 1fr auto; /* ✅ label អោយវែង, value auto -> ទៅស្ដាំ */
+  gap: 10px 18px;
+  font-size: 13px;
+  color: #111827;
+  align-items: center;
+}
+
+@media (max-width: 520px){
+  .kv{
+    grid-template-columns: 120px 1fr; /* still 2 columns on phone */
+  }
+}
+  .k{ color: #374151; font-weight: 800; }
+  .v{
+  color: #111827;
+  font-weight: 700;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px;
+
+  justify-self: end;     /* ✅ value ទៅចុងស្ដាំ */
+  text-align: right;     /* ✅ អក្សរ align ស្ដាំ */
+  min-width: 90px;      /* ✅ អោយ column value មានទំហំស្អាត */
+}
+
+.v::after{
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--c1), var(--c2));
+  border-radius: 99px;
+  opacity: .85;
+}
+
+
+  .sep{
+    height: 2px;
+    background: linear-gradient(90deg, var(--c1), var(--c2));
+    border-radius: 99px;
+    margin: 16px 0;
+    opacity: .85;
+  }
+
+  .subject{
+    margin-top: 4px;
+    font-size: 13px;
+    font-weight: 950;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .para{
+    font-size: 13px;
+    line-height: 1.7;
+    color: #111827;
+    margin-top: 10px;
+  }
+
+  .muted{ color: var(--mut); }
+
+  .sig{
+    margin-top: 20px;
+    display:grid;
+    gap: 10px;
+    max-width: 520px;
+  }
+  .sig .line{
+    border-bottom: 2px solid #111827;
+    height: 24px;
+    width: 100%;
+  }
+
+  /* footer band like sample */
+  .foot{
+    padding: 12px 18px;
+    border-top: 1px solid var(--line);
+    background: #f6f7f7;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: #111827;
+  }
+  .foot .badge{
+    border: 1px solid rgba(2,54,23,.22);
+    background: rgba(39,221,117,.12);
+    color: #023617;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 900;
+  }
+</style>
+
+<div class="ct-wrap">
+  <div class="paper">
+    <!-- TOP ACTIONS -->
+<div class="top-actions">
+  <a class="back-btn" href="{% url 'quick_loan' %}">
+    Back
+  </a>
+</div>
+<div class="top-actions-line"></div>
+
+    <!-- HEADER -->
+    <div class="head">
+      <div class="head-inner">
+
+        <div class="brand">
+          <div class="brand-logo">
+            {# ✅ later you will replace this file name with your logo #}
+            <img src="{% static 'img/logo.png' %}" alt="Logo">
+          </div>
+          <div>
+            <div class="brand-title">MONEYTAP CONTRACT</div>
+          </div>
+        </div>
+
+        <div class="contact">
+          <div class="row"><b>Support:</b> <span class="muted">Company Department</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+
+      <div class="top-grid">
+        <div class="box">
+          <h4>To</h4>
+
+          <div class="kv">
+            <div class="k">Full name</div>
+            <div class="v">{{ full_name|default:"—" }}</div>
+
+            <div class="k">Phone number</div>
+            <div class="v">{{ phone|default:"—" }}</div>
+
+            <div class="k">Currently living</div>
+            <div class="v">{{ current_living|default:"—" }}</div>
+
+            <div class="k">Loan amount</div>
+            <div class="v">Rs {{ amount|default:"0.00" }}</div>
+
+            <div class="k">Terms</div>
+            <div class="v">{{ term_months|default:"—" }} months</div>
+
+            <div class="k">Interest rate</div>
+            <div class="v">{{ interest_rate|default:"0.03" }}%</div>
+
+            <div class="k">Monthly repayment</div>
+            <div class="v">Rs {{ monthly_repayment|default:"0.00" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="subject">SUBJECT: LOAN CONTRACT AGREEMENT.</div>
+
+      <div class="para">
+        Dear <b>{{ full_name|default:"Client" }}</b>,
+      </div>
+
+      <div class="para muted">
+        This contract confirms the loan request and repayment responsibilities under the company policy. By continuing to use this service, you agree to the terms below.
+      </div>
+
+      <div class="para">
+        <b>1) Loan Details:</b> The borrower requests the loan amount and term shown above. The monthly repayment shown is a calculated estimate based on the current interest rate.
+      </div>
+
+      <div class="para">
+        <b>2) Repayment:</b> The borrower must repay on time according to the repayment schedule provided in the system. Late payments may result in account restrictions or additional verification.
+      </div>
+
+      <div class="para">
+        <b>3) Verification:</b> The company may request additional documents at any time for security, risk checks, or compliance purposes.
+      </div>
+
+      <div class="para">
+        <b>4) Communication:</b> Important notices can be sent to your notifications section. Please check regularly.
+      </div>
+
+      <div class="para">
+        Thank you for using our service.
+      </div>
+
+      <div class="sig">
+        <div class="para" style="margin:0;"><b>Sincerely,</b></div>
+        <div class="line"></div>
+        <div class="muted" style="font-size:12px;">Authorized Company Signature</div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="foot">
+      <div class="badge">Office Hours</div>
+      <div class="muted">Monday–Friday: 9:00 AM – 6:00 PM</div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

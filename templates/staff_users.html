@@ -1,0 +1,117 @@
+{% extends "staff_base.html" %}
+{% block title %}Staff - Users{% endblock %}
+
+{% block content %}
+  <div class="card-h">
+    <div>
+      <div class="h1">Users</div>
+      <div class="muted">Edit status, OTP, messages</div>
+    </div>
+
+    <form method="get" style="display:flex;gap:10px;align-items:center;">
+      <input name="q" value="{{ q }}" placeholder="Search phone..." style="width:260px;" autocomplete="off">
+      <button class="savebtn" type="submit">Search</button>
+    </form>
+  </div>
+
+  <div class="content">
+    <table>
+      <thead>
+        <tr>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>BALANCE</th>
+          <th>Withdraw OTP</th>
+          <th>Active</th>
+          <th>Alert message</th>
+          <th>Congrat message</th>
+          <th>Save</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for u in page.object_list %}
+
+          {# ✅ Create ONE unique form per user (NO wrapping <tr>) #}
+          <form id="uform-{{ u.id }}" method="post" action="{% url 'staff_user_update' u.id %}" autocomplete="off">
+            {% csrf_token %}
+          </form>
+
+          <tr>
+            <td class="phone">
+              <a class="u-link" href="{% url 'staff_user_detail' u.id %}">{{ u.phone }}</a>
+            </td>
+
+            <td>
+              <select name="account_status" class="status-select" form="uform-{{ u.id }}">
+                {% for v,label in u.ACCOUNT_STATUS_CHOICES %}
+                  <option
+                    value="{{ v }}"
+                    class="{% if v == 'ACTIVE' %}status-active{% else %}status-danger{% endif %}"
+                    {% if u.account_status == v %}selected{% endif %}
+                  >{{ label }}</option>
+                {% endfor %}
+              </select>
+            </td>
+
+            <td>
+              <input name="balance" value="{{ u.balance }}" form="uform-{{ u.id }}" autocomplete="off">
+            </td>
+
+            <td>
+              <input name="withdraw_otp" value="{{ u.withdraw_otp }}" form="uform-{{ u.id }}" autocomplete="off">
+            </td>
+
+            <td>
+              <select name="is_active" form="uform-{{ u.id }}">
+                <option value="True" {% if u.is_active %}selected{% endif %}>ON</option>
+                <option value="False" {% if not u.is_active %}selected{% endif %}>OFF</option>
+              </select>
+            </td>
+
+            <td>
+              <input
+                name="notification_message"
+                value="{{ u.notification_message|default:'' }}"
+                readonly
+                class="msg-input"
+                data-type="alert"
+                onclick="openMsgModal(this)"
+                form="uform-{{ u.id }}"
+              >
+            </td>
+
+            <td>
+              <input
+                name="success_message"
+                value="{{ u.success_message|default:'' }}"
+                readonly
+                class="msg-input"
+                data-type="congrat"
+                onclick="openMsgModal(this)"
+                form="uform-{{ u.id }}"
+              >
+            </td>
+
+            <td class="row-actions">
+              <button class="savebtn" type="submit" form="uform-{{ u.id }}">Save</button>
+            </td>
+          </tr>
+
+        {% empty %}
+          <tr><td colspan="8" class="muted">No users</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="pager">
+      {% if page.has_previous %}
+        <a href="?q={{ q }}&page={{ page.previous_page_number }}">← Prev</a>
+      {% endif %}
+      <span class="muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+      {% if page.has_next %}
+        <a href="?q={{ q }}&page={{ page.next_page_number }}">Next →</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

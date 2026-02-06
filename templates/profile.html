@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<style>
+  /* ✅ Apply Ovillon to ALL text on this page */
+  body, body *{
+  font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+}
+
+  /* Back button shape like picture */
+  .back-btn{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 22px 0 28px;   /* left a bit bigger */
+    border-radius: 12px;
+
+    background: #13111185;
+    color: #ffffffc9;
+    font-weight: 800;
+    text-decoration: none;
+
+    border: 1px solid rgba(189, 189, 189, 0.164);
+    box-shadow:
+      0 6px 14px rgba(0,0,0,.18),
+      inset 0 1px 0 rgba(255,255,255,.65);
+  }
+  .back-btn:hover{ transform: translateY(-1px); }
+  .back-btn:active{ transform: translateY(0px); opacity: .92; }
+
+  @media (max-width:520px){
+    .top-actions{ padding: 10px 12px 0; }
+    .top-actions-line{ margin: 10px 12px 0; }
+    .back-btn{ height: 40px; padding: 0 18px 0 24px; font-size: 13px; }
+    .back-btn::before{
+      left: -13px;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-right: 13px solid #e7e7e7;
+    }
+  }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.78)),
+      url("{% static 'img/SL-012322-48100-03.jpg' %}") center / cover no-repeat fixed !important;
+    color:#fff;
+  }
+  .wrap{
+    align-items:flex-start !important;
+    justify-content:center !important;
+    padding-top:72px !important;
+  }
+  .p-wrap{
+    width: min(520px, 94vw);
+    margin: 0 auto;
+    padding: 14px;
+    box-sizing: border-box;
+  }
+
+  /* ===== cards ===== */
+  .cardx{
+    position: relative;
+    background: rgba(9, 10, 10, 0.76);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 3px 4px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+  .h-title{
+    font-weight:950;
+    font-size:18px;
+    letter-spacing:.02em;
+  }
+  .h-sub{
+    font-size:12px;
+    opacity:.75;
+    margin-top:2px;
+  }
+  .mini{
+    padding:6px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.10);
+    background: #1e2222a1;
+    color:#fafafa;
+    font-weight:850;
+    font-size:12px;
+    white-space:nowrap;
+  }
+
+  .menu{
+    display:grid;
+    gap:12px;
+  }
+  .p-btn{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 14px;
+    text-decoration:none;
+    color:#fff;
+
+    position: relative;
+    background: rgb(9, 10, 10);
+    border-radius: 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 2px 2px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    overflow: hidden;
+
+    border:0;
+    opacity:1;
+    transform:none;
+    transition:none;
+    margin-bottom:12px;
+  }
+  .p-btn::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    padding:3px;
+    border-radius:16px;
+    background: linear-gradient(
+      135deg,
+      rgba(10, 10, 10, 0.788),
+      rgba(44, 38, 38, 0.26),
+      rgba(67, 68, 68, 0.288),
+      rgb(46, 46, 46)
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events:none;
+  }
+  .p-btn::after{
+    content:"";
+    position:absolute;
+    inset:-50% -50%;
+    background: radial-gradient(circle at 25% 25%,
+      rgba(49, 44, 44, 0.329),
+      rgba(255,255,255,0) 55%);
+    pointer-events:none;
+  }
+  .p-btn:active{ transform: none; }
+
+  .left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+  .ico{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background: rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.10);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex: 0 0 auto;
+  }
+  .ico svg{ width:20px; height:20px; fill:#fff; opacity:.95; }
+
+  .txt{ min-width:0; }
+  .t1{
+    font-weight:950;
+    font-size:14px;
+    letter-spacing:.02em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .t2{
+    font-size:12px;
+    opacity:.75;
+    margin-top:2px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .chev{
+    width:30px;
+    height:30px;
+    border-radius:999px;
+    background: rgba(0,0,0,.20);
+    border:1px solid rgba(255,255,255,.14);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 auto;
+  }
+  .chev svg{ width:16px; height:16px; fill:#fff; opacity:.95; }
+
+  /* ===== Logout Confirm Modal ===== */
+  .logout-modal{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,.62);
+    z-index:9999;
+    padding: 18px 14px;
+    box-sizing:border-box;
+  }
+  .logout-modal.show{ display:flex; }
+
+  .logout-box{
+    width:min(420px, 92vw);
+    background: rgba(25,25,25,.92);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.55);
+    overflow:hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 16px;
+  }
+  .logout-title{
+    font-weight: 950;
+    letter-spacing:.2px;
+    font-size:16px;
+    margin-bottom:6px;
+  }
+  .logout-text{
+    font-size:13px;
+    opacity:.9;
+    line-height:1.45;
+    margin-bottom:14px;
+  }
+  .logout-actions{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+  }
+  .btn-cancel{
+    height:40px;
+    padding:0 16px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.08);
+    color:#fff;
+    font-weight: 900;
+    cursor:pointer;
+  }
+  .btn-confirm{
+    height:40px;
+    padding:0 16px;
+    border-radius:999px;
+    border:0;
+    font-weight: 900;
+    cursor:pointer;
+    background: linear-gradient(90deg, #0f7a3a, #22c55e);
+    color:#fff;
+  }
+</style>
+
+<div class="p-wrap">
+  {% if request.user.status_message %}
+    <div class="muted" style="margin-top:8px;">{{ request.user.status_message }}</div>
+  {% endif %}
+
+  <div id="statusAlert"
+       style="display:none; margin-bottom:12px; padding:12px 14px; border-radius:14px;
+              background: rgba(220, 38, 38, 0.658); border:1px solid rgba(220,38,38,.26);
+              color:#fff; font-weight:900; text-align:center;">
+  </div>
+
+  <div class="cardx" id="profile-currency-section">
+    <div class="head">
+      <div>
+        <div class="h-title">Profile</div>
+        <div class="h-sub">Account: {{ request.user.phone }}</div>
+      </div>
+
+      {% if request.user.account_status == "active" %}
+        <span id="accStatusBadge"
+          class="status-badge {% if request.user.account_status|lower == 'active' %}status-active{% else %}status-danger{% endif %}">
+          {{ request.user.account_status|upper }}
+        </span>
+      {% endif %}
+    </div>
+
+    <div style="font-size:12px; opacity:.85;">
+      <div class="amount">Rs <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
+    </div>
+  </div>
+
+  <div class="menu" id="menu">
+    <a class="p-btn" href="/credit-score/">
+      <div class="left">
+        <div class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 19h16v2H4zM6 17V7h3v10H6zm5 0V4h3v13h-3zm5 0v-9h3v9h-3z"/></svg>
+        </div>
+        <div class="txt">
+          <div class="t1">Credit Score</div>
+          <div class="t2">View your score & level</div>
+        </div>
+      </div>
+      <div class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <a class="p-btn" href="/loan-apply/">
+      <div class="left">
+        <div class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6V2zm9 1.5V6h2.5L15 3.5zM8 9h8v2H8V9zm0 4h8v2H8v-2zm0 4h6v2H8v-2z"/></svg>
+        </div>
+        <div class="txt">
+          <div class="t1">Loan Application</div>
+          <div class="t2">Apply & track your status</div>
+        </div>
+      </div>
+      <div class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <a class="p-btn" href="/transactions/">
+      <div class="left">
+        <div class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 7h14v4H7V7zM3 6h3v6H3V6zm4 9h14v4H7v-4zM3 14h3v6H3v-6z"/></svg>
+        </div>
+        <div class="txt">
+          <div class="t1">Transactions</div>
+          <div class="t2">History of deposits & withdrawals</div>
+        </div>
+      </div>
+      <div class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <a class="p-btn" href="{% url 'payment_method' %}">
+      <div class="left">
+        <div class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 7h18v10H3V7zm2 2v2h14V9H5zm0 4v2h6v-2H5z"/></svg>
+        </div>
+        <div class="txt">
+          <div class="t1">Payment Method</div>
+          <div class="t2">Add payout details</div>
+        </div>
+      </div>
+      <div class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <a class="p-btn" href="/payment-schedule/">
+      <div class="left">
+        <div class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm14 8H3V8h18v2z"/></svg>
+        </div>
+        <div class="txt">
+          <div class="t1">Payment Schedule</div>
+          <div class="t2">Installments & due dates</div>
+        </div>
+      </div>
+      <div class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+
+    <!-- ✅ Logout button => open confirm modal -->
+    <a class="p-btn" href="#" id="logoutBtn" aria-label="Logout">
+      <div class="left">
+        <div class="ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M10 17l1.4-1.4-2.6-2.6H20v-2H8.8l2.6-2.6L10 7l-7 7 7 7zM4 4h7V2H4a2 2 0 0 0-2 2v6h2V4zm0 18h7v-2H4v-6H2v6a2 2 0 0 0 2 2z"/></svg>
+        </div>
+        <div class="txt">
+          <div class="t1">Logout</div>
+          <div class="t2">Securely exit your account</div>
+        </div>
+      </div>
+      <div class="chev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </a>
+  </div>
+
+  <!-- TOP ACTIONS -->
+  <div class="top-actions">
+    <a class="back-btn" href="{% url 'dashboard' %}">Back</a>
+  </div>
+  <div class="top-actions-line"></div>
+
+  <!-- ✅ Logout Confirm Modal -->
+  <div id="logoutModal" class="logout-modal" aria-hidden="true">
+    <div class="logout-box" role="dialog" aria-modal="true" aria-label="Confirm Logout">
+      <div class="logout-title">Confirm Logout</div>
+      <div class="logout-text">Are you sure you want to logout?</div>
+
+      <div class="logout-actions">
+        <button type="button" class="btn-cancel" id="logoutCancel">Cancel</button>
+
+        <form method="post" action="/logout/" style="margin:0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-confirm" id="logoutConfirm">Logout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const btn = document.getElementById("logoutBtn");
+    const modal = document.getElementById("logoutModal");
+    const cancel = document.getElementById("logoutCancel");
+    if(!btn || !modal) return;
+
+    function openModal(e){
+      if(e) e.preventDefault();
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden","false");
+    }
+    function closeModal(){
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden","true");
+    }
+
+    btn.addEventListener("click", openModal);
+    if(cancel) cancel.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape") closeModal();
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+{% block title %}Quick Loan{% endblock %}
+
+{% block content %}
+<style>
+  .wrap{ align-items:flex-start; }
+
+  .page{
+    width: min(520px, 94vw);
+    margin: 0 auto;
+    padding: 14px 14px 24px;
+    box-sizing: border-box;
+  }
+
+  .cardx{
+    position: relative;
+    background: rgba(9, 10, 10, 0.856);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 3px 6px rgba(245,245,245,.40), inset 0 1px 0 rgba(163,157,157,.35);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  /* Back button shape like picture */
+.back-btn{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 42px;
+  padding: 0 22px 0 28px;   /* left a bit bigger */
+  border-radius: 12px;
+
+  background: #e7e7e7;
+  color: #111827;
+  font-weight: 800;
+  text-decoration: none;
+
+  border: 1px solid rgba(0,0,0,.18);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.18),
+    inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+
+
+/* hover/active */
+.back-btn:hover{
+  transform: translateY(-1px);
+}
+.back-btn:active{
+  transform: translateY(0px);
+  opacity: .92;
+}
+
+/* Mobile adjustments */
+@media (max-width:520px){
+  .top-actions{ padding: 10px 12px 0; }
+  .top-actions-line{ margin: 10px 12px 0; }
+  .back-btn{ height: 40px; padding: 0 18px 0 24px; font-size: 13px; }
+  .back-btn::before{
+    left: -13px;
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-right: 13px solid #e7e7e7;
+  }
+}
+
+  input[type="number"]{
+    width:100%;
+    height:40px;
+    min-height:40px;
+    max-height:40px;
+    resize:none;
+    box-sizing:border-box;
+  }
+  input[readonly]{ opacity:.92; }
+
+  .term-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-top:10px;
+  }
+  @media(max-width:520px){
+    .term-grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  .term-btn{
+    padding:12px 0;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.22);
+    background:rgba(255,255,255,.10);
+    color:#fff;
+    font-weight:800;
+    cursor:pointer;
+    transition: transform .08s ease, opacity .2s ease;
+  }
+  .term-btn:active{ transform:scale(.98); }
+  .term-btn.active{
+    background:linear-gradient(90deg,var(--g1),var(--g2));
+    border-color:rgba(34,197,94,.55);
+  }
+  .term-btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none !important;
+  }
+
+  .summary{
+    margin-top: 10px;
+    border-top: 1px solid rgba(255,255,255,.14);
+    padding-top: 10px;
+    display:grid;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .summary .row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .summary .k{ opacity:.80; }
+  .summary .v{ font-weight: 900; }
+
+  .cta{ margin-top: 12px; width: 100%; }
+  .hint{ margin-top:8px; opacity:.85; }
+
+  /* ===== Application Status UI ===== */
+  .status-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .status-title{
+    font-size:22px;
+    font-weight:950;
+    margin:0;
+    color:#fff;
+  }
+  .status-sub{
+    margin-top:6px;
+    opacity:.85;
+    line-height:1.35;
+  }
+  .mini-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding: 7px 10px;
+    border-radius:999px;
+    font-weight:950;
+    font-size:12px;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.16);
+    color:#fff;
+    white-space: nowrap;
+  }
+  .mini-pill.is-rejected{
+  background: rgba(255, 44, 44, .18);
+  border: 1px solid rgba(255, 44, 44, .65);
+  color: #ff4a4a;
+  box-shadow: 0 10px 26px rgba(255, 44, 44, .12);
+}
+
+  .status-btn{
+    flex:0 0 auto;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.18);
+    color:#fff;
+    font-weight:950;
+    letter-spacing:.02em;
+    cursor:pointer;
+  }
+
+  .step-row{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .dot{
+    width:34px; height:34px; border-radius:999px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:950;
+    border:1px solid rgba(255,255,255,.18);
+    background:rgba(0,0,0,.18);
+    color:rgba(255,255,255,.75);
+  }
+  .dot.active{
+    background:rgba(39,221,117,.22);
+    border-color:rgba(39,221,117,.55);
+    color:#fff;
+  }
+  .line{
+    flex:1; height:3px; border-radius:999px;
+    background:rgba(255,255,255,.18);
+  }
+  .line.active{ background:rgba(39,221,117,.75); }
+  .step-labels{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:10px;
+    font-size:12px;
+    color:rgba(255,255,255,.78);
+  }
+  .step-labels.three{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align:center;
+  margin-top:8px;
+  font-size:12px;
+  opacity:.85;
+}
+.reject-alert{
+  margin-top:12px;
+  border-radius:16px;
+  padding:14px;
+  border:1px solid rgba(255,60,60,.45);
+  background: rgba(255,60,60,.12);
+}
+.reject-alert .ra-title{ font-weight:900; }
+.reject-alert .ra-text{ opacity:.9; margin-top:6px; }
+</style>
+
+<div class="page">
+
+  <!-- ===== Card 1: Amount/Term ===== -->
+  <div class="cardx">
+    <div class="top-actions">
+      <a class="back-btn" href="{% url 'dashboard' %}">
+        Back
+      </a>
+    </div>
+    <div class="top-actions-line"></div>
+    <div class="field">
+      <label>Loan amount (Min 200,000 • Max 60,000,000)</label>
+      <input
+        type="number"
+        id="qAmount"
+        min="200000"
+        max="60000000"
+        placeholder="Enter amount"
+        {% if loan %}readonly{% endif %}
+      >
+    </div>
+
+    <div class="field" style="margin-top:12px;">
+      <label>Loan terms</label>
+      <input type="hidden" id="qTerm">
+
+      <div class="term-grid">
+        <button type="button" class="term-btn" data-term="6"  {% if loan %}disabled{% endif %}>6</button>
+        <button type="button" class="term-btn" data-term="12" {% if loan %}disabled{% endif %}>12</button>
+        <button type="button" class="term-btn" data-term="24" {% if loan %}disabled{% endif %}>24</button>
+        <button type="button" class="term-btn" data-term="36" {% if loan %}disabled{% endif %}>36</button>
+        <button type="button" class="term-btn" data-term="48" {% if loan %}disabled{% endif %}>48</button>
+        <button type="button" class="term-btn" data-term="60" {% if loan %}disabled{% endif %}>60</button>
+      </div>
+
+      <div class="muted hint" id="qHint">Choose months</div>
+    </div>
+
+    <div class="summary" aria-live="polite">
+      <div class="row"><div class="k">Amount of loan</div><div class="v" id="qSumAmount">—</div></div>
+      <div class="row"><div class="k">Interest rate</div><div class="v">0.03%</div></div>
+      <div class="row"><div class="k">Loan period</div><div class="v" id="qSumTerm">—</div></div>
+      <div class="row"><div class="k">Monthly repayment</div><div class="v" id="qSumMonthly">—</div></div>
+    </div>
+
+    <button class="btn btn-primary cta" type="button" id="goApply" style="opacity:.65" disabled>
+      Continue to Application
+    </button>
+  </div>
+
+  <!-- ===== Card 2: Application Status (HIDDEN until: loan exists + payment method locked) ===== -->
+  <div class="cardx" id="statusCard" style="display:none;">
+    <div class="status-head">
+      <div>
+        <h2 class="status-title">Application Status</h2>
+        <div class="muted status-sub" id="statusText">
+          Our team is reviewing your documents. Please wait.
+        </div>
+      </div>
+      <span class="mini-pill" id="statusPill">PENDING</span>
+    </div>
+    <div class="reject-alert" id="rejectAlert" style="display:none;">
+      <div class="ra-title">Application Rejected</div>
+      <div class="ra-text">Your application was rejected. You can submit again.</div>
+    </div>
+
+    <div class="step-row">
+      <div class="dot active" id="s1">1</div>
+      <div class="line" id="l1"></div>
+      <div class="dot" id="s2">2</div>
+      <div class="line" id="l2"></div>
+      <div class="dot" id="s3">3</div>
+    </div>
+
+    <div class="step-labels three">
+      <div>Under review</div>
+      <div>Initial approval</div>
+      <div>Paid</div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <a class="status-btn" href="{% url 'contract' %}">View contract →</a>
+    </div>
+
+<script>
+  const amountEl = document.getElementById("qAmount");
+  const termEl = document.getElementById("qTerm");
+  const hint = document.getElementById("qHint");
+
+  const outAmount = document.getElementById("qSumAmount");
+  const outTerm = document.getElementById("qSumTerm");
+  const outMonthly = document.getElementById("qSumMonthly");
+
+  const btns = document.querySelectorAll(".term-btn");
+  const goBtn = document.getElementById("goApply");
+
+  function fmt(n){
+    try { return Number(n).toLocaleString(); } catch (e) { return String(n); }
+  }
+
+  function update(){
+    const amount = Number(amountEl?.value || 0);
+    const term = Number(termEl?.value || 0);
+
+    if (outAmount) outAmount.textContent = amount > 0 ? ("Rs " + fmt(amount)) : "—";
+    if (outTerm) outTerm.textContent = term > 0 ? (term + " months") : "—";
+
+    const rate = 0.0003;
+    if(amount > 0 && term > 0){
+      const total = amount + (amount * rate * term);
+      const monthly = total / term;
+      if (outMonthly) outMonthly.textContent = "Rs " + fmt(Math.round(monthly));
+
+      {% if not loan %}
+        goBtn.disabled = false;
+        goBtn.style.opacity = "1";
+      {% endif %}
+    } else {
+      if (outMonthly) outMonthly.textContent = "—";
+      {% if not loan %}
+        goBtn.disabled = true;
+        goBtn.style.opacity = ".65";
+      {% endif %}
+    }
+  }
+
+  btns.forEach((b)=>{
+    b.addEventListener("click", ()=>{
+      {% if loan %} return; {% endif %}
+      btns.forEach((x)=>x.classList.remove("active"));
+      b.classList.add("active");
+      if (termEl) termEl.value = b.dataset.term || "";
+      if (hint) hint.textContent = (b.dataset.term || "") + " months";
+      update();
+    });
+  });
+
+  if (amountEl){
+    amountEl.addEventListener("input", ()=>{
+      {% if loan %} return; {% endif %}
+      update();
+    });
+  }
+
+  {% if loan %}
+    // ✅ LOCKED: fill from DB
+    if (amountEl) amountEl.value = "{{ loan.amount }}";
+    if (termEl) termEl.value = "{{ loan.term_months }}";
+
+    btns.forEach((b)=>{
+      if ((b.dataset.term || "") === "{{ loan.term_months }}"){
+        b.classList.add("active");
+        if (hint) hint.textContent = "{{ loan.term_months }} months";
+      } else {
+        b.classList.remove("active");
+      }
+    });
+
+    goBtn.textContent = "Submitted";
+    goBtn.disabled = true;
+    goBtn.style.opacity = ".65";
+  {% else %}
+    goBtn.addEventListener("click", ()=>{
+      const amount = amountEl?.value || "";
+      const term = termEl?.value || "";
+      if(!amount || !term) return;
+      window.location.href = "{% url 'loan_apply' %}?amount=" + encodeURIComponent(amount) + "&term=" + encodeURIComponent(term);
+    });
+  {% endif %}
+
+  update();
+
+  // ===== Status Tracker (poll API) =====
+  function stepFromStatus(st){
+    const s = String(st || "").toUpperCase();
+    if(s === "PENDING") return 1;
+    if(s === "REVIEW") return 2;
+    if(s === "APPROVED") return 3;
+    if(s === "PAID") return 4;
+    return 1;
+  }
+
+  function applyStep(n, label){
+    const dots = [null, "s1", "s2", "s3", "s4"];
+    const lines = [null, "l1", "l2", "l3"];
+
+    for(let i=1;i<=4;i++){
+      const d = document.getElementById(dots[i]);
+      if (d){
+        const isDone = i < n;      // completed steps
+        const isActive = i <= n;   // active + done
+
+        d.classList.toggle("active", isActive);
+
+        // ✅ show tick for completed steps, number for current/future
+        d.textContent = isDone ? "✓" : String(i);
+      }
+
+      if(i<=3){
+        const ln = document.getElementById(lines[i]);
+        if (ln) ln.classList.toggle("active", i < n);
+      }
+    }
+
+    const pill = document.getElementById("statusPill");
+    if (pill) pill.textContent = String(label || "PENDING").toUpperCase();
+
+    const text = document.getElementById("statusText");
+    const map = {
+      1: "Our team is reviewing your documents. Please wait.",
+      2: "Initial approval in progress. Please wait.",
+      3: "Final approval. Almost done.",
+      4: "Paid. Your loan has been completed."
+    };
+    if (text) text.textContent = map[n] || map[1];
+  }
+
+  async function pollLoanStatus(){
+    try{
+      const r = await fetch("{% url 'loan_status_api' %}", {
+        headers: {"X-Requested-With":"XMLHttpRequest"}
+      });
+      const j = await r.json();
+
+      const card = document.getElementById("statusCard");
+
+      // ✅ ONLY show when backend says show=True
+      if(!j || !j.ok || !j.show){
+        if(card) card.style.display = "none";
+        return;
+      }
+
+      if(card) card.style.display = "block";
+      const pill = document.getElementById("statusPill");
+const isRejected = String(j.status || "").toUpperCase() === "REJECTED";
+if (pill) pill.classList.toggle("is-rejected", isRejected);
+
+      if(String(j.status || "").toUpperCase() === "REJECTED"){
+        applyStep(1, "REJECTED");
+        const t = document.getElementById("statusText");
+        if (t) t.textContent = "Rejected. Please contact company department.";
+        return;
+      }
+
+      const n = stepFromStatus(j.status);
+      applyStep(n, j.status_label || j.status);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  pollLoanStatus();
+  setInterval(pollLoanStatus, 10000);
+</script>
+{% endblock %}

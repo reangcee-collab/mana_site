@@ -2,6 +2,9 @@ from pathlib import Path
 import os
 import dj_database_url
 
+# ======================
+# BASE
+# ======================
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ======================
@@ -14,22 +17,27 @@ def env_list(key: str, default: str = ""):
 # ======================
 # ENV / MODE
 # ======================
-# Railway: set DEBUG=False in Variables
 DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true", "yes", "on")
-
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me-please-123456789")
 
-# ✅ Hosts / CSRF (Railway)
 # Railway Variables recommended:
 # ALLOWED_HOSTS = sitemana-production.up.railway.app
 # CSRF_TRUSTED_ORIGINS = https://sitemana-production.up.railway.app
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,sitemana-production.up.railway.app")
-CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "https://sitemana-production.up.railway.app")
+ALLOWED_HOSTS = env_list(
+    "ALLOWED_HOSTS",
+    "localhost,127.0.0.1,sitemana-production.up.railway.app"
+)
+CSRF_TRUSTED_ORIGINS = env_list(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://sitemana-production.up.railway.app"
+)
 
 # ======================
 # APPS
 # ======================
 INSTALLED_APPS = [
+    "cloudinary",
+    "cloudinary_storage",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -40,6 +48,9 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
 ]
 
+# ======================
+# MIDDLEWARE
+# ======================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -74,7 +85,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 # ======================
 # DATABASE
 # ======================
-# Railway will provide DATABASE_URL automatically if you add Postgres.
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
@@ -99,20 +109,34 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "/login/"
 
 # ======================
-# STATIC / MEDIA
+# STATIC
 # ======================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# ======================
+# CLOUDINARY (MEDIA)
+# ======================
+# Railway Variables:
+# CLOUDINARY_CLOUD_NAME
+# CLOUDINARY_API_KEY
+# CLOUDINARY_API_SECRET
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+# (Optional) If your templates use MEDIA_URL somewhere:
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 # ======================
 # SECURITY (Production only)
@@ -126,7 +150,6 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-    # Railway runs behind proxy
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # ======================

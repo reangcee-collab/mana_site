@@ -116,24 +116,31 @@ LOGIN_URL = "/login/"
 # STATIC
 # ======================
 # ======================
+# ======================
 # STATIC / MEDIA
 # ======================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-# ======================
-# CLOUDINARY (MEDIA)
-# ======================
+
+# ✅ Cloudinary config
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
 }
-# ✅ Cloudinary MEDIA
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-MEDIA_URL = "/media/"   # (នៅទុកបាន តែ Cloudinary នឹង handle upload)
+# ✅ Django 4.2+/5+ use STORAGES (IMPORTANT)
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+MEDIA_URL = "/media/"
 
 # ======================
 # SECURITY (Production only)

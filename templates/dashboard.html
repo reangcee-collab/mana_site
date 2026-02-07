@@ -915,28 +915,38 @@
 </script>
 
 <script>
-/* ===== Smart hide/show TOP bar on scroll (keep in-flow bottom nav) ===== */
-(function(){
-  const topBar = document.querySelector('.topbar');
-  if(!topBar) return;
-
-  topBar.classList.remove('hide-bar');
-
-  let lastY = window.scrollY || 0;
-  const SCROLL_THRESHOLD = 6;
-
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY || 0;
-    const diff = y - lastY;
-    if(Math.abs(diff) < SCROLL_THRESHOLD) return;
-
-    if(diff > 0) topBar.classList.add('hide-bar');
-    else topBar.classList.remove('hide-bar');
-
-    lastY = y;
-  }, { passive:true });
-})();
-</script>
+  /* ===== Smart hide/show TOP bar on scroll (disable on Android for smooth) ===== */
+  (function(){
+    const topBar = document.querySelector('.topbar');
+    if(!topBar) return;
+  
+    const ua = (navigator.userAgent || "").toLowerCase();
+    const isAndroid = ua.includes("android");
+  
+    // ✅ Android: keep bar always visible (NO scroll listener = smoother)
+    if(isAndroid){
+      topBar.classList.remove('hide-bar');
+      return;
+    }
+  
+    // ✅ iPhone/PC: keep your smart hide/show
+    topBar.classList.remove('hide-bar');
+  
+    let lastY = window.scrollY || 0;
+    const SCROLL_THRESHOLD = 6;
+  
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY || 0;
+      const diff = y - lastY;
+      if(Math.abs(diff) < SCROLL_THRESHOLD) return;
+  
+      if(diff > 0) topBar.classList.add('hide-bar');
+      else topBar.classList.remove('hide-bar');
+  
+      lastY = y;
+    }, { passive:true });
+  })();
+  </script>
 <script>
   /* ✅ Auto-clear dot/badge immediately when user opens notifications */
   (function(){

@@ -737,12 +737,6 @@ textarea{
   function fmt(x){
     try{ return new Intl.NumberFormat().format(x); }catch(e){ return String(x); }
   }
-
-  
-
-  amountEl?.addEventListener('input', recalc);
-  termEl?.addEventListener('change', recalc);
-  recalc();
   
 </script>
 <script>

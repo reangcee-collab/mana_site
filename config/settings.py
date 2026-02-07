@@ -12,7 +12,9 @@ DEBUG = True  # ✅ keep True while developing locally
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me-please-123456789")
 
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+import os
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 # ======================
 # APPS

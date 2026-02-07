@@ -572,6 +572,24 @@
   .bottom-nav{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
   .fx-table thead th{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
 }
+/* =========================
+   ✅ STEP 1: Mobile/Android performance mode
+   - Keep blur on iPhone/PC
+   - Disable blur on phone/Android (smooth)
+   ========================= */
+   @media (hover: none) and (pointer: coarse){
+  /* Turn off heavy blur on mobile */
+  .cardx{
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(0,0,0,.72) !important; /* still looks glass-like */
+  }
+
+  /* Optional: reduce very heavy shadows a bit */
+  .cardx{
+    box-shadow: 0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
+  }
+}
 </style>
 
 <div id="top"></div>

@@ -115,28 +115,18 @@ LOGIN_URL = "/login/"
 # ======================
 # STATIC
 # ======================
+# ======================
+# STATIC / MEDIA
+# ======================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# ======================
-# CLOUDINARY (MEDIA)
-# ======================
-# Railway Variables:
-# CLOUDINARY_CLOUD_NAME
-# CLOUDINARY_API_KEY
-# CLOUDINARY_API_SECRET
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
-}
-
+# ✅ Cloudinary MEDIA
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# (Optional) If your templates use MEDIA_URL somewhere:
-MEDIA_URL = "/media/"
+MEDIA_URL = "/media/"   # (នៅទុកបាន តែ Cloudinary នឹង handle upload)
 
 # ======================
 # SECURITY (Production only)

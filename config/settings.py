@@ -1,20 +1,30 @@
 from pathlib import Path
 import os
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ======================
+# ENV HELPERS
+# ======================
+def env_list(key: str, default: str = ""):
+    val = os.getenv(key, default)
+    return [x.strip() for x in val.split(",") if x.strip()]
+
+# ======================
 # ENV / MODE
 # ======================
-# local: set DEBUG=True
-# deploy: set DEBUG=False (and set env vars)
-DEBUG = True  # ✅ keep True while developing locally
+# Railway: set DEBUG=False in Variables
+DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true", "yes", "on")
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me-please-123456789")
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me-please-123456789")
 
-import os
-
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+# ✅ Hosts / CSRF (Railway)
+# Railway Variables recommended:
+# ALLOWED_HOSTS = sitemana-production.up.railway.app
+# CSRF_TRUSTED_ORIGINS = https://sitemana-production.up.railway.app
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1,sitemana-production.up.railway.app")
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", "https://sitemana-production.up.railway.app")
 
 # ======================
 # APPS
@@ -61,16 +71,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-import dj_database_url
-
+# ======================
+# DATABASE
+# ======================
+# Railway will provide DATABASE_URL automatically if you add Postgres.
 DATABASES = {
     "default": dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=False
+        ssl_require=False,
     )
 }
 
+# ======================
+# AUTH / I18N
+# ======================
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -83,28 +98,26 @@ TIME_ZONE = "Asia/Phnom_Penh"
 USE_I18N = True
 USE_TZ = True
 
-# ======================
-# STATIC / MEDIA
-# ======================
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "/login/"
 
 # ======================
+# STATIC / MEDIA
+# ======================
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# ======================
 # SECURITY (Production only)
 # ======================
-# ✅ Only enable these when DEBUG=False on real hosting with HTTPS
 if not DEBUG:
-    ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",") if os.environ.get("ALLOWED_HOSTS") else []
-
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -112,8 +125,13 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+    # Railway runs behind proxy
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# ======================
+# JAZZMIN
+# ======================
 JAZZMIN_SETTINGS = {
     "site_title": "Loan Admin",
     "site_header": "Loan Admin",
@@ -123,4 +141,3 @@ JAZZMIN_SETTINGS = {
     "show_sidebar": True,
     "navigation_expanded": True,
 }
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

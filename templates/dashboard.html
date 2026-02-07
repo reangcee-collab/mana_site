@@ -577,19 +577,21 @@
    - Keep blur on iPhone/PC
    - Disable blur on phone/Android (smooth)
    ========================= */
-   @media (hover: none) and (pointer: coarse){
-  /* Turn off heavy blur on mobile */
-  .cardx{
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(0,0,0,.72) !important; /* still looks glass-like */
-  }
-
-  /* Optional: reduce very heavy shadows a bit */
-  .cardx{
-    box-shadow: 0 10px 26px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.10) !important;
-  }
+/* ===== STEP 2: Keep blur on iPhone/PC, disable blur on Android only ===== */
+.android-no-blur .cardx,
+.android-no-blur .bottom-nav,
+.android-no-blur .topbar,
+.android-no-blur .fx-table thead th,
+.android-no-blur .video-card{
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
+
+/* keep look glass (but cheap for android) */
+.android-no-blur .cardx{
+  background: rgba(0,0,0,.72) !important;
+}
+
 </style>
 
 <div id="top"></div>
@@ -948,5 +950,14 @@
     }, {passive:true});
   })();
   </script>
+<script>
+  /* ===== STEP 2: Detect Android and add class ===== */
+  (function(){
+    var ua = (navigator.userAgent || "").toLowerCase();
+    if(ua.includes("android")){
+      document.documentElement.classList.add("android-no-blur");
+    }
+  })();
+  </script>  
 
 {% endblock %}

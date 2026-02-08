@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 import dj_database_url
+import cloudinary
 
 # ======================
 # BASE
@@ -18,15 +19,13 @@ def env_list(key: str, default: str = ""):
 # ENV / MODE
 # ======================
 DEBUG = os.getenv("DEBUG", "False").lower() in ("1", "true", "yes", "on")
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me-please-123456789")
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
 
-# Railway Variables recommended:
-# ALLOWED_HOSTS = sitemana-production.up.railway.app
-# CSRF_TRUSTED_ORIGINS = https://sitemana-production.up.railway.app
 ALLOWED_HOSTS = env_list(
     "ALLOWED_HOSTS",
     "localhost,127.0.0.1,sitemana-production.up.railway.app"
 )
+
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
     "https://sitemana-production.up.railway.app"
@@ -113,54 +112,41 @@ AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "/login/"
 
 # ======================
-# STATIC
-# ======================
-# ======================
-# ======================
 # STATIC / MEDIA
 # ======================
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = "/media/"
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-    "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-},
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
 }
 
-# Cloudinary config (use Railway Variables)
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
-}
-CLOUDINARY_URL = os.getenv("CLOUDINARY_URL", "")
-
-if CLOUDINARY_URL:
-    cloudinary.config(cloudinary_url=CLOUDINARY_URL, secure=True)
-else:
-    cloudinary.config(
-        cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", ""),
-        api_key=os.getenv("CLOUDINARY_API_KEY", ""),
-        api_secret=os.getenv("CLOUDINARY_API_SECRET", ""),
-        secure=True,
-    )
-import cloudinary
-
+# ======================
+# CLOUDINARY (ONE SOURCE OF TRUTH)
+# ======================
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME", ""),
     api_key=os.getenv("CLOUDINARY_API_KEY", ""),
     api_secret=os.getenv("CLOUDINARY_API_SECRET", ""),
     secure=True,
 )
-MEDIA_URL = "/media/"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME", ""),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
+}
 
 # ======================
-# SECURITY (Production only)
+# SECURITY (PRODUCTION)
 # ======================
 if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
@@ -185,13 +171,15 @@ JAZZMIN_SETTINGS = {
     "show_sidebar": True,
     "navigation_expanded": True,
 }
+
+# ======================
+# LOGGING
+# ======================
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
+        "console": {"class": "logging.StreamHandler"},
     },
     "root": {
         "handlers": ["console"],

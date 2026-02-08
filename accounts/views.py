@@ -27,8 +27,13 @@ def get_client_ip(request):
     else:
         ip = request.META.get("REMOTE_ADDR")
     return ip
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
 def choose_view(request):
-    return render(request, "choose.html")
+    return render(request, "choose.html", {
+        "is_auth": request.user.is_authenticated
+    })
 
 
 def login_view(request):

@@ -304,7 +304,7 @@ input:focus, select:focus, textarea:focus{
 </style>
 </head>
 
-<body>
+<body data-auth="{{ request.user.is_authenticated|yesno:'true,false' }}">
 <div class="wrap page-enter" id="pageRoot">
   {% block content %}{% endblock %}
 </div>
@@ -408,8 +408,8 @@ function flowBack() {
 </script>
 <script>
   (function(){
-    const API_URL = "/api/realtime/";
-    const INTERVAL_MS = 2000;
+    const isAuth = document.body.dataset.auth === "true";
+    if (!isAuth) return;   // ⛔ STOP here if not logged in
   
     let timer = null;
     let lastWithdrawalStatus = null;

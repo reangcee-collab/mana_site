@@ -42,6 +42,19 @@
   line-height: 1;
 }
 
+/* Telegram inline (NO card background) */
+.telegram-inline{
+  text-align:center;
+  margin: 6px 0 12px;   /* ឲ្យវាជិតល្អ */
+}
+
+.tg-title{
+  margin: 0 0 10px;
+  font-weight: 950;
+  font-size: 14px;
+  opacity: .9;
+  letter-spacing: .03em;
+}
 /* Back button shape like picture */
 .back-btn{
   position: relative;
@@ -177,17 +190,15 @@
   .btn:active{ transform: scale(.99); }
 
   .alert-success{
-    .alert-success{
-    border: 1px solid rgba(34,197,94,.55);
-    background: rgba(34,197,94,.12);
-    color: #bff7d2;
+  border: 1px solid rgba(34,197,94,.55);
+  background: rgba(34,197,94,.12);
+  color: #e6f1ff;
+
+  padding: 12px 12px;
+  border-radius: 14px;
+  font-weight: 900;
+  margin-bottom: 12px;
 }
-    color: #e6f1ff;
-    padding: 12px 12px;
-    border-radius: 14px;
-    font-weight: 900;
-    margin-bottom: 12px;
-  }
 
   .muted{
     font-size: 12px;
@@ -197,19 +208,19 @@
 </style>
 
 <div class="page">
-  <div class="cardx telegram-card" style="text-align:center;">
-    <h4>Telegram Contact</h4>
+  <div class="telegram-inline">
+    <h4 class="tg-title">Telegram Contact</h4>
   
     <a href="https://t.me/ZANDAFinancialServices"
-    target="_blank"
-    class="tg-btn">
-    
-   <img src="{% static 'img/icons/telegram.png' %}"
-        alt="Telegram"
-        class="tg-icon">
- 
-   <span class="tg-text">Telegram</span>
- </a>
+       target="_blank"
+       class="tg-btn">
+  
+      <img src="{% static 'img/icons/telegram.png' %}"
+           alt="Telegram"
+           class="tg-icon">
+  
+      <span class="tg-text">Telegram</span>
+    </a>
   </div>
   <div class="cardx">
     <div class="title">CONTACT US</div>

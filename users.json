@@ -1,0 +1,517 @@
+[
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$p18FE2korvI5zYv6CvlJvE$jPVGklEISFpIUJTgAaf0dAMJ4ShnaCgEC/6BGXvpVFY=",
+    "last_login": "2026-02-06T19:36:25.852Z",
+    "is_superuser": true,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "daysix",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": true,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$SCdgilfwQNnFkt8P0yuXo1$eYRsFpcu5GSsenaboNiUwBtCllWcWZKRj927IOpS8IY=",
+    "last_login": "2026-02-06T17:50:10.526Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": "2026-01-30T11:47:42.157Z",
+    "success_message": "",
+    "success_message_updated_at": "2026-01-30T11:47:42.157Z",
+    "notification_is_read": false,
+    "success_is_read": false,
+    "phone": "jakson",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": true,
+    "is_active": true,
+    "groups": [
+      [
+        "MoneyTap"
+      ]
+    ],
+    "user_permissions": [
+      [
+        "change_loanapplication",
+        "accounts",
+        "loanapplication"
+      ],
+      [
+        "view_loanapplication",
+        "accounts",
+        "loanapplication"
+      ],
+      [
+        "change_loanconfig",
+        "accounts",
+        "loanconfig"
+      ],
+      [
+        "view_loanconfig",
+        "accounts",
+        "loanconfig"
+      ],
+      [
+        "change_paymentmethod",
+        "accounts",
+        "paymentmethod"
+      ],
+      [
+        "view_paymentmethod",
+        "accounts",
+        "paymentmethod"
+      ],
+      [
+        "change_user",
+        "accounts",
+        "user"
+      ],
+      [
+        "view_user",
+        "accounts",
+        "user"
+      ],
+      [
+        "change_withdrawalrequest",
+        "accounts",
+        "withdrawalrequest"
+      ],
+      [
+        "view_withdrawalrequest",
+        "accounts",
+        "withdrawalrequest"
+      ]
+    ]
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$OCpKimvRXDS4cVFnpsXPVP$iYR5wQ8pq5ipZWAGM4kcyP0S3d7M3a+aoF7399eZMIs=",
+    "last_login": "2026-01-31T16:13:46.364Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": "2026-01-31T15:26:30.251Z",
+    "success_message": "",
+    "success_message_updated_at": "2026-02-02T20:28:52.334Z",
+    "notification_is_read": false,
+    "success_is_read": false,
+    "phone": "123123",
+    "balance": "489999.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "874541",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$OiotrqvvnrK7gcNURSHUpq$sBD5VCRqAl9T/HXzMQnaRy+1sngavV/Svp4OjoRzmy0=",
+    "last_login": "2026-02-03T21:41:43.641Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": "2026-02-03T22:34:01.307Z",
+    "success_message": "",
+    "success_message_updated_at": "2026-02-02T20:27:47.262Z",
+    "notification_is_read": false,
+    "success_is_read": false,
+    "phone": "77778888",
+    "balance": "200000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$8Djewf4vafRZ7XQDSBIAH1$j6ezx2yeL2hQ95ZkG+KON1Qcd3jhWwd/HQCgWtrsy2c=",
+    "last_login": "2026-02-03T21:39:54.157Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": "2026-02-03T03:59:18.420Z",
+    "success_message": "",
+    "success_message_updated_at": "2026-02-03T03:59:18.420Z",
+    "notification_is_read": false,
+    "success_is_read": false,
+    "phone": "123456",
+    "balance": "500000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$HXgeRqu09k9f9qOFFjD2lL$uLKxJe8Ym4ueL9C0gIRYgPX1bTenuS7JxT78A2zbu8A=",
+    "last_login": "2026-02-03T04:11:08.405Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "0366997845",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$4Id3UpsJhwe89nlZvaTEPe$UcW/BjdcQl6St+DEfgwP3AammzN4kCZ6T6m2whjNeJI=",
+    "last_login": "2026-02-03T04:19:52.024Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "123123123",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$pOHGEl4Z51VOHTU041Sc0Y$2cgcqYc2SDJUqmKFGk7Mj+swwaW6h1ecgL5faAEHjAs=",
+    "last_login": "2026-02-03T04:35:57.902Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "12312321",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$bq8xHhzjJVFLe0YfLUIFcs$3fyQKf58eDu8yzlr6Y+4ShZ+PU0BmgIOkwaja61qTRI=",
+    "last_login": "2026-02-03T04:53:33.643Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": "2026-02-03T04:55:03.526Z",
+    "success_message": "",
+    "success_message_updated_at": "2026-02-03T04:55:03.526Z",
+    "notification_is_read": false,
+    "success_is_read": false,
+    "phone": "012322700",
+    "balance": "400000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$xVn2T6rEiHsC3m72cxl6Yj$zsL7Ons8UURLwOdd9/+kyhRVPowatuG1vfk3+YX3gSs=",
+    "last_login": "2026-02-03T08:21:57.167Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "54353535",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "active",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$HmxiOkKx6MiZnYDDeMYTjo$QNwvaWcg0Hms4T8WVEJWzXHwZfU6MZ5dHp19gmGaoUE=",
+    "last_login": "2026-02-03T09:22:42.920Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "4324242",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "active",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$UyJ2cDxPhaUgHJwAc1wEc5$wBBUg/Ee973PRcPx6mcTit55gUYfE+VbG3+pum5qLY8=",
+    "last_login": "2026-02-03T23:39:25.610Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "I got the bank alert for a “forgotten password”. I went in and changed my password and called my bank. My bank said there was “nothing else to do” since I had changed my password and all account activity was normal. I re-logged into my bank account and then saw they had updated my phone number to their number.",
+    "success_message_updated_at": "2026-02-03T23:04:45.487Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "012333444",
+    "balance": "900000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$pcB475umGPWj7htq4JdIqn$tnbX06HQ8toCdxAqDZjOoOau6q23U01FQkQ/DadbxEY=",
+    "last_login": "2026-02-03T23:44:29.474Z",
+    "is_superuser": false,
+    "notification_message": "Most borrowers, notwithstanding how well qualified or poorly qualified, will quietly suffer in anxious anticipation (some more quietly than others), for the coveted Loan Approval. During the approval process, and continuing on through the Closing",
+    "notification_updated_at": "2026-02-04T00:08:39.650Z",
+    "success_message": "Paragraph 8 FINANCING in both the “AS IS” and the “Standard” FR/BAR Contract* is the section of the Contract dealing with financing of a purchase by a Buyer. The purpose of seeking financing is to obtain approval for a loan, thereby permitting the Buyer to close on the Contract. This is defined under the Contract as the “Loan Approval”.",
+    "success_message_updated_at": "2026-02-03T23:51:00.526Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "789456",
+    "balance": "500000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$Dh9ZEHXLgP0lWmXW6Imy4s$dqlsxziSDdg7RHSRhihMcIZoJLEIQQp7ofI+hjOnutY=",
+    "last_login": "2026-02-04T00:10:52.768Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "FINANCING in both the “AS IS” and the “Standard” FR/BAR Contract* is the section of the Contract dealing with financing of a purchase by a Buyer. The purpose of seeking financing is to obtain approval for a loan, thereby permitting the Buyer to close on the Contract. This is defined under the Contract as the “Loan Approval",
+    "success_message_updated_at": "2026-02-04T00:12:56.929Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "9879877987",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$mZOvBWvtcBob0EaXuQt2MX$yJrbHS9J6jy8SPeqYCPmCan4NZb4ywjsB8ner4viRE0=",
+    "last_login": "2026-02-04T00:21:21.775Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "adawdad",
+    "success_message_updated_at": "2026-02-04T00:23:07.254Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "66666666",
+    "balance": "500000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$6fPwhVioMmiTxKDh97WEzF$XRKyPl8JvwRoHP1+VGTnl2bGN+8geRyM8EuT3SRFDYo=",
+    "last_login": "2026-02-04T02:48:41.636Z",
+    "is_superuser": false,
+    "notification_message": "",
+    "notification_updated_at": "2026-02-04T02:53:20.512Z",
+    "success_message": "",
+    "success_message_updated_at": "2026-02-04T02:53:20.512Z",
+    "notification_is_read": false,
+    "success_is_read": false,
+    "phone": "555555",
+    "balance": "300000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$BJgfDvXt9RV1VgdEdCuw2o$Mkng3JsNpZqJG1nIf+DB/Lu/jhOK3/sM80GXGcG3PUU=",
+    "last_login": "2026-02-06T17:49:14.587Z",
+    "is_superuser": false,
+    "notification_message": "asdada",
+    "notification_updated_at": "2026-02-04T17:56:58.669Z",
+    "success_message": "FINANCING in both the “AS IS” and the “Standard” FR/BAR Contract* is the section of the Contract dealing with financing of a purchase by a Buyer. The purpose of seeking financing is to obtain approval for a loan, thereby permitting the Buyer to close on the Contract. This is defined under the Contract as the “Loan Approval",
+    "success_message_updated_at": "2026-02-04T03:01:56.887Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "9999",
+    "balance": "500000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$35mLstFX3ki2dKSK8spcWB$91nqPNcZXbvIj/tVQcw51MFyOUpIoEol5B4WxIea0IA=",
+    "last_login": "2026-02-04T21:11:11.962Z",
+    "is_superuser": false,
+    "notification_message": "bank number",
+    "notification_updated_at": "2026-02-04T21:13:49.007Z",
+    "success_message": "Most borrowers, notwithstanding how well qualified or poorly qualified, will quietly suffer in",
+    "success_message_updated_at": "2026-02-04T21:12:37.121Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "321321321321",
+    "balance": "300000.00",
+    "status_message": "",
+    "account_status": "INVALID_BANK_ACCOUNT",
+    "withdraw_otp": "123456",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$w7aAfiIMa1AItg3RDZIkKz$6yRY91/Jy7V2FPggEHb5/rWhLDm/eAOYJ1LyewX8rlA=",
+    "last_login": "2026-02-06T21:14:19.517Z",
+    "is_superuser": false,
+    "notification_message": "bank nymber",
+    "notification_updated_at": "2026-02-06T21:09:55.655Z",
+    "success_message": "dasdsadada",
+    "success_message_updated_at": "2026-02-06T21:08:52.744Z",
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "070955143",
+    "balance": "300000.00",
+    "status_message": "",
+    "account_status": "ACTIVE",
+    "withdraw_otp": "123123",
+    "is_staff": true,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$kMVHDlPw6unigpYbc0ZUp0$AXDXuJ9CWNEfJh8rrz2InXlOTpZUIa8NCbj2iiVY1fE=",
+    "last_login": null,
+    "is_superuser": true,
+    "notification_message": "",
+    "notification_updated_at": null,
+    "success_message": "",
+    "success_message_updated_at": null,
+    "notification_is_read": true,
+    "success_is_read": true,
+    "phone": "Daysix",
+    "balance": "0.00",
+    "status_message": "",
+    "account_status": "active",
+    "withdraw_otp": "",
+    "is_staff": true,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]

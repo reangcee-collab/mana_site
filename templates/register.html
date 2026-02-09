@@ -14,6 +14,11 @@
 {% block content %}
 <style>
   /* ===== move card higher (register only) ===== */
+  :root{
+  --g1:#004182;
+  --g2:#054585d0;
+  --icon:#054585d0;
+}
   .wrap{
     align-items:flex-start;
     padding-top:92px;
@@ -33,7 +38,7 @@
     text-decoration:none;
     color:#fff;
     font-weight:800;
-    background: linear-gradient(90deg, rgba(15,122,58,.95), rgba(34,197,94,.95));
+    background: linear-gradient(90deg, var(--g1), var(--g2));
     box-shadow:0 8px 20px rgba(0,0,0,.35);
     border:1px solid rgba(255,255,255,.18);
     backdrop-filter: blur(10px);
@@ -146,7 +151,7 @@
     margin-top:14px;
     border:0;
     border-radius:999px;
-    background: linear-gradient(90deg, #0f7a3a, #22c55e);
+    background: linear-gradient(90deg, var(--g1), var(--g2));
     color:#fff;
     font-weight:900;
     letter-spacing:.4px;
@@ -166,11 +171,7 @@
     font-size:13px;
     opacity:.95;
   }
-  .footer a{
-    color:#bfffd2;
-    font-weight:900;
-    text-decoration:none;
-  }
+  .footer a{ color:#59acffe8; font-weight:900; text-decoration:none; }
 
   @media (max-width:480px){
     .auth-title{ font-size:24px; }
@@ -227,11 +228,7 @@
     white-space:normal;
     text-align:center;
   }
-  .agree-row a{
-    color:#bfffd2;
-    font-weight:800;
-    text-decoration:none;
-  }
+  .agree-row a{ color:#59acffe8; font-weight:800; text-decoration:none; }
   .agree-row a:hover{ text-decoration: underline; }
 
   /* modal */
@@ -305,7 +302,7 @@
     border:0;
     font-weight: 900;
     cursor:pointer;
-    background: linear-gradient(90deg, #0f7a3a, #22c55e);
+    background: linear-gradient(90deg, var(--g1), var(--g2));
     color:#fff;
     opacity:.55;
   }

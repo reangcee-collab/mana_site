@@ -439,119 +439,67 @@
 <div class="agreement-modal" id="agreementModal" aria-hidden="true">
   <div class="agreement-box" role="dialog" aria-modal="true" aria-label="User Agreement">
     <div class="agreement-head">
-      <div class="agreement-title">About Us & Loan User Agreement</div>
+      <div class="agreement-title">User Agreement & Terms</div>
       <button class="agreement-close" type="button" id="closeAgreement" aria-label="Close">×</button>
     </div>
-    
+
     <div class="agreement-body" id="agreementBody">
-    
-      <h3>About Us</h3>
-    
+      <p><b>User Agreement & Terms of Service</b></p>
+      <p><b>Last Updated:</b> {{ now|default:"" }}</p>
+
+      <p>
+        Welcome to (“Platform”, “we”, “our”, “us”). This agreement is a legal contract between you (“User”,
+        “you”, “your”) and the Platform. By creating an account, accessing, browsing, or using any part of the Platform,
+        you confirm that you understand and accept the terms below.
+      </p>
+
+      <h3>1) Definitions</h3>
+      <p>
+        “Account” means your registered profile tied to a unique phone number. “Application” means any request submitted
+        through the Platform, including verification submissions, service requests, support requests, or loan-related
+        processes. “Content” means text, data, images, documents, and files uploaded by you.
+      </p>
+
+      <h3>2) Eligibility & User Promises</h3>
       <ul>
-        <li><b>Company Name:</b> Money Tap</li>
-        <li><b>Location:</b> Online-based service, operating in Cambodia</li>
-        <li><b>Service Type:</b> Loan services and financial assistance platform</li>
-        <li><b>Contact:</b> Via website/official support channels</li>
+        <li>You confirm you are legally allowed to use this Platform.</li>
+        <li>You confirm you provide true, complete, and accurate information.</li>
+        <li>You confirm you will not use the Platform for illegal, harmful, or fraudulent activity.</li>
+        <li>You confirm you understand that approval of any application is not guaranteed.</li>
       </ul>
-    
+
+      <h3>3) One Account Per Phone Number</h3>
       <p>
-        Money Tap is a digital loan service platform designed to assist users who need fast and convenient access to loan services.
-        Our goal is to provide an easy-to-use system for loan applications, user registration, and communication with staff support.
+        Each phone number may only create <b>one</b> account. If a phone number is already registered, you must use the login
+        page. Creating multiple accounts, attempting to reuse phone numbers, or using another person’s phone number without
+        permission is strictly prohibited.
       </p>
-    
-      <p>
-        We focus on transparency, secure handling of user information, and clear user responsibilities.
-        By using our platform, users agree to follow our policies, provide truthful information, and respect our service rules.
-      </p>
-    
-      <hr style="border:0; border-top:1px solid rgba(255,255,255,.10); margin:14px 0;">
-    
-      <h3>Loan User Agreement</h3>
-    
-      <p><b>Last Updated:</b> ____________</p>
-    
-      <p>
-        This Extended Loan User Agreement (“Agreement”) is a legally binding contract between the Company and the User.
-        By applying for, accepting, receiving, or using any loan or service, the User agrees to all terms stated herein.
-      </p>
-    
-      <h3>1. GENERAL ACKNOWLEDGMENT</h3>
-      <p>
-        The User acknowledges that this Agreement is intentionally long, detailed, repetitive, and legally binding.
-        Failure to read this Agreement does not exempt the User from any responsibility.
-      </p>
-    
-      <h3>2. ELIGIBILITY</h3>
-      <p>
-        The User confirms all provided information is true, accurate, and complete.
-        Any false or misleading information constitutes a material breach.
-      </p>
-    
-      <h3>3. LOAN APPROVAL</h3>
-      <p>
-        Loan approval is not guaranteed.
-        The Company reserves full discretion to approve or reject applications without explanation.
-      </p>
-    
-      <h3>4. INTEREST, FEES, AND CHARGES</h3>
-      <p>
-        Interest, penalties, and fees may apply.
-        All fees are non-refundable and subject to change as permitted by law.
-      </p>
-    
-      <h3>5. REPAYMENT OBLIGATION</h3>
-      <p>
-        The User agrees to repay the loan in full, including interest, penalties, and all associated fees.
-        Personal circumstances do not excuse repayment obligations.
-      </p>
-    
-      <h3>6. DEFAULT</h3>
-      <p>
-        Late payment, avoidance, or misrepresentation constitutes default.
-        The Company may pursue lawful recovery actions.
-      </p>
-    
-      <h3>7. GUARANTOR</h3>
-      <p>
-        If a guarantor is provided, the guarantor is jointly and severally liable.
-      </p>
-    
-      <h3>8. DATA CONSENT</h3>
-      <p>
-        The User consents to data collection, storage, processing, and sharing for legal and recovery purposes.
-      </p>
-    
-      <h3>9. COMMUNICATION</h3>
-      <p>
-        The User consents to being contacted via any communication channel regarding the loan.
-      </p>
-    
-      <h3>10. TERMINATION</h3>
-      <p>
-        Termination does not cancel outstanding debt.
-      </p>
-    
-      <h3>11. DISCLAIMER</h3>
-      <p>
-        Services are provided “AS IS” without warranties.
-      </p>
-    
-      <h3>12. LIMITATION OF LIABILITY</h3>
-      <p>
-        The Company shall not be liable for indirect or consequential damages.
-      </p>
-    
-      <h3>13. GOVERNING LAW</h3>
-      <p>
-        This Agreement is governed by applicable local laws.
-      </p>
-    
-      <h3>14. FINAL ACKNOWLEDGMENT</h3>
-      <p>
-        By agreeing, the User confirms acceptance of all terms.
-      </p>
-    
+
+      <h3>4) Account Security</h3>
+      <ul>
+        <li>You are responsible for keeping your password confidential.</li>
+        <li>You must not share your password or verification codes with anyone.</li>
+        <li>If you suspect unauthorized access, you must notify support immediately.</li>
+        <li>Actions taken under your account are treated as authorized by you.</li>
+      </ul>
+
+      <h3>5) Acceptable Use</h3>
+      <p>You agree that you will not:</p>
+      <ul>
+        <li>Submit false, edited, or misleading documents.</li>
+        <li>Impersonate any person or entity.</li>
+        <li>Attempt to hack, exploit, disrupt, or bypass Platform security.</li>
+        <li>Use automation or scripts to abuse registration, submissions, or messaging.</li>
+        <li>Harass or threaten staff or other users.</li>
+        <li>Upload malware, harmful files, or suspicious links.</li>
+      </ul>
+
       <p style="margin-top:18px; opacity:.70;">End of Agreement.</p>
+    </div>
+
+    <div class="agreement-foot">
+      <button class="btn-decline" type="button" id="declineAgreement">Not Agree</button>
+      <button class="btn-agree" type="button" id="acceptAgreement" disabled>Agree</button>
     </div>
   </div>
 </div>

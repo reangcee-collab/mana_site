@@ -1,1 +1,3 @@
-web: gunicorn config.wsgi:application --log-file -
+git add Procfile
+git commit -m "run migrate on deploy"
+git push

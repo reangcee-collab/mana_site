@@ -4,7 +4,43 @@
 
 {% block content %}
 <style>
-  
+
+/* Telegram button clean style */
+.tg-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  height: 42px;
+  padding: 0 18px;
+
+  border-radius: 999px;
+  background: linear-gradient(90deg, #004182, #054585d0);
+
+  color: #e8f2ff;
+  font-weight: 800;
+  font-size: 13px;        /* ⭐ អក្សរតូច */
+  letter-spacing: .04em;
+
+  text-decoration: none;
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
+}
+
+.tg-btn:active{
+  transform: scale(.98);
+}
+
+/* Telegram icon */
+.tg-icon{
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* text spacing */
+.tg-text{
+  line-height: 1;
+}
 
 /* Back button shape like picture */
 .back-btn{
@@ -141,8 +177,11 @@
   .btn:active{ transform: scale(.99); }
 
   .alert-success{
-    border: 1px solid rgba(0,65,130,.55);
-    background: rgba(5,69,133,.18);
+    .alert-success{
+    border: 1px solid rgba(34,197,94,.55);
+    background: rgba(34,197,94,.12);
+    color: #bff7d2;
+}
     color: #e6f1ff;
     padding: 12px 12px;
     border-radius: 14px;
@@ -162,23 +201,15 @@
     <h4>Telegram Contact</h4>
   
     <a href="https://t.me/ZANDAFinancialServices"
-       target="_blank"
-       style="
-         display:inline-flex;
-         align-items:center;
-         justify-content:center;
-         gap:10px;
-         height:44px;
-         padding:0 22px;
-         border-radius:999px;
-         background: linear-gradient(90deg, #004182, #054585d0);color: #e8f2ff;
-         color:#07381b;
-         font-weight:900;
-         text-decoration:none;
-         box-shadow:0 10px 26px rgba(0,0,0,.25);
-       ">
-      <i class="bi bi-telegram"></i>Contact via Telegram
-    </a>
+    target="_blank"
+    class="tg-btn">
+    
+   <img src="{% static 'img/icons/telegram.png' %}"
+        alt="Telegram"
+        class="tg-icon">
+ 
+   <span class="tg-text">Telegram</span>
+ </a>
   </div>
   <div class="cardx">
     <div class="title">CONTACT US</div>

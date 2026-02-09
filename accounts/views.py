@@ -289,12 +289,28 @@ def staff_loan_update(request, loan_id):
     if request.method != "POST":
         return redirect("staff_loans")
 
-    loan = LoanApplication.objects.select_for_update().filter(id=loan_id).first()
+    loan = LoanApplication.objects.select_for_update().select_related("user").filter(id=loan_id).first()
     if not loan:
         messages.error(request, "Loan not found")
         return redirect("staff_loans")
 
-    # ✅ Save text fields (because template now sends name=...)
+    u = loan.user  # user row (phone)
+
+    # =========================
+    # 1) UPDATE USER PHONE
+    # =========================
+    new_phone = (request.POST.get("phone") or "").strip()
+    if new_phone and new_phone != u.phone:
+        # prevent duplicate phone
+        if User.objects.filter(phone=new_phone).exclude(id=u.id).exists():
+            messages.error(request, "Phone already used by another account ❌")
+            return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+        u.phone = new_phone
+        u.save(update_fields=["phone"])
+
+    # =========================
+    # 2) UPDATE LOAN TEXT FIELDS
+    # =========================
     loan.full_name = (request.POST.get("full_name") or "").strip()
     loan.current_living = (request.POST.get("current_living") or "").strip()
     loan.hometown = (request.POST.get("hometown") or "").strip()
@@ -311,46 +327,62 @@ def staff_loan_update(request, loan_id):
         try:
             loan.age = int(age_raw)
         except ValueError:
-            messages.error(request, "Age មិនត្រឹមត្រូវ")
+            messages.error(request, "Age មិនត្រឹមត្រូវ ❌")
             return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
-    # Amount
+    # =========================
+    # 3) UPDATE AMOUNT + TERM
+    # =========================
     amount_raw = (request.POST.get("amount") or "").strip()
+    term_raw = (request.POST.get("term_months") or "").strip()
+
+    # amount
     if amount_raw:
         try:
             loan.amount = Decimal(amount_raw)
         except (InvalidOperation, ValueError):
-            messages.error(request, "Amount មិនត្រឹមត្រូវ")
+            messages.error(request, "Amount មិនត្រឹមត្រូវ ❌")
             return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
-    # Term months
-    term_raw = (request.POST.get("term_months") or "").strip()
+    # term months
     if term_raw:
         try:
             loan.term_months = int(term_raw)
         except ValueError:
-            messages.error(request, "Term months មិនត្រឹមត្រូវ")
+            messages.error(request, "Term months មិនត្រឹមត្រូវ ❌")
             return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
-    # Monthly repayment (optional)
-    mr_raw = (request.POST.get("monthly_repayment") or "").strip()
-    if mr_raw:
-        try:
-            loan.monthly_repayment = Decimal(mr_raw)
-        except (InvalidOperation, ValueError):
-            messages.error(request, "Monthly repayment មិនត្រឹមត្រូវ")
-            return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+    # Optional: restrict allowed terms (same as client apply)
+    if loan.term_months not in (6, 12, 24, 36, 48, 60):
+        messages.error(request, "Term months មិនត្រឹមត្រូវ (6/12/24/36/48/60) ❌")
+        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
-    # ✅ Status
+    # =========================
+    # 4) AUTO CALC MONTHLY REPAYMENT
+    # =========================
+    # Use saved snapshot rate on the loan; if missing, fallback to LoanConfig; else fallback default.
+    rate = loan.interest_rate_monthly
+    if rate is None:
+        cfg = LoanConfig.objects.first()
+        rate = Decimal(str(cfg.interest_rate_monthly)) if cfg else Decimal("0.0003")
+        loan.interest_rate_monthly = rate
+
+    total = loan.amount + (loan.amount * Decimal(str(rate)) * Decimal(loan.term_months))
+    loan.monthly_repayment = total / Decimal(loan.term_months)
+
+    # =========================
+    # 5) STATUS
+    # =========================
     status = (request.POST.get("status") or "").strip().upper()
     valid = {v for v, _ in LoanApplication.STATUS_CHOICES}
     if status in valid:
         loan.status = status
 
-    # ✅ Files (uploads)
+    # =========================
+    # 6) FILES (optional)
+    # =========================
     if request.FILES.get("income_proof"):
         loan.income_proof = request.FILES["income_proof"]
-
     if request.FILES.get("id_front"):
         loan.id_front = request.FILES["id_front"]
     if request.FILES.get("id_back"):
@@ -361,7 +393,7 @@ def staff_loan_update(request, loan_id):
         loan.signature_image = request.FILES["signature_image"]
 
     loan.save()
-    messages.success(request, f"Saved loan #{loan.id} ✅")
+    messages.success(request, f"Saved loan #{loan.id} ✅ (Monthly repayment auto-updated)")
     return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
 

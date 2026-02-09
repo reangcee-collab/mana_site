@@ -25,7 +25,8 @@
       <!-- LEFT: info (staff can edit) -->
       <div class="user-detail-form">
 
-        <p><label>Phone</label><input type="text" value="{{ loan.user.phone }}" readonly></p>
+        <!-- ✅ NOW EDITABLE + has name -->
+        <p><label>Phone</label><input type="text" name="phone" value="{{ loan.user.phone }}"></p>
 
         <p><label>Full name</label><input type="text" name="full_name" value="{{ loan.full_name|default_if_none:'' }}"></p>
         <p><label>Age</label><input type="number" name="age" value="{{ loan.age|default_if_none:'' }}"></p>
@@ -41,8 +42,13 @@
         <p><label>Identity name</label><input type="text" name="identity_name" value="{{ loan.identity_name|default_if_none:'' }}"></p>
         <p><label>Identity number</label><input type="text" name="identity_number" value="{{ loan.identity_number|default_if_none:'' }}"></p>
 
-        <p><label>Amount</label><input type="text" value="{{ loan.amount }}" readonly></p>
-        <p><label>Term (months)</label><input type="text" value="{{ loan.term_months }}" readonly></p>
+        <!-- ✅ NOW EDITABLE + has name -->
+        <p><label>Amount</label><input type="text" name="amount" value="{{ loan.amount }}"></p>
+
+        <!-- ✅ NOW EDITABLE + has name -->
+        <p><label>Term (months)</label><input type="number" name="term_months" value="{{ loan.term_months }}"></p>
+
+        <!-- ✅ readonly (auto-calc in views.py) -->
         <p><label>Monthly repayment</label><input type="text" value="{{ loan.monthly_repayment }}" readonly></p>
         <p><label>Created at</label><input type="text" value="{{ loan.created_at }}" readonly></p>
 

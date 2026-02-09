@@ -77,6 +77,11 @@
     resize:none;
     box-sizing:border-box;
   }
+  input[type="number"]:focus{
+  outline: none;
+  border: 1px solid rgba(0,65,130,.85);
+  box-shadow: 0 0 0 3px rgba(5,69,133,.25);
+}
   input[readonly]{ opacity:.92; }
 
   .term-grid{
@@ -100,9 +105,9 @@
   }
   .term-btn:active{ transform:scale(.98); }
   .term-btn.active{
-    background:linear-gradient(90deg,var(--g1),var(--g2));
-    border-color:rgba(34,197,94,.55);
-  }
+  background: linear-gradient(90deg, #004182, #054585d0);
+  border-color: rgba(0,65,130,.65);
+}
   .term-btn:disabled{
     opacity:.55;
     cursor:not-allowed;
@@ -194,15 +199,15 @@
     color:rgba(255,255,255,.75);
   }
   .dot.active{
-    background:rgba(39,221,117,.22);
-    border-color:rgba(39,221,117,.55);
-    color:#fff;
-  }
+  background: rgba(0,65,130,.22);
+  border-color: rgba(0,65,130,.60);
+  color:#fff;
+}
   .line{
     flex:1; height:3px; border-radius:999px;
     background:rgba(255,255,255,.18);
   }
-  .line.active{ background:rgba(39,221,117,.75); }
+  .line.active{ background: rgba(0,65,130,.75); }
   .step-labels{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -228,6 +233,16 @@
 }
 .reject-alert .ra-title{ font-weight:900; }
 .reject-alert .ra-text{ opacity:.9; margin-top:6px; }
+
+#goApply{
+  border: 0 !important;
+  background: linear-gradient(90deg, #004182, #054585d0) !important;
+  box-shadow: 0 18px 45px rgba(0,0,0,.40) !important;
+}
+
+#goApply:disabled{
+  opacity: .65 !important;
+}
 </style>
 
 <div class="page">

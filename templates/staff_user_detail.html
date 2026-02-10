@@ -40,10 +40,22 @@
           </p>
         {% endif %}
       {% endfor %}
+      
+      {% for field in form %}
+  {% if field.name == "credit_score" %}
+    <p>
+      {{ field.label_tag }}
+      {{ field }}
+      {% if field.errors %}
+        <span class="muted">{{ field.errors|striptags }}</span>
+      {% endif %}
+    </p>
+  {% endif %}
+{% endfor %}
 
       <!-- ✅ Other user fields (exclude withdraw_otp + is_staff) -->
       {% for field in form %}
-        {% if field.name != "withdraw_otp" and field.name != "is_staff" %}
+  {% if field.name != "withdraw_otp" and field.name != "credit_score" and field.name != "is_staff" %}
 
           {% if field.name == "notification_message" %}
             <p>

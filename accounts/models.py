@@ -62,6 +62,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     phone = models.CharField(max_length=20, unique=True)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0.00"))
+    credit_score = models.PositiveIntegerField(default=650)
     status_message = models.CharField(max_length=220, blank=True, default="")
 
     account_status = models.CharField(

@@ -5,11 +5,14 @@
 <style>
   /* ===== Page wrapper ===== */
   .dash-wrap{
-    width: min(520px, 94vw);
-    margin: 0 auto;
-    padding: 74px 14px 120px; /* leave space for bottom nav */
-    box-sizing: border-box;
-  }
+  width: min(520px, 94vw);
+  margin: 0 auto;
+
+  /* ✅ reserve space for fixed bottom buttons (no overlap) */
+  padding: 74px 14px calc(160px + env(safe-area-inset-bottom));
+
+  box-sizing: border-box;
+}
 
   /* ===== CardX (match dashboard) ===== */
   .cardx{
@@ -101,7 +104,7 @@
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 18px !important;
+  bottom: calc(18px + env(safe-area-inset-bottom)) !important;
   z-index: 80;
 
   width: min(520px, 94vw);
@@ -119,6 +122,15 @@
   justify-content:space-between;
   align-items:center;
   gap: 10px;
+}
+.nav-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 10px;
+
+  /* ✅ little space above buttons so it doesn't touch content visually */
+  padding-top: 6px;
 }
 
 /* buttons become the only UI */

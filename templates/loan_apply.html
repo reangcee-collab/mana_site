@@ -4,10 +4,6 @@
 {% block title %}Loan Application{% endblock %}
 
 {% block content %}
-:root{
-  --b1:#004182;
-  --b2:#054585d0;
-}
 <style>
   input:focus, textarea:focus{
   outline:none;
@@ -689,7 +685,7 @@ textarea{
 
       <div class="summary" aria-live="polite">
         <div class="row"><div class="k">Amount of loan</div><div class="v" id="sumAmount">—</div></div>
-        <div class="row"><div class="k">Interest rate</div><div class="v">0.03%</div></div>
+        <div class="row"><div class="k">Interest rate</div><div class="v">0.05%</div></div>
         <div class="row"><div class="k">Loan period</div><div class="v" id="sumTerm">—</div></div>
         <div class="row"><div class="k">Monthly repayment</div><div class="v" id="sumMonthly">—</div></div>
       </div>
@@ -784,7 +780,7 @@ textarea{
       outTerm.textContent   = term ? (term + " months") : "—";
     
       // monthly repayment (simple)
-      const rate = 0.0003; // 0.03%  (you can change later)
+      const rate = 0.0005; // 0.03%  (you can change later)
       if(amount > 0 && term > 0){
         const total = amount + (amount * rate * term);
         const monthly = total / term;

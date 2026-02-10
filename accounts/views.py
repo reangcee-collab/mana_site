@@ -540,13 +540,27 @@ def staff_payment_method_update(request, pm_id):
 
     pm = PaymentMethod.objects.select_for_update().filter(id=pm_id).first()
     if not pm:
+        messages.error(request, "Payment method not found ❌")
         return redirect("staff_payment_methods")
 
+    # ✅ Staff អាចកែបានជានិច្ច ទោះ locked = True ក៏ដោយ (គ្មានការកំណត់ block នៅទីនេះទេ)
     form = StaffPaymentMethodForm(request.POST, instance=pm)
-    if form.is_valid():
-        form.save()
-    return redirect(request.META.get("HTTP_REFERER", "staff_payment_methods"))
 
+    if not form.is_valid():
+        # ✅ នេះជាមូលហេតុធំៗដែល PayPal មិន save (email មិនត្រឹមត្រូវ) តែ UI មិនបង្ហាញ error
+        err = form.errors.as_text()
+        messages.error(request, f"Form error ❌ {err}")
+        return redirect(request.META.get("HTTP_REFERER", "staff_payment_methods"))
+
+    obj = form.save(commit=False)
+
+    # ✅ Save locked from dropdown (On/Off) ដោយដៃ (ព្រោះ form មិនមាន field locked)
+    locked_value = (request.POST.get("locked") or "").strip()
+    obj.locked = True if locked_value == "True" else False
+
+    obj.save()
+    messages.success(request, "Saved ✅")
+    return redirect(request.META.get("HTTP_REFERER", "staff_payment_methods"))
 
 
 @login_required(login_url="login")

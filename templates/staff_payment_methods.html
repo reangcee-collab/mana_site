@@ -43,8 +43,8 @@
             <td><input name="paypal_email" value="{{ pm.paypal_email }}"></td>
             <td>
               <select name="locked">
-                <option value="True" {% if pm.locked %}selected{% endif %}>True</option>
-                <option value="False" {% if not pm.locked %}selected{% endif %}>False</option>
+                <option value="False" {% if not pm.locked %}selected{% endif %}>Off</option>
+                <option value="True"  {% if pm.locked %}selected{% endif %}>On</option>
               </select>
             </td>
             <td><button class="savebtn" type="submit">Save</button></td>

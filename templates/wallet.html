@@ -271,7 +271,7 @@
     </div>
 
     <div style="margin-top:12px; font-size:28px; font-weight:950;">
-      Rs <span data-balance>{{ request.user.balance|default:"0.00" }}</span>
+      PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span>
     </div>
   </div>
 
@@ -400,7 +400,7 @@
     {% for w in withdrawals %}
       <div class="list-row">
         <div>
-          <div style="font-weight:900;">Rs {{ w.amount }} {{ w.currency }}</div>
+          <div style="font-weight:900;">PHP {{ w.amount }} {{ w.currency }}</div>
           <div class="muted">{{ w.created_at }}</div>
         </div>
         <div class="pill">{{ w.get_status_display }}</div>

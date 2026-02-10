@@ -93,11 +93,21 @@ body{
 }
 
 /* ===== PAGE WRAP (GLOBAL SAFE) ===== */
+/* ===== PAGE WRAP (GLOBAL) ===== */
 .wrap{
   width:100%;
   min-height:100vh;
-  display:block;            /* ✅ stop flex center issues */
-  padding: 20px 0 26px;     /* ✅ keep your spacing */
+  display:flex;                 /* ✅ center pages again */
+  justify-content:center;       /* ✅ center horizontally */
+  align-items:flex-start;       /* keep start from top */
+  padding: 20px 14px 26px;      /* ✅ add left/right padding */
+  box-sizing:border-box;
+}
+
+/* make any page container centered (dash-wrap / card / any main box) */
+.wrap > *{
+  width:100%;
+  max-width: 520px;             /* ✅ same style as your pages */
 }
 
 /* ONLY when a page needs topbar spacing, add class "has-topbar" on .wrap */

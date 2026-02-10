@@ -208,46 +208,54 @@ def staff_user_update(request, user_id):
     if not u:
         return redirect("staff_users")
 
-    # USER FORM
-    form = StaffUserForm(request.POST, instance=u)
-    if not form.is_valid():
-        messages.error(request, "Form error ❌")
-        return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+    # ---- keep old values for change detection ----
+    old_notif = (u.notification_message or "")
+    old_success = (u.success_message or "")
 
-    obj = form.save(commit=False)
+    # ---- update ONLY fields that staff_users.html actually posts ----
+    u.account_status = (request.POST.get("account_status") or u.account_status)
+    u.withdraw_otp = (request.POST.get("withdraw_otp") or "").strip()
 
-    # BALANCE
+    is_active_raw = (request.POST.get("is_active") or "").strip()
+    if is_active_raw in ("True", "False"):
+        u.is_active = (is_active_raw == "True")
+
+    # messages
+    u.notification_message = (request.POST.get("notification_message") or "").strip()
+    u.success_message = (request.POST.get("success_message") or "").strip()
+
+    # optional fields (won't break if not in this page)
+    if "credit_score" in request.POST:
+        cs = (request.POST.get("credit_score") or "").strip()
+        if cs != "":
+            try:
+                u.credit_score = int(cs)
+            except ValueError:
+                messages.error(request, "Credit score មិនត្រឹមត្រូវ ❌")
+                return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+
+    if "status_message" in request.POST:
+        u.status_message = (request.POST.get("status_message") or "").strip()
+
+    # balance (manual)
     bal = (request.POST.get("balance") or "").strip()
     if bal != "":
         try:
-            obj.balance = Decimal(bal)
+            u.balance = Decimal(bal)
         except (InvalidOperation, ValueError):
-            messages.error(request, "Balance មិនត្រឹមត្រូវ")
+            messages.error(request, "Balance មិនត្រឹមត្រូវ ❌")
             return redirect(request.META.get("HTTP_REFERER", "staff_users"))
 
-    # MESSAGE TIMESTAMP
-    changed = set(form.changed_data)
+    # timestamps + unread flags
+    if (u.notification_message or "") != old_notif:
+        u.notification_updated_at = timezone.now()
+        u.notification_is_read = False
 
-    if "notification_message" in changed:
-        obj.notification_updated_at = timezone.now()
-        obj.notification_is_read = False
+    if (u.success_message or "") != old_success:
+        u.success_message_updated_at = timezone.now()
+        u.success_is_read = False
 
-    if "success_message" in changed:
-        obj.success_message_updated_at = timezone.now()
-        obj.success_is_read = False
-
-    obj.save()
-
-    # ✅ PAYMENT FORM: update ONLY if staff actually submitted payment fields
-    PM_KEYS = {"bank_name", "bank_account", "wallet_name", "wallet_phone", "paypal_email"}
-    if any(k in request.POST for k in PM_KEYS):
-        payment, _ = PaymentMethod.objects.get_or_create(user=u)
-        payment_form = StaffPaymentMethodForm(request.POST, instance=payment)
-        if payment_form.is_valid():
-            payment_form.save()
-        else:
-            messages.error(request, "Payment form error ❌")
-            return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+    u.save()
 
     messages.success(request, f"Saved {u.phone} ✅")
     return redirect(request.META.get("HTTP_REFERER", "staff_users"))

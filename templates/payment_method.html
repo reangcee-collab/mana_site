@@ -96,66 +96,65 @@
   }
 
   /* ===== Bottom Nav (MATCH DASHBOARD PILL STYLE) ===== */
-  .bottom-nav{
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 18px !important;
-    z-index: 80;
+  /* ===== Bottom Nav (NO background bar, only buttons) ===== */
+.bottom-nav{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px !important;
+  z-index: 80;
 
-    width: min(520px, 94vw);
-    padding: 12px 14px;
+  width: min(520px, 94vw);
+  padding: 0;                 /* ✅ no bar padding */
+  background: transparent;    /* ✅ remove green bar */
+  border: 0;                  /* ✅ remove border */
+  border-radius: 0;           /* ✅ no pill behind */
+  box-shadow: none;           /* ✅ no shadow behind */
+  backdrop-filter: none;      /* ✅ no blur behind */
+  -webkit-backdrop-filter: none;
+}
 
-    background: linear-gradient(90deg, #023617, #27dd75);
-    border: 1px solid rgba(255,255,255,.10);
-    border-radius: 26px;
+.nav-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap: 10px;
+}
 
-    box-shadow: 0 -10px 30px rgba(0,0,0,.35);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-  }
+/* buttons become the only UI */
+.nav-btn{
+  flex: 1 1 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
 
-  .nav-inner{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap: 10px;
-  }
+  height: 52px;
+  padding: 0 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.16);
 
-  .nav-btn{
-    flex: 1 1 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
+  background: linear-gradient(90deg, #004182, #054585d0); /* ✅ blue */
+  color:#fff;
+  text-decoration:none;
+  font-weight:950;
+  letter-spacing:.04em;
+  cursor:pointer;
 
-    padding: 12px 12px;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.18);
+  box-shadow: 0 14px 36px rgba(0,0,0,.45);
+}
 
-    color:#fff;
-    text-decoration:none;
-    font-weight:950;
-    letter-spacing:.04em;
-    cursor:pointer;
-  }
+.nav-btn.primary{
+  /* keep same blue (no difference) */
+  background: linear-gradient(90deg, #004182, #054585d0);
+}
 
-  .nav-btn.primary{
-    background: rgba(0,0,0,.25);
-    border-color: rgba(255,255,255,.14);
-  }
-
-  .nav-btn:disabled{
-    opacity:.6;
-    cursor:not-allowed;
-  }
-
-  .lock-note{
-    margin-top:10px;
-    font-size:12px;
-    color: rgba(255,255,255,.72);
-  }
+/* disabled */
+.nav-btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  filter: grayscale(.15);
+}
 </style>
 
 <div class="dash-wrap">

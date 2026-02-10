@@ -151,6 +151,7 @@ class LoanApplication(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     created_at = models.DateTimeField(auto_now_add=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
     loan_purposes = models.JSONField(default=list, blank=True)
 
     def __str__(self):

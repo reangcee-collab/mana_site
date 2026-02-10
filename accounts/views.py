@@ -373,10 +373,21 @@ def staff_loan_update(request, loan_id):
     # =========================
     # 5) STATUS
     # =========================
+    from django.utils import timezone
     status = (request.POST.get("status") or "").strip().upper()
     valid = {v for v, _ in LoanApplication.STATUS_CHOICES}
+
     if status in valid:
-        loan.status = status
+     old_status = (loan.status or "").upper()
+    loan.status = status
+
+    if status == "APPROVED" and old_status != "APPROVED":
+        loan.approved_at = timezone.now()
+
+    if status != "APPROVED":
+        loan.approved_at = None
+
+
 
     # =========================
     # 6) FILES (optional)
@@ -540,9 +551,38 @@ def transactions_view(request):
     }) # your template is singular
 
 
+from datetime import timedelta
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
+
 @login_required(login_url="login")
 def payment_schedule_view(request):
-    return render(request, "payment_schedule.html")
+    latest_loan = (
+        LoanApplication.objects
+        .filter(user=request.user, status="APPROVED")
+        .order_by("-approved_at", "-id")
+        .first()
+    )
+
+    schedules = []
+    if latest_loan:
+        start = latest_loan.approved_at or latest_loan.created_at or timezone.now()
+        first_due = start + timedelta(days=15)
+
+        for i in range(int(latest_loan.term_months or 0)):
+            due = first_due + relativedelta(months=i)
+            schedules.append({
+                "due_date": due.strftime("%d/%m/%Y"),
+                "loan_amount": latest_loan.amount,
+                "term_months": latest_loan.term_months,
+                "repayment": latest_loan.monthly_repayment,
+                "interest_rate": latest_loan.interest_rate_monthly,
+            })
+
+    return render(request, "payment_schedule.html", {
+        "latest_loan": latest_loan,
+        "schedules": schedules,
+    })
 
 
 @login_required(login_url="login")

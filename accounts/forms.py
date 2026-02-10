@@ -110,12 +110,13 @@ class StaffUserForm(forms.ModelForm):
         model = User
         fields = [
             "account_status",
-            "credit_score",          # ✅ NEW
+            "credit_score",
             "withdraw_otp",
             "notification_message",
             "success_message",
             "status_message",
             "is_active",
+            "balance",   # ✅ ADD THIS
         ]
 
 

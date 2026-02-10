@@ -67,44 +67,37 @@ class LoanApplicationAdminForm(forms.ModelForm):
             "signature_image": AdminImagePreviewWidget(label="Signature"),
         }
 
-class PaymentMethodForm(forms.ModelForm):
-    class Meta:
-        model = PaymentMethod
-        fields = ["wallet_name","wallet_phone","bank_name","bank_account","paypal_email"]
+from django import forms
 
+class PaymentMethodForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
 
-        wallet_name  = (cleaned.get("wallet_name") or "").strip()
-        wallet_phone = (cleaned.get("wallet_phone") or "").strip()
-        bank_name    = (cleaned.get("bank_name") or "").strip()
+        bank_name = (cleaned.get("bank_name") or "").strip()
         bank_account = (cleaned.get("bank_account") or "").strip()
-        paypal_email = (cleaned.get("paypal_email") or "").strip()  # optional
+        wallet_name = (cleaned.get("wallet_name") or "").strip()
+        wallet_phone = (cleaned.get("wallet_phone") or "").strip()
+        paypal_email = (cleaned.get("paypal_email") or "").strip()
 
-        wallet_any = bool(wallet_name or wallet_phone)
-        bank_any   = bool(bank_name or bank_account)
+        bank_on = bool(bank_name or bank_account)
+        wallet_on = bool(wallet_name or wallet_phone)
+        paypal_on = bool(paypal_email)
 
-        # If user starts wallet, require both
-        if wallet_any and not (wallet_name and wallet_phone):
-            raise ValidationError("Mobile Wallet requires BOTH account name and phone number.")
+        chosen = sum([bank_on, wallet_on, paypal_on])
 
-        # If user starts bank, require both
-        if bank_any and not (bank_name and bank_account):
-            raise ValidationError("Bank requires BOTH account name and account number.")
+        if chosen == 0:
+            raise forms.ValidationError("Please choose ONE payout method: Bank OR Wallet OR PayPal.")
 
-        # Must have at least one completed method (wallet or bank)
-        wallet_complete = bool(wallet_name and wallet_phone)
-        bank_complete   = bool(bank_name and bank_account)
+        if chosen > 1:
+            raise forms.ValidationError("Choose ONLY ONE payout method. Do not fill multiple methods.")
 
-        if not (wallet_complete or bank_complete):
-            raise ValidationError("Please complete Mobile Wallet or Bank before saving. PayPal is optional.")
+        # require pairs
+        if bank_on and (not bank_name or not bank_account):
+            raise forms.ValidationError("Bank requires BOTH: Account name + Account number.")
 
-        # keep paypal optional (no extra rule)
-        cleaned["wallet_name"] = wallet_name
-        cleaned["wallet_phone"] = wallet_phone
-        cleaned["bank_name"] = bank_name
-        cleaned["bank_account"] = bank_account
-        cleaned["paypal_email"] = paypal_email
+        if wallet_on and (not wallet_name or not wallet_phone):
+            raise forms.ValidationError("Wallet requires BOTH: Account name + Phone number.")
+
         return cleaned
 from .models import User, PaymentMethod
 

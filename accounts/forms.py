@@ -68,8 +68,13 @@ class LoanApplicationAdminForm(forms.ModelForm):
         }
 
 from django import forms
+from .models import PaymentMethod
 
 class PaymentMethodForm(forms.ModelForm):
+    class Meta:
+        model = PaymentMethod
+        fields = ["bank_name", "bank_account", "wallet_name", "wallet_phone", "paypal_email"]
+
     def clean(self):
         cleaned = super().clean()
 
@@ -91,7 +96,6 @@ class PaymentMethodForm(forms.ModelForm):
         if chosen > 1:
             raise forms.ValidationError("Choose ONLY ONE payout method. Do not fill multiple methods.")
 
-        # require pairs
         if bank_on and (not bank_name or not bank_account):
             raise forms.ValidationError("Bank requires BOTH: Account name + Account number.")
 

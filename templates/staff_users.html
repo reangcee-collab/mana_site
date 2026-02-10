@@ -33,14 +33,14 @@
         {% for u in page.object_list %}
 
           {# ✅ Create ONE unique form per user (NO wrapping <tr>) #}
-          <form id="uform-{{ u.id }}" method="post" action="{% url 'staff_user_update' u.id %}" autocomplete="off">
-            {% csrf_token %}
-          </form>
-
-          <tr>
-            <td class="phone">
-              <a class="u-link" href="{% url 'staff_user_detail' u.id %}">{{ u.phone }}</a>
-            </td>
+            <tr>
+              <td class="phone">
+                <form id="uform-{{ u.id }}" method="post" action="{% url 'staff_user_update' u.id %}" autocomplete="off">
+                  {% csrf_token %}
+                </form>
+            
+                <a class="u-link" href="{% url 'staff_user_detail' u.id %}">{{ u.phone }}</a>
+              </td>
 
             <td>
               <select name="account_status" class="status-select" form="uform-{{ u.id }}">

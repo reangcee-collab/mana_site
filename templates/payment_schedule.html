@@ -3,6 +3,9 @@
 
 {% block content %}
 <style>
+  .pm-page, .pm-page *{
+  font-family: "Ovelion", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
   .wrap{ align-items:flex-start; justify-content:center; padding-top:92px; padding-bottom:40px; }
   @media(max-width:480px){ .wrap{ padding-top:78px; } }
 
@@ -59,7 +62,7 @@
   .actions{ margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
 </style>
 
-<div class="ps-card">
+<div class="ps-card pm-page">
   <div class="head">
     <div>
       <div class="title">Payment Schedule</div>
@@ -76,12 +79,12 @@
         </div>
 
         <div class="row" style="margin-top:8px;">
-          <div class="kv"><span>Loan Amount:</span> <b>Rs {{ s.loan_amount }}</b></div>
+          <div class="kv"><span>Loan Amount:</span> <b>PHP {{ s.loan_amount }}</b></div>
           <div class="kv"><span>Loan Period:</span> <b>{{ s.term_months }} months</b></div>
         </div>
 
         <div class="row" style="margin-top:8px;">
-          <div class="kv"><span>Repayment Amount:</span> <b class="repay">Rs {{ s.repayment }}</b></div>
+          <div class="kv"><span>Repayment Amount:</span> <b class="repay">PHP {{ s.repayment }}</b></div>
           <div class="kv"><span>Interest Rate:</span> <b>{{ s.interest_rate }}</b></div>
         </div>
       </div>

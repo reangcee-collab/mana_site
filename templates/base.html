@@ -413,7 +413,9 @@ function flowBack() {
 <script>
   (function(){
     const isAuth = document.body.dataset.auth === "true";
-    if (!isAuth) return;   // ⛔ STOP here if not logged in
+    if (!isAuth) return;
+    const API_URL = window.API_URL || "/api/realtime/";
+    const INTERVAL_MS = window.INTERVAL_MS || 2000;   // ⛔ STOP here if not logged in
   
     let timer = null;
     let lastWithdrawalStatus = null;

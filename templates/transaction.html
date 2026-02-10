@@ -3,21 +3,15 @@
 
 {% block content %}
 <style>
-  /* =========================
-     Blue theme override (Transactions page)
-     ========================= */
-  
-  /* Dashboard button */
+  /* Blue theme override (Transactions page) */
   .btn-primary{
     border: 0 !important;
     background: linear-gradient(90deg, #004182, #054585d0) !important;
     color: #ffffff !important;
     box-shadow: 0 12px 30px rgba(0,0,0,.35) !important;
   }
-  .btn-primary:active{
-    transform: scale(.98);
-  }
-  
+  .btn-primary:active{ transform: scale(.98); }
+
   /* Balance badge */
   .badge{
     background: linear-gradient(90deg, #004182, #054585d0) !important;
@@ -25,58 +19,81 @@
     border: 1px solid rgba(255,255,255,.18) !important;
     box-shadow: 0 6px 18px rgba(0,0,0,.35);
   }
-  
-  /* Optional: table header accent (soft blue tone) */
-  thead tr{
-    background: rgba(0,65,130,.22) !important;
+
+  /* List style like wallet */
+  .tx-wrap{ width: min(520px, 94vw); margin: 0 auto; padding-top: 20px; }
+  .tx-card{
+    background: rgba(9, 10, 10, 0.788);
+    border-radius: 18px;
+    padding: 18px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow: 0 3px 4px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    overflow: hidden;
   }
-  </style>
-<div class="card">
-  <div class="row" style="margin-bottom:10px;">
-    <div>
-      <h2 style="margin:0;font-size:26px;font-weight:950;"><span class="silver-run">Transactions</span></h2>
-      <div class="muted">Latest 20 records</div>
+  .row{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .title{ font-weight:950; font-size:18px; }
+  .sub{ font-size:12px; opacity:.75; margin-top:2px; }
+
+  .list-row{
+    display:flex; justify-content:space-between; gap:12px;
+    padding:10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    font-size:13px;
+  }
+  .pill{
+    padding:6px 12px; border-radius:999px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.25);
+    font-weight:900; font-size:12px;
+    white-space:nowrap;
+  }
+  /* ✅ status colors */
+  .pill-success{
+    background: rgba(34,197,94,.20);
+    border-color: rgba(34,197,94,.45);
+    color: #eafff1;
+  }
+  .pill-danger{
+    background: rgba(239,68,68,.20);
+    border-color: rgba(239,68,68,.45);
+    color: #ffecec;
+  }
+
+  .muted{ font-size:12px; opacity:.75; margin-top:2px; }
+</style>
+
+<div class="tx-wrap">
+  <div class="tx-card">
+    <div class="row" style="margin-bottom:8px;">
+      <div>
+        <div class="title"><span class="silver-run">Transactions</span></div>
+        <div class="sub">Only Payment sent / Rejected (Latest 20)</div>
+      </div>
+      <span class="badge">Balance: Rs {{ request.user.balance|default:"0" }}</span>
     </div>
-    <span class="badge">Balance: Rs {{ request.user.balance|default:"0" }}</span>
-  </div>
 
-  <div style="overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.16);">
-    <table style="width:100%;border-collapse:collapse;">
-      <thead>
-        <tr style="background:rgba(0,0,0,.22);">
-          <th style="text-align:left;padding:10px 12px;font-size:12px;opacity:.9;">DATE</th>
-          <th style="text-align:left;padding:10px 12px;font-size:12px;opacity:.9;">TYPE</th>
-          <th style="text-align:right;padding:10px 12px;font-size:12px;opacity:.9;">AMOUNT</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if txs %}
-          {% for t in txs %}
-            <tr style="border-top:1px solid rgba(255,255,255,.12);">
-              <td style="padding:10px 12px;font-size:13px;white-space:nowrap;">
-                {{ t.created_at|date:"Y-m-d H:i" }}
-              </td>
-              <td style="padding:10px 12px;font-size:13px;">
-                {{ t.get_tx_type_display }}
-                {% if t.note %}<div class="muted" style="font-size:12px;">{{ t.note }}</div>{% endif %}
-              </td>
-              <td style="padding:10px 12px;font-size:13px;text-align:right;">
-                Rs {{ t.amount }}
-              </td>
-            </tr>
-          {% endfor %}
+    {% for w in withdrawals %}
+      <div class="list-row">
+        <div>
+          <div style="font-weight:900;">Rs {{ w.amount }} {{ w.currency }}</div>
+          <div class="muted">{{ w.created_at|date:"M d, Y, P" }}</div>
+        </div>
+
+        {% if w.status == "paid" %}
+          <div class="pill pill-success">Payment sent</div>
         {% else %}
-          <tr>
-            <td colspan="3" style="padding:14px;text-align:center;opacity:.8;">No transactions yet.</td>
-          </tr>
+          <div class="pill pill-danger">Rejected</div>
         {% endif %}
-      </tbody>
-    </table>
-  </div>
+      </div>
+    {% empty %}
+      <div class="muted" style="padding:10px 0;">No transactions yet.</div>
+    {% endfor %}
 
-  <div style="margin-top:14px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
-    <a class="btn btn-ghost" href="/profile/">Back</a>
-    <a class="btn btn-primary" href="/dashboard/">Dashboard</a>
+    <div style="margin-top:14px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+      <a class="btn btn-ghost" href="/profile/">Back</a>
+      <a class="btn btn-primary" href="/dashboard/">Dashboard</a>
+    </div>
   </div>
 </div>
 {% endblock %}

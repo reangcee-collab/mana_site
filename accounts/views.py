@@ -528,7 +528,16 @@ def credit_score_view(request):
 
 @login_required(login_url="login")
 def transactions_view(request):
-    return render(request, "transaction.html")  # your template is singular
+    # show ONLY 2 types: Payment sent (paid) + Rejected
+    withdrawals = (
+        WithdrawalRequest.objects
+        .filter(user=request.user, status__in=["paid", "rejected"])
+        .order_by("-created_at")[:20]
+    )
+
+    return render(request, "transaction.html", {
+        "withdrawals": withdrawals
+    }) # your template is singular
 
 
 @login_required(login_url="login")

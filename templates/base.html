@@ -92,23 +92,17 @@ body{
   to{ opacity:0; transform: translateX(-14px); }
 }
 
-/* ===== PAGE WRAP ===== */
+/* ===== PAGE WRAP (GLOBAL SAFE) ===== */
 .wrap{
-  padding-top:20px;        /* ✅ REMOVE global top space */
-  padding-bottom:26px;
+  width:100%;
   min-height:100vh;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-}
-@media(max-width:480px){
-  .wrap{
-  padding-top: 20;
+  display:block;            /* ✅ stop flex center issues */
+  padding: 20px 0 26px;     /* ✅ keep your spacing */
 }
 
+/* ONLY when a page needs topbar spacing, add class "has-topbar" on .wrap */
 .wrap.has-topbar{
-  padding-top: 72px; /* ONLY dashboard */
-}
+  padding-top: 72px;
 }
 
 /* ===== GLASS CARD ===== */

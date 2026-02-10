@@ -256,12 +256,12 @@
     </div>
     <div class="top-actions-line"></div>
     <div class="field">
-      <label>Loan amount (Min 200,000 • Max 60,000,000)</label>
+      <label>Loan amount (Min 100,000 • Max 5,000,000)</label>
       <input
         type="number"
         id="qAmount"
-        min="200000"
-        max="60000000"
+        min="100000"
+        max="5000000"
         placeholder="Enter amount"
         {% if loan %}readonly{% endif %}
       >
@@ -285,7 +285,7 @@
 
     <div class="summary" aria-live="polite">
       <div class="row"><div class="k">Amount of loan</div><div class="v" id="qSumAmount">—</div></div>
-      <div class="row"><div class="k">Interest rate</div><div class="v">0.03%</div></div>
+      <div class="row"><div class="k">Interest rate</div><div class="v">0.05%</div></div>
       <div class="row"><div class="k">Loan period</div><div class="v" id="qSumTerm">—</div></div>
       <div class="row"><div class="k">Monthly repayment</div><div class="v" id="qSumMonthly">—</div></div>
     </div>
@@ -352,7 +352,7 @@
     if (outAmount) outAmount.textContent = amount > 0 ? ("Rs " + fmt(amount)) : "—";
     if (outTerm) outTerm.textContent = term > 0 ? (term + " months") : "—";
 
-    const rate = 0.0003;
+    const rate = 0.0005;
     if(amount > 0 && term > 0){
       const total = amount + (amount * rate * term);
       const monthly = total / term;

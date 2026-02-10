@@ -349,14 +349,14 @@
     const amount = Number(amountEl?.value || 0);
     const term = Number(termEl?.value || 0);
 
-    if (outAmount) outAmount.textContent = amount > 0 ? ("Rs " + fmt(amount)) : "—";
+    if (outAmount) outAmount.textContent = amount > 0 ? ("PHP " + fmt(amount)) : "—";
     if (outTerm) outTerm.textContent = term > 0 ? (term + " months") : "—";
 
     const rate = 0.0005;
     if(amount > 0 && term > 0){
       const total = amount + (amount * rate * term);
       const monthly = total / term;
-      if (outMonthly) outMonthly.textContent = "Rs " + fmt(Math.round(monthly));
+      if (outMonthly) outMonthly.textContent = "PHP " + fmt(Math.round(monthly));
 
       {% if not loan %}
         goBtn.disabled = false;

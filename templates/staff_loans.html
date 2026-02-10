@@ -28,7 +28,7 @@
       <tbody>
         {% for loan in page.object_list %}
         <tr>
-          <form method="post" action="{% url 'staff_loan_update' loan.id %}">
+          <form method="post" action="{% url 'staff_loan_status_update' loan.id %}">
             {% csrf_token %}
             <td>#{{ loan.id }}</td>
             <td>

@@ -267,6 +267,31 @@ def staff_loans_view(request):
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_loans.html", {"page": page, "q": q, "status": status})
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
+
+from .models import LoanApplication
+
+@staff_member_required
+@require_POST
+def staff_loan_status_update(request, loan_id):
+    loan = get_object_or_404(LoanApplication, id=loan_id)
+
+    status = (request.POST.get("status") or "").strip().upper()
+    valid = {v for v, _ in LoanApplication.STATUS_CHOICES}
+
+    if status not in valid:
+        messages.error(request, "Invalid status ❌")
+        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+
+    loan.status = status
+    loan.save(update_fields=["status"])  # ✅ save ONLY status
+    messages.success(request, f"Loan #{loan.id} status updated ✅")
+    return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+
 @staff_member_required
 def staff_loan_detail_view(request, loan_id):
     loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
@@ -373,21 +398,18 @@ def staff_loan_update(request, loan_id):
     # =========================
     # 5) STATUS
     # =========================
-    from django.utils import timezone
     status = (request.POST.get("status") or "").strip().upper()
     valid = {v for v, _ in LoanApplication.STATUS_CHOICES}
 
     if status in valid:
-     old_status = (loan.status or "").upper()
-    loan.status = status
+        old_status = (loan.status or "").upper()
+        loan.status = status
 
-    if status == "APPROVED" and old_status != "APPROVED":
-        loan.approved_at = timezone.now()
+        if status == "APPROVED" and old_status != "APPROVED":
+            loan.approved_at = timezone.now()
 
-    if status != "APPROVED":
-        loan.approved_at = None
-
-
+        if status != "APPROVED":
+            loan.approved_at = None
 
     # =========================
     # 6) FILES (optional)

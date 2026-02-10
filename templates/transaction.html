@@ -74,13 +74,13 @@
         <div class="title"><span class="silver-run">Transactions</span></div>
         <div class="sub">Only Payment sent / Rejected (Latest 20)</div>
       </div>
-      <span class="badge">Balance: Rs {{ request.user.balance|default:"0" }}</span>
+      <span class="badge">Balance: PHP {{ request.user.balance|default:"0" }}</span>
     </div>
 
     {% for w in withdrawals %}
       <div class="list-row">
         <div>
-          <div style="font-weight:900;">Rs {{ w.amount }} {{ w.currency }}</div>
+          <div style="font-weight:900;">PHP {{ w.amount }} {{ w.currency }}</div>
           <div class="muted">{{ w.created_at|date:"M d, Y, P" }}</div>
         </div>
 

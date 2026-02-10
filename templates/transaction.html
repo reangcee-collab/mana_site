@@ -2,6 +2,35 @@
 {% block title %}Transactions{% endblock %}
 
 {% block content %}
+<style>
+  /* =========================
+     Blue theme override (Transactions page)
+     ========================= */
+  
+  /* Dashboard button */
+  .btn-primary{
+    border: 0 !important;
+    background: linear-gradient(90deg, #004182, #054585d0) !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35) !important;
+  }
+  .btn-primary:active{
+    transform: scale(.98);
+  }
+  
+  /* Balance badge */
+  .badge{
+    background: linear-gradient(90deg, #004182, #054585d0) !important;
+    color: #e6f1ff !important;
+    border: 1px solid rgba(255,255,255,.18) !important;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
+  
+  /* Optional: table header accent (soft blue tone) */
+  thead tr{
+    background: rgba(0,65,130,.22) !important;
+  }
+  </style>
 <div class="card">
   <div class="row" style="margin-bottom:10px;">
     <div>

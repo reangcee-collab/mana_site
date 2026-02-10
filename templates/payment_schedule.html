@@ -2,6 +2,41 @@
 {% block title %}Payment Schedule{% endblock %}
 
 {% block content %}
+<style>
+  /* =========================
+     Blue theme override (Payment Schedule)
+     ========================= */
+  
+  /* Dashboard button */
+  .btn-primary{
+    border: 0 !important;
+    background: linear-gradient(90deg, #004182, #054585d0) !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35) !important;
+  }
+  .btn-primary:active{
+    transform: scale(.98);
+  }
+  
+  /* YES badge (approved) */
+  .badge.b-approved{
+    background: linear-gradient(90deg, #004182, #054585d0) !important;
+    color: #e6f1ff !important;
+    border: 1px solid rgba(255,255,255,.18) !important;
+  }
+  
+  /* NO badge (pending) – soft blue/gray */
+  .badge.b-pending{
+    background: rgba(0,65,130,.18) !important;
+    color: #dbe9ff !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+  }
+  
+  /* Table header accent */
+  thead tr{
+    background: rgba(0,65,130,.22) !important;
+  }
+  </style>
 <div class="card">
   <h2 style="margin:0 0 8px;font-size:26px;font-weight:950;">
     <span class="silver-run">Payment Schedule</span>

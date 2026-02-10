@@ -381,6 +381,13 @@ textarea{
   box-shadow: 0 10px 26px rgba(0,0,0,.25);
 }
 
+.id-guide{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  display:block;
+}
 
 </style>
 <div class="page">
@@ -580,11 +587,9 @@ textarea{
             <img class="id-preview" id="prevFront"
                  {% if loan and loan.id_front %}src="{{ loan.id_front.url }}"{% endif %}
                  alt="ID Front preview">
-            <div class="id-text">
-              <div class="id-ico">ID</div>
-              <strong>Front</strong>
-              <small>Click to upload</small>
-            </div>
+                 <div class="id-text">
+                  <img class="id-guide" src="{% static 'img/id_front.webp' %}" alt="ID Front guide">
+                </div>
         
             <input type="file" name="id_front" accept="image/*"
                    {% if not locked %}required{% endif %}
@@ -597,11 +602,9 @@ textarea{
             <img class="id-preview" id="prevBack"
                  {% if loan and loan.id_back %}src="{{ loan.id_back.url }}"{% endif %}
                  alt="ID Back preview">
-            <div class="id-text">
-              <div class="id-ico">ID</div>
-              <strong>Back</strong>
-              <small>Click to upload</small>
-            </div>
+                 <div class="id-text">
+                  <img class="id-guide" src="{% static 'img/id_back.webp' %}" alt="ID Back guide">
+                </div>
         
             <input type="file" name="id_back" accept="image/*"
                    {% if not locked %}required{% endif %}
@@ -614,11 +617,9 @@ textarea{
             <img class="id-preview" id="prevSelfie"
                  {% if loan and loan.selfie_with_id %}src="{{ loan.selfie_with_id.url }}"{% endif %}
                  alt="Selfie preview">
-            <div class="id-text">
-              <div class="id-ico"></div>
-              <strong>Selfie + ID</strong>
-              <small>Click to upload</small>
-            </div>
+                 <div class="id-text">
+                  <img class="id-guide" src="{% static 'img/id_selfie.webp' %}" alt="Selfie + ID guide">
+                </div>
         
             <input type="file" name="selfie_with_id" accept="image/*"
                    {% if not locked %}required{% endif %}

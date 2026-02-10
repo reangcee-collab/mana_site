@@ -7,10 +7,7 @@
   .dash-wrap{
   width: min(520px, 94vw);
   margin: 0 auto;
-
-  /* ✅ reserve space for fixed bottom buttons (no overlap) */
-  padding: 74px 14px calc(160px + env(safe-area-inset-bottom));
-
+  padding: 74px 14px 24px;   /* ✅ small bottom padding */
   box-sizing: border-box;
 }
 
@@ -100,65 +97,46 @@
 
   /* ===== Bottom Nav (MATCH DASHBOARD PILL STYLE) ===== */
   /* ===== Bottom Nav (NO background bar, only buttons) ===== */
+/* ✅ Bottom actions INSIDE page (NOT fixed) */
 .bottom-nav{
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(18px + env(safe-area-inset-bottom)) !important;
-  z-index: 80;
+  position: static;           /* ✅ no fixed */
+  transform: none;
+  left: auto;
+  bottom: auto;
+  z-index: auto;
 
-  width: min(520px, 94vw);
-  padding: 0;                 /* ✅ no bar padding */
-  background: transparent;    /* ✅ remove green bar */
-  border: 0;                  /* ✅ remove border */
-  border-radius: 0;           /* ✅ no pill behind */
-  box-shadow: none;           /* ✅ no shadow behind */
-  backdrop-filter: none;      /* ✅ no blur behind */
-  -webkit-backdrop-filter: none;
+  width: 100%;
+  margin-top: 18px;           /* space from PayPal section */
+  padding: 0;                 /* no background bar */
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .nav-inner{
   display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap: 10px;
-}
-.nav-inner{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap: 10px;
-
-  /* ✅ little space above buttons so it doesn't touch content visually */
-  padding-top: 6px;
+  gap: 12px;
 }
 
-/* buttons become the only UI */
+/* buttons */
 .nav-btn{
   flex: 1 1 0;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:10px;
 
   height: 52px;
-  padding: 0 14px;
   border-radius: 18px;
   border: 1px solid rgba(255,255,255,.16);
 
-  background: linear-gradient(90deg, #004182, #054585d0); /* ✅ blue */
+  background: linear-gradient(90deg, #004182, #054585d0);
   color:#fff;
   text-decoration:none;
   font-weight:950;
   letter-spacing:.04em;
-  cursor:pointer;
 
   box-shadow: 0 14px 36px rgba(0,0,0,.45);
-}
-
-.nav-btn.primary{
-  /* keep same blue (no difference) */
-  background: linear-gradient(90deg, #004182, #054585d0);
 }
 
 /* disabled */

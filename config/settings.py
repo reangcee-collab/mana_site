@@ -114,7 +114,18 @@ LOGIN_URL = "/login/"
 # ======================
 # STATIC / MEDIA
 # ======================
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 STATIC_URL = "/static/"
+
+# ✅ let Django find your project static folder: Loan_site/static/
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# ✅ for production collectstatic output
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 STATIC_ROOT = BASE_DIR / "staticfiles"

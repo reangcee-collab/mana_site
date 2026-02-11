@@ -67,7 +67,51 @@
         </div>
         <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_payment_methods' %}">Open →</a></div>
       </div>
+      
   
     </div>
+
+    <!-- ===== Performance Overview (User Register) ===== -->
+    <div class="perf-card" style="margin-top:14px;">
+      <div class="perf-head">
+        <div>
+          <div class="perf-title">Performance Overview</div>
+          <div class="perf-sub">User register activity</div>
+        </div>
+      </div>
+
+      <div class="perf-bars">
+        <div class="bar teal" style="height:40px;">
+          <i>{{ reg_today }}</i>
+          <span>Today</span>
+        </div>
+
+        <div class="bar teal" style="height:40px;">
+          <i>{{ reg_yesterday }}</i>
+          <span>Yesterday</span>
+        </div>
+
+        <div class="bar orange" style="height:60px;">
+          <i>{{ reg_this_week }}</i>
+          <span>This Week</span>
+        </div>
+
+        <div class="bar orange" style="height:60px;">
+          <i>{{ reg_last_week }}</i>
+          <span>Last Week</span>
+        </div>
+
+        <div class="bar purple" style="height:80px;">
+          <i>{{ reg_this_month }}</i>
+          <span>This Month</span>
+        </div>
+
+        <div class="bar purple" style="height:80px;">
+          <i>{{ reg_last_month }}</i>
+          <span>Last Month</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 {% endblock %}

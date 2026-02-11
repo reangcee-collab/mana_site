@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
-from .models import LoanApplication, LoanConfig, PaymentMethod, WithdrawalRequest
+from .models import User, LoanApplication, LoanConfig, PaymentMethod, WithdrawalRequest
 from .forms import PaymentMethodForm
 from .models import User, PaymentMethod
 from .forms import StaffUserForm, StaffPaymentMethodForm
@@ -28,7 +28,6 @@ def get_client_ip(request):
         ip = request.META.get("REMOTE_ADDR")
     return ip
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
 
 def choose_view(request):
     return render(request, "choose.html", {
@@ -121,7 +120,6 @@ def dashboard_view(request):
         "notif_count": notif_count,
     })
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
 from .models import LoanApplication, PaymentMethod
 
@@ -138,20 +136,82 @@ from django import forms
 from .forms import StaffUserForm, StaffPaymentMethodForm
 
 
-@staff_member_required
-def staff_dashboard_view(request):
-    # totals
+from datetime import datetime, time, timedelta
+from django.utils import timezone
+from .models import LoanApplication, WithdrawalRequest, PaymentMethod
+
+
+def staff_dashboard(request):
+    User = get_user_model()
+
+    # existing totals
     total_users = User.objects.count()
     total_loans = LoanApplication.objects.count()
     total_withdrawals = WithdrawalRequest.objects.count()
     total_payment_methods = PaymentMethod.objects.count()
 
-    return render(request, "staff_dashboard.html", {
+    # ===== Performance Overview (User Register) =====
+    now = timezone.localtime()
+    today = now.date()
+
+    def start_of_day(d):
+        return timezone.make_aware(datetime.combine(d, time.min))
+
+    def end_of_day(d):
+        return timezone.make_aware(datetime.combine(d, time.max))
+
+    # Today
+    today_start = start_of_day(today)
+    today_end = end_of_day(today)
+
+    # Yesterday
+    yday = today - timedelta(days=1)
+    yday_start = start_of_day(yday)
+    yday_end = end_of_day(yday)
+
+    # This week (Mon -> now)
+    week_start_date = today - timedelta(days=today.weekday())
+    week_start = start_of_day(week_start_date)
+
+    # Last week (Mon -> Sun)
+    last_week_end_date = week_start_date - timedelta(days=1)
+    last_week_start_date = last_week_end_date - timedelta(days=6)
+    last_week_start = start_of_day(last_week_start_date)
+    last_week_end = end_of_day(last_week_end_date)
+
+    # This month
+    month_start_date = today.replace(day=1)
+    month_start = start_of_day(month_start_date)
+
+    # Last month
+    first_this_month = month_start_date
+    last_month_last_day = first_this_month - timedelta(days=1)
+    last_month_start_date = last_month_last_day.replace(day=1)
+    last_month_start = start_of_day(last_month_start_date)
+    last_month_end = end_of_day(last_month_last_day)
+
+    reg_today = User.objects.filter(created_at__range=(today_start, today_end)).count()
+    reg_yesterday = User.objects.filter(created_at__range=(yday_start, yday_end)).count()
+    reg_this_week = User.objects.filter(created_at__gte=week_start).count()
+    reg_last_week = User.objects.filter(created_at__range=(last_week_start, last_week_end)).count()
+    reg_this_month = User.objects.filter(created_at__gte=month_start).count()
+    reg_last_month = User.objects.filter(created_at__range=(last_month_start, last_month_end)).count()
+
+    context = {
         "total_users": total_users,
         "total_loans": total_loans,
         "total_withdrawals": total_withdrawals,
         "total_payment_methods": total_payment_methods,
-    })
+
+        # ✅ performance overview
+        "reg_today": reg_today,
+        "reg_yesterday": reg_yesterday,
+        "reg_this_week": reg_this_week,
+        "reg_last_week": reg_last_week,
+        "reg_this_month": reg_this_month,
+        "reg_last_month": reg_last_month,
+    }
+    return render(request, "staff_dashboard.html", context)
 
 
 @staff_member_required
@@ -165,7 +225,6 @@ def staff_users_view(request):
     page = paginator.get_page(request.GET.get("page"))
 
     return render(request, "staff_users.html", {"page": page, "q": q})
-from .models import User, PaymentMethod
 
 @staff_member_required
 def staff_user_detail_view(request, user_id):
@@ -795,9 +854,6 @@ def loan_apply_view(request):
     return redirect(url)
 
 
-def logout_view(request):
-    logout(request)
-    return redirect("login")
 
 
 @login_required(login_url="login")

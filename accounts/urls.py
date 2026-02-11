@@ -11,7 +11,7 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
 
     path("dashboard/", views.dashboard_view, name="dashboard"),
-    path("staff-dashboard/", views.staff_dashboard_view, name="staff_dashboard"),
+    path("staff-dashboard/", views.staff_dashboard, name="staff_dashboard"),
     path("profile/", views.profile_view, name="profile"),
     path("credit-score/", views.credit_score_view, name="credit_score"),
     path("transactions/", views.transactions_view, name="transactions"),
@@ -36,7 +36,7 @@ urlpatterns = [
     # =========================
 # STAFF ROUTES (clean, no duplicate)
 # =========================
-path("staff/", views.staff_dashboard_view, name="staff_dashboard"),
+path("staff/", views.staff_dashboard, name="staff_dashboard"),
 
 path("staff/users/", views.staff_users_view, name="staff_users"),
 path("staff/users/<int:user_id>/", views.staff_user_detail_view, name="staff_user_detail"),

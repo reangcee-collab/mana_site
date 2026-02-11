@@ -294,6 +294,10 @@ body{
   padding-bottom: 90px;   /* ✅ ចុងក្រោយមិនបាត់ */
   scroll-padding-bottom: 90px;
 }
+/* ✅ Staff dashboard only: space on top 15px */
+.content.staffdash{
+  padding-top: 15px;
+}
 /* ✅ Professional scrollbar spacing */
 .content{
   scrollbar-gutter: stable both-edges; /* Chrome/Edge */
@@ -406,6 +410,7 @@ input,select{
     }
 /* ===== Staff dashboard colorful cards (paste into staff_base.html <style> ) ===== */
   .stats-grid{
+  margin-top: 15px;   /* ✅ push 4 cards down */
   display:grid;
   gap:14px;
   grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));

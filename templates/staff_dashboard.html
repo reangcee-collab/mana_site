@@ -1,4 +1,5 @@
 {% extends "staff_base.html" %}
+{% load static %}
 {% block title %}Staff Dashboard{% endblock %}
 {% block content %}
   <div class="card-h">
@@ -8,55 +9,63 @@
     </div>
   </div>
 
-  <<div class="content">
-    <div class="stats-grid">
+  <<<div class="content">
+    <div style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));">
   
-      <div class="stat-card stat-teal">
-        <div class="stat-top">
+      <!-- Total Users -->
+      <div class="card stat-teal" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
-            <div class="stat-title">Total Users</div>
-            <div class="stat-sub">All users</div>
+            <div class="muted">Total Users</div>
+            <div style="font-size:28px;font-weight:950;margin-top:6px;">{{ total_users }}</div>
           </div>
-          <div class="stat-ico">👤</div>
+          <div class="stat-ico">
+            <img src="{% static 'icons/users.webp' %}" alt="Users">
+          </div>
         </div>
-        <div class="stat-num">{{ total_users|default:"0" }}</div>
-        <a class="stat-btn" href="{% url 'staff_users' %}">Open →</a>
+        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_users' %}">Open →</a></div>
       </div>
   
-      <div class="stat-card stat-orange">
-        <div class="stat-top">
+      <!-- Loan Applications -->
+      <div class="card stat-orange" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
-            <div class="stat-title">Loan Applications</div>
-            <div class="stat-sub">Requests</div>
+            <div class="muted">Loan Applications</div>
+            <div style="font-size:28px;font-weight:950;margin-top:6px;">{{ total_loans }}</div>
           </div>
-          <div class="stat-ico">📄</div>
+          <div class="stat-ico">
+            <img src="{% static 'icons/loans.webp' %}" alt="Loans">
+          </div>
         </div>
-        <div class="stat-num">{{ total_loans|default:"0" }}</div>
-        <a class="stat-btn" href="{% url 'staff_loans' %}">Open →</a>
+        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_loans' %}">Open →</a></div>
       </div>
   
-      <div class="stat-card stat-purple">
-        <div class="stat-top">
+      <!-- Withdrawals -->
+      <div class="card stat-purple" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
-            <div class="stat-title">Withdrawals</div>
-            <div class="stat-sub">Requests</div>
+            <div class="muted">Withdrawals</div>
+            <div style="font-size:28px;font-weight:950;margin-top:6px;">{{ total_withdrawals }}</div>
           </div>
-          <div class="stat-ico">💸</div>
+          <div class="stat-ico">
+            <img src="{% static 'icons/withdraw.webp' %}" alt="Withdrawals">
+          </div>
         </div>
-        <div class="stat-num">{{ total_withdrawals|default:"0" }}</div>
-        <a class="stat-btn" href="{% url 'staff_withdrawals' %}">Open →</a>
+        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_withdrawals' %}">Open →</a></div>
       </div>
   
-      <div class="stat-card stat-dark">
-        <div class="stat-top">
+      <!-- Payment Methods -->
+      <div class="card" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
-            <div class="stat-title">Payment Methods</div>
-            <div class="stat-sub">Available</div>
+            <div class="muted">Payment Methods</div>
+            <div style="font-size:28px;font-weight:950;margin-top:6px;">{{ total_payment_methods }}</div>
           </div>
-          <div class="stat-ico">💳</div>
+          <div class="stat-ico">
+            <img src="{% static 'icons/payment.webp' %}" alt="Payments">
+          </div>
         </div>
-        <div class="stat-num">{{ total_payment_methods|default:"0" }}</div>
-        <a class="stat-btn" href="{% url 'staff_payment_methods' %}">Open →</a>
+        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_payment_methods' %}">Open →</a></div>
       </div>
   
     </div>

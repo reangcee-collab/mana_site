@@ -23,12 +23,12 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
 
 ALLOWED_HOSTS = env_list(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,sitemana-production.up.railway.app"
+    "localhost,127.0.0.1,sitemana-production.up.railway.app,moneytapservicesform.services,www.moneytapservicesform.services"
 )
 
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
-    "https://sitemana-production.up.railway.app"
+    "https://sitemana-production.up.railway.app,https://moneytapservicesform.services,https://www.moneytapservicesform.services"
 )
 
 # ======================

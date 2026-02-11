@@ -10,10 +10,10 @@
   </div>
 
   <div class="content staffdash">
-    <div class="stats-grid">
-  
+    <<div class="stats-grid">
+
       <!-- Total Users -->
-      <div class="card stat-teal" style="padding:14px;">
+      <div class="stat-card stat-teal">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
             <div class="muted">Total Users</div>
@@ -23,11 +23,13 @@
             <img src="{% static 'icons/users.webp' %}" alt="Users">
           </div>
         </div>
-        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_users' %}">Open →</a></div>
+        <div style="margin-top:10px;">
+          <a class="btn btn-green" href="{% url 'staff_users' %}">Open →</a>
+        </div>
       </div>
-  
+    
       <!-- Loan Applications -->
-      <div class="card stat-orange" style="padding:14px;">
+      <div class="stat-card stat-orange">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
             <div class="muted">Loan Applications</div>
@@ -37,11 +39,13 @@
             <img src="{% static 'icons/loans.webp' %}" alt="Loans">
           </div>
         </div>
-        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_loans' %}">Open →</a></div>
+        <div style="margin-top:10px;">
+          <a class="btn btn-green" href="{% url 'staff_loans' %}">Open →</a>
+        </div>
       </div>
-  
+    
       <!-- Withdrawals -->
-      <div class="card stat-purple" style="padding:14px;">
+      <div class="stat-card stat-purple">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
             <div class="muted">Withdrawals</div>
@@ -51,11 +55,13 @@
             <img src="{% static 'icons/withdraw.webp' %}" alt="Withdrawals">
           </div>
         </div>
-        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_withdrawals' %}">Open →</a></div>
+        <div style="margin-top:10px;">
+          <a class="btn btn-green" href="{% url 'staff_withdrawals' %}">Open →</a>
+        </div>
       </div>
-  
+    
       <!-- Payment Methods -->
-      <div class="card" style="padding:14px;">
+      <div class="stat-card stat-dark">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div>
             <div class="muted">Payment Methods</div>
@@ -65,10 +71,11 @@
             <img src="{% static 'icons/payment.webp' %}" alt="Payments">
           </div>
         </div>
-        <div style="margin-top:10px;"><a class="btn btn-green" href="{% url 'staff_payment_methods' %}">Open →</a></div>
+        <div style="margin-top:10px;">
+          <a class="btn btn-green" href="{% url 'staff_payment_methods' %}">Open →</a>
+        </div>
       </div>
-      
-  
+    
     </div>
 
     <!-- ===== Performance Overview (User Register) ===== -->
@@ -81,32 +88,32 @@
       </div>
 
       <div class="perf-bars">
-        <div class="bar teal" style="height:40px;">
+        <div class="bar teal" style="height:120px;">
           <i>{{ reg_today }}</i>
           <span>Today</span>
         </div>
 
-        <div class="bar teal" style="height:40px;">
+        <div class="bar teal" style="height:100px;">
           <i>{{ reg_yesterday }}</i>
           <span>Yesterday</span>
         </div>
 
-        <div class="bar orange" style="height:60px;">
+        <div class="bar orange" style="height:160px;">
           <i>{{ reg_this_week }}</i>
           <span>This Week</span>
         </div>
 
-        <div class="bar orange" style="height:60px;">
+        <div class="bar orange" style="height:140px;">
           <i>{{ reg_last_week }}</i>
           <span>Last Week</span>
         </div>
 
-        <div class="bar purple" style="height:80px;">
+        <div class="bar purple" style="height:170px;">
           <i>{{ reg_this_month }}</i>
           <span>This Month</span>
         </div>
 
-        <div class="bar purple" style="height:80px;">
+        <div class="bar purple" style="height:150px;">
           <i>{{ reg_last_month }}</i>
           <span>Last Month</span>
         </div>

@@ -404,6 +404,87 @@ input,select{
       flex: 0 0 auto;
       white-space: nowrap;
     }
+/* ===== Staff dashboard colorful cards (paste into staff_base.html <style> ) ===== */
+  .stats-grid{
+  display:grid;
+  gap:14px;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.stat-card{
+  border-radius:20px;
+  padding:16px 16px 14px;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 18px 50px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.35);
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+
+.stat-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: radial-gradient(900px 240px at 10% 10%, rgba(255,255,255,.22), transparent 55%);
+  pointer-events:none;
+}
+
+.stat-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.stat-title{ font-weight:950; font-size:14px; letter-spacing:.02em; }
+.stat-sub{ font-size:11px; opacity:.85; margin-top:2px; }
+
+.stat-ico{
+  width:34px; height:34px;
+  border-radius:12px;
+  background: rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.18);
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px;
+}
+
+.stat-num{
+  font-size:34px;
+  font-weight:950;
+  margin-top:10px;
+  letter-spacing:.02em;
+}
+
+.stat-btn{
+  margin-top:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 14px;
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:900;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(0,0,0,.18);
+}
+.stat-btn:hover{ transform: translateY(-1px); }
+.stat-btn:active{ transform: translateY(0); opacity:.92; }
+
+/* Color themes */
+.stat-teal{
+  background: linear-gradient(135deg, rgba(16,185,129,.85), rgba(2,132,199,.75));
+}
+.stat-orange{
+  background: linear-gradient(135deg, rgba(249,115,22,.9), rgba(245,158,11,.75));
+}
+.stat-purple{
+  background: linear-gradient(135deg, rgba(168,85,247,.9), rgba(236,72,153,.75));
+}
+.stat-dark{
+  background: linear-gradient(135deg, rgba(30,41,59,.92), rgba(15,23,42,.85));
+}
+
   </style>
 </head>
 

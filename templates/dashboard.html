@@ -858,17 +858,17 @@
   if(!rowsEl) return;
 
   const currencies = [
-    { code:'AFN', country:'Afghanistan', flag:"{% static 'img/flags/afghanistan.png' %}" },
-    { code:'INR', country:'India',       flag:"{% static 'img/flags/india.png' %}" },
-    { code:'IDR', country:'Indonesia',   flag:"{% static 'img/flags/indonesia.png' %}" },
-    { code:'KES', country:'Kenya',       flag:"{% static 'img/flags/kenyan.png' %}" },
-    { code:'MYR', country:'Malaysia',    flag:"{% static 'img/flags/malaysia.png' %}" },
-    { code:'OMR', country:'Oman',        flag:"{% static 'img/flags/oman.png' %}" },
-    { code:'PKR', country:'Pakistan',    flag:"{% static 'img/flags/pakistan.png' %}" },
-    { code:'PHP', country:'Philippines', flag:"{% static 'img/flags/philippines.png' %}" },
-    { code:'SAR', country:'Saudi',       flag:"{% static 'img/flags/saudi arabian.png' %}" },
-    { code:'VND', country:'Vietnam',     flag:"{% static 'img/flags/vietnam.png' %}" },
-  ];
+  { code:'PHP', country:'Philippines', flag:"{% static 'img/flags/philippines.png' %}" },
+  { code:'SAR', country:'Saudi',       flag:"{% static 'img/flags/saudi arabian.png' %}" },
+  { code:'MYR', country:'Malaysia',    flag:"{% static 'img/flags/malaysia.png' %}" },
+  { code:'IDR', country:'Indonesia',   flag:"{% static 'img/flags/indonesia.png' %}" },
+  { code:'INR', country:'India',       flag:"{% static 'img/flags/india.png' %}" },
+  { code:'AFN', country:'Afghanistan', flag:"{% static 'img/flags/afghanistan.png' %}" },
+  { code:'KES', country:'Kenya',       flag:"{% static 'img/flags/kenyan.png' %}" },
+  { code:'OMR', country:'Oman',        flag:"{% static 'img/flags/oman.png' %}" },
+  { code:'PKR', country:'Pakistan',    flag:"{% static 'img/flags/pakistan.png' %}" },
+  { code:'VND', country:'Vietnam',     flag:"{% static 'img/flags/vietnam.png' %}" },
+];
 
   function fmtRate(x){
     if(!isFinite(x)) return '—';

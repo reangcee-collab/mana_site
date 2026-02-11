@@ -49,10 +49,39 @@
     @media (max-width:480px){
       .tg-contact{ left: 12px; bottom: 12px; }
     }
+/* ===== Admin login background video ===== */
+.login{
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-bg-video{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+
+.admin-bg-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: -1;
+}
+
   </style>
 {% endblock %}
 
 {% block content %}
+
+<!-- Background Video -->
+<video class="admin-bg-video" autoplay muted loop playsinline>
+  <source src="{% static 'video/bg.webm' %}" type="video/webm">
+</video>
+<div class="admin-bg-overlay"></div>
   {{ block.super }}
 
   <!-- ✅ Telegram Contact Button -->

@@ -389,6 +389,35 @@ textarea{
   display:block;
 }
 
+.id-guide{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:16px;
+  z-index:1;
+}
+
+.id-preview{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:16px;
+  z-index:2;
+  display:none;
+}
+
+.idbox.has-img .id-preview{
+  display:block;
+}
+
+.idbox.has-img .id-guide{
+  display:none;
+}
+
 </style>
 <div class="page">
 <div class="top-actions-line"></div>
@@ -583,34 +612,38 @@ textarea{
 
         <div class="id-grid">
           <!-- FRONT -->
-          <label class="idbox {% if loan and loan.id_front %}has-img{% endif %}" id="boxFront">
-            <img class="id-preview" id="prevFront"
-                 {% if loan and loan.id_front %}src="{{ loan.id_front.url }}"{% endif %}
-                 alt="ID Front preview">
-                 <div class="id-text">
-                  <img class="id-guide" src="{% static 'img/id_front.webp' %}" alt="ID Front guide">
-                </div>
-        
-            <input type="file" name="id_front" accept="image/*"
-                   {% if not locked %}required{% endif %}
-                   {% if locked %}disabled{% endif %}
-                   hidden>
-          </label>
+          <!-- FRONT -->
+<label class="idbox {% if loan and loan.id_front %}has-img{% endif %}" id="boxFront">
+  <img class="id-preview" id="prevFront"
+       {% if loan and loan.id_front %}src="{{ loan.id_front.url }}"{% endif %}
+       alt="ID Front preview">
+
+  <img class="id-guide"
+       src="{% static 'img/id_front.webp' %}"
+       alt="ID Front guide">
+
+  <input type="file" name="id_front" accept="image/*"
+         {% if not locked %}required{% endif %}
+         {% if locked %}disabled{% endif %}
+         hidden>
+</label>
         
           <!-- BACK -->
-          <label class="idbox {% if loan and loan.id_back %}has-img{% endif %}" id="boxBack">
-            <img class="id-preview" id="prevBack"
-                 {% if loan and loan.id_back %}src="{{ loan.id_back.url }}"{% endif %}
-                 alt="ID Back preview">
-                 <div class="id-text">
-                  <img class="id-guide" src="{% static 'img/id_back.webp' %}" alt="ID Back guide">
-                </div>
-        
-            <input type="file" name="id_back" accept="image/*"
-                   {% if not locked %}required{% endif %}
-                   {% if locked %}disabled{% endif %}
-                   hidden>
-          </label>
+          <!-- SELFIE -->
+<label class="idbox {% if loan and loan.selfie_with_id %}has-img{% endif %}" id="boxSelfie">
+  <img class="id-preview" id="prevSelfie"
+       {% if loan and loan.selfie_with_id %}src="{{ loan.selfie_with_id.url }}"{% endif %}
+       alt="Selfie preview">
+
+  <img class="id-guide"
+       src="{% static 'img/id_selfie.webp' %}"
+       alt="Selfie + ID guide">
+
+  <input type="file" name="selfie_with_id" accept="image/*"
+         {% if not locked %}required{% endif %}
+         {% if locked %}disabled{% endif %}
+         hidden>
+</label>
         
           <!-- SELFIE -->
           <label class="idbox {% if loan and loan.selfie_with_id %}has-img{% endif %}" id="boxSelfie">

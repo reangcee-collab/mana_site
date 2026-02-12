@@ -196,7 +196,15 @@ def staff_dashboard(request):
     reg_last_week = User.objects.filter(created_at__range=(last_week_start, last_week_end)).count()
     reg_this_month = User.objects.filter(created_at__gte=month_start).count()
     reg_last_month = User.objects.filter(created_at__range=(last_month_start, last_month_end)).count()
+# ===== SEARCH USER BY PHONE =====
+    searched_user = None
+    phone = request.GET.get("phone")
 
+    if phone:
+        try:
+            searched_user = User.objects.get(phone=phone)
+        except User.DoesNotExist:
+            searched_user = None
     context = {
         "total_users": total_users,
         "total_loans": total_loans,
@@ -210,6 +218,7 @@ def staff_dashboard(request):
         "reg_last_week": reg_last_week,
         "reg_this_month": reg_this_month,
         "reg_last_month": reg_last_month,
+        "searched_user": searched_user,
     }
     return render(request, "staff_dashboard.html", context)
 

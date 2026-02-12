@@ -107,6 +107,22 @@
 .pill.pill-anim-top{ animation: slideInTopToBottom 1200ms ease-out both; will-change: transform, opacity; }
 .card.card-anim{ animation: slideInRightToLeft 1200ms ease-out both; }
 .card.card-anim-left{ animation: slideInLeftToRight 1200ms ease-out both; }
+/* ===== Override Overview Card Background ===== */
+.card.card-anim{
+  background: linear-gradient(
+    145deg,
+    rgba(61, 60, 60, 0.226),
+    rgba(35, 35, 35, 0.404)
+  );
+
+  border: 1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    0 20px 60px rgba(29, 28, 28, 0.568),
+    inset 0 1px 0 rgba(255,255,255,.05);
+
+  backdrop-filter: blur(18px);
+}
 
 /* ===============================
    THEME
@@ -142,10 +158,128 @@ body{
   box-sizing: border-box;
   height: calc(100vh - 20px);
 }
-
+/* ===== Animated Lightning Topbar ===== */
 .topbar{
-  display:flex; align-items:center; justify-content:space-between;
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 10px 14px;
+  background: linear-gradient(120deg, #021b2f, #043c63, #021b2f);
+  background-size: 300% 300%;
+  animation: topbarFlow 8s ease infinite;
+}
+
+/* Lightning sweep effect */
+.topbar::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-150%;
+  width:60%;
+  height:100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(0,255,255,.35),
+    rgba(0,120,255,.45),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: lightningMove 4s linear infinite;
+}
+
+/* Glow border */
+.topbar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  box-shadow:
+    0 0 20px rgba(0,180,255,.35),
+    inset 0 0 25px rgba(0,150,255,.25);
+  pointer-events:none;
+}
+
+/* Background flow */
+@keyframes topbarFlow{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+
+/* Lightning animation */
+@keyframes lightningMove{
+  0%{ left:-150%; }
+  100%{ left:150%; }
+}
+
+/* ===========================
+   TOPBAR_LIGHTNING_ANIMATION
+   =========================== */
+
+   .topbar{
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 10px 14px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
   margin-bottom:16px;
+
+  background: linear-gradient(120deg, #021b2f, #043c63, #021b2f);
+  background-size: 300% 300%;
+  animation: topbarFlow 8s ease infinite;
+}
+
+.topbar::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-150%;
+  width:60%;
+  height:100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(0,255,255,.35),
+    rgba(0,120,255,.45),
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: lightningMove 4s linear infinite;
+  pointer-events:none;
+}
+
+.topbar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:18px;
+  box-shadow:
+    0 0 20px rgba(0,180,255,.35),
+    inset 0 0 25px rgba(0,150,255,.25);
+  pointer-events:none;
+}
+
+.topbar .btn{
+  position: relative;
+  z-index: 2;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(0,255,255,.25);
+  box-shadow: 0 0 12px rgba(0,200,255,.25);
+}
+
+@keyframes topbarFlow{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+
+@keyframes lightningMove{
+  0%{ left:-150%; }
+  100%{ left:150%; }
 }
 .brand{font-family: 'Ovelion', inherit;font-weight: 400;letter-spacing: .04em;}
 .pill{
@@ -167,6 +301,13 @@ body{
 }
 .btn:hover{ transform:translateY(-1px); }
 
+.topbar .btn{
+  position: relative;
+  z-index: 2;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(0,255,255,.25);
+  box-shadow: 0 0 12px rgba(0,200,255,.25);
+}
 .card{
   background:var(--card);
   border:1px solid var(--stroke);
@@ -186,6 +327,78 @@ body{
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+}
+/* ===== MENU CARD (Vertical Shine) ===== */
+.card.side{
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+
+  background: linear-gradient(
+    160deg,
+    rgba(10,35,60,.9),
+    rgba(0,18,35,.95)
+  );
+
+  border: 1px solid rgba(0,180,255,.25);
+  box-shadow:
+    0 0 25px rgba(0,180,255,.25),
+    inset 0 0 30px rgba(0,150,255,.08);
+}
+
+/* vertical light sweep */
+.card.side::before{
+  content:"";
+  position:absolute;
+  top:-120%;
+  left:0;
+  width:100%;
+  height:60%;
+
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0,255,255,.35),
+    rgba(0,120,255,.45),
+    transparent
+  );
+
+  animation: menuShineDown 3.5s linear infinite;
+  pointer-events:none;
+}
+
+/* animation top → bottom */
+@keyframes menuShineDown{
+  0%{ top:-120%; }
+  100%{ top:120%; }
+}
+
+.card.side::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:20px;
+  box-shadow:
+    0 0 18px rgba(0,180,255,.18),
+    inset 0 0 26px rgba(0,150,255,.12);
+  pointer-events:none;
+}
+
+.card.side .card-h,
+.card.side .menu-item{
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes menuFlow{
+  0%{ background-position: 0% 50%; }
+  50%{ background-position: 100% 50%; }
+  100%{ background-position: 0% 50%; }
+}
+
+@keyframes menuLightningMove{
+  0%{ left:-160%; }
+  100%{ left:160%; }
 }
 
 /* ✅ IMPORTANT: allow scroll inside form pages too */
@@ -409,11 +622,46 @@ input,select{
       white-space: nowrap;
     }
 /* ===== Staff dashboard colorful cards (paste into staff_base.html <style> ) ===== */
-  .stats-grid{
-  margin-top: 15px;   /* ✅ push 4 cards down */
+  /* ===== Staff dashboard layout (4 cards row) ===== */
+.stats-grid{
   display:grid;
   gap:14px;
-  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Tablet: 2 per row */
+@media (max-width: 1100px){
+  .stats-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+/* Mobile: 1 per row */
+@media (max-width: 560px){
+  .stats-grid{ grid-template-columns: 1fr; }
+}
+
+/* ===== Performance card aligns with Loan Applications right edge ===== */
+.perf-wrap{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:14px;
+}
+
+/* Make performance card span 2 columns (same width as first 2 stat cards) */
+.perf-wrap .perf-card{
+  grid-column: 1 / span 2;
+  width: 100%;
+  min-height: 360px;
+  padding-bottom: 22px;
+}
+
+/* Match responsive with stats-grid */
+@media (max-width: 1100px){
+  .perf-wrap{ grid-template-columns: repeat(2, 1fr); }
+  .perf-wrap .perf-card{ grid-column: 1 / -1; } /* full width on tablet */
+}
+@media (max-width: 560px){
+  .perf-wrap{ grid-template-columns: 1fr; }
+  .perf-wrap .perf-card{ grid-column: 1 / -1; }
 }
 
 .stat-card{
@@ -486,8 +734,27 @@ input,select{
 .stat-purple{
   background: linear-gradient(135deg, rgba(168,85,247,.9), rgba(236,72,153,.75));
 }
+/* ===== Payment Method Bright Glass ===== */
 .stat-dark{
-  background: linear-gradient(135deg, rgba(30,41,59,.92), rgba(15,23,42,.85));
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,.75),
+    rgba(220,230,240,.65)
+  );
+
+  border: 1px solid rgba(255,255,255,.6);
+
+  box-shadow:
+    0 0 25px rgba(255,255,255,.35),
+    inset 0 1px 0 rgba(255,255,255,.9);
+
+  color:#0b2430;
+}
+
+/* fix text color inside */
+.stat-dark .stat-title,
+.stat-dark .stat-num{
+  color:#0b2430;
 }
 /* ===== Stat card icon (webp) ===== */
 .stat-ico{
@@ -541,11 +808,17 @@ input,select{
   display:flex;
   align-items:flex-end;
   justify-content:space-between;
-  height:180px;
-  padding: 20px 20px 10px;
+  gap: 18px;                 /* ✅ space រវាង bar */
+  min-height: 300px;
+
+  padding: 10px 22px 60px;   /* ✅ បន្ថែម padding ស្ដាំ/ឆ្វេង + ខាងក្រោម */
+  box-sizing: border-box;
+
   border-radius:18px;
   background: rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.10);
+
+  overflow: hidden;          /* ✅ កុំឲ្យអ្វីលានក្រៅ card */
 }
 
 .bar{
@@ -556,15 +829,22 @@ input,select{
   justify-content:center;
   position:relative;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+  flex: 1 1 0;
+  min-width: 0;
 }
 .bar span{
   position:absolute;
-  bottom: -22px;
-  font-size:11px;
-  font-weight:800;
-  opacity:.85;
+  bottom: -32px;           /* ✅ ចុះក្រោមបន្តិច */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;         /* ✅ ធំឡើង (ប្រហែល +3px) */
+  font-weight: 900;
+  opacity: .90;
   color:#eafff1;
-  white-space:nowrap;
+  white-space: nowrap;
+  padding: 0 6px;
+  max-width: 100%;
+  text-align: center;
 }
 
 .bar i{
@@ -583,6 +863,174 @@ input,select{
 
 @media (max-width: 980px){
   .perf-bars{ grid-template-columns: repeat(3, 1fr); height: 220px; }
+}
+/* ===== Perf animations ===== */
+.perf-bars .bar{
+  transform-origin: bottom;
+  animation: barGrow 900ms cubic-bezier(.2,.9,.2,1) both;
+}
+
+.perf-bars .bar:nth-child(1){ animation-delay: 80ms; }
+.perf-bars .bar:nth-child(2){ animation-delay: 160ms; }
+.perf-bars .bar:nth-child(3){ animation-delay: 240ms; }
+.perf-bars .bar:nth-child(4){ animation-delay: 320ms; }
+.perf-bars .bar:nth-child(5){ animation-delay: 400ms; }
+.perf-bars .bar:nth-child(6){ animation-delay: 480ms; }
+
+@keyframes barGrow{
+  from{ transform: scaleY(0.12); filter: saturate(.9); opacity: .75; }
+  to  { transform: scaleY(1);    filter: saturate(1);  opacity: 1; }
+}
+/* ===== Dashboard Search ===== */
+.dash-search{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.dash-select{
+  height:42px;
+  padding:0 12px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.38);
+  color:#fff;
+  min-width:150px;
+}
+.dash-input{
+  height:42px;
+  width:240px;
+  padding:0 14px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(0,0,0,.40);
+  color:#fff;
+}
+.dash-btn{
+  height:42px;
+  padding:0 18px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  background:linear-gradient(135deg,#127aaa,#000);
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+/* ===== Dashboard Overview Glass Effect ===== */
+.dashboard-card{
+  background: rgba(0, 0, 0, 0.2) !important;   /* កាត់ភាពខ្មៅ */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.15);
+}
+/* ===== Bright White Titles ===== */
+.brand,
+.h1{
+  color: #ffffff !important;
+  font-weight: 800;
+  letter-spacing: .04em;
+
+  text-shadow:
+    0 0 6px rgba(255,255,255,.6),
+    0 0 14px rgba(0,200,255,.35);
+}
+
+/* Optional – Make subtitle slightly brighter too */
+.muted{
+  color: rgba(255,255,255,.88);
+}
+/* ===== Neon White Glow Titles ===== */
+
+/* Topbar buttons */
+.topbar .btn{
+  color:#ffffff !important;
+  font-weight:800;
+  text-shadow:
+    0 0 6px rgba(255,255,255,.7),
+    0 0 14px rgba(0,200,255,.45);
+}
+
+/* Performance Overview title */
+.perf-title{
+  color:#ffffff !important;
+  font-weight:900;
+  text-shadow:
+    0 0 6px rgba(255,255,255,.7),
+    0 0 14px rgba(0,200,255,.45);
+}
+
+/* Optional – make subtitle slightly glow too */
+.perf-sub{
+  color:rgba(255,255,255,.9);
+}
+
+/* ===== User Mini Detail Card ===== */
+.user-mini-card{
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.45);
+  box-shadow: 0 18px 50px rgba(0,0,0,.45),
+              inset 0 1px 0 rgba(255,255,255,.15);
+  padding:18px;
+  min-height:260px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  animation: fadeInUser 400ms ease;
+}
+
+@keyframes fadeInUser{
+  from{opacity:0; transform:translateY(20px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+.user-mini-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.user-mini-icon{
+  width:52px;
+  height:52px;
+  border-radius:16px;
+  background:rgba(255,255,255,.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.user-mini-icon img{
+  width:28px;
+  height:28px;
+}
+
+.user-mini-phone{
+  font-size:18px;
+  font-weight:900;
+  color:#fff;
+  text-shadow:0 0 10px rgba(0,200,255,.4);
+}
+
+.user-mini-body{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.mini-row{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  color:rgba(255,255,255,.85);
+}
+
+.mini-row strong{
+  color:#ffffff;
+  font-weight:900;
 }
   </style>
 </head>
@@ -646,7 +1094,7 @@ input,select{
       </div>
 
       <!-- RIGHT CONTENT -->
-      <div class="card card-anim">
+      <div class="card card-anim dashboard-card">
         {% block content %}{% endblock %}
       </div>
     </div>
@@ -740,6 +1188,40 @@ input,select{
       window.__msgModalInput.value = textarea.value;
       closeMsgModal();
     }
+  </script>
+  <script>
+    // ===== Perf counter animation (count-up) =====
+    (function(){
+      function animateCount(el, to, duration){
+        to = Number(to || 0);
+        if(!Number.isFinite(to)) to = 0;
+  
+        const t0 = performance.now();
+  
+        function tick(t){
+          const p = Math.min(1, (t - t0) / duration);
+          const eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+          const val = Math.round(to * eased);
+          el.textContent = val;
+  
+          if(p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+  
+      function runPerfCounters(){
+        const counters = document.querySelectorAll(".perf-card .count[data-value]");
+        counters.forEach((el) => {
+          const target = el.getAttribute("data-value");
+          el.textContent = "0";
+          animateCount(el, target, 900);
+        });
+      }
+  
+      window.addEventListener("load", () => {
+        setTimeout(runPerfCounters, 250);
+      });
+    })();
   </script>
 </body>
 </html>

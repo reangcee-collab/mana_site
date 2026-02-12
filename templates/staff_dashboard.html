@@ -8,21 +8,21 @@
     <div class="muted">Quick totals</div>
   </div>
 
-  <!-- ✅ Search -->
-  <form class="dash-search" method="get" action="{% url 'staff_users' %}">
-    <select name="period" class="dash-select">
-      <option value="">All time</option>
-      <option value="today">Today</option>
-      <option value="yesterday">Yesterday</option>
-      <option value="this_week">This Week</option>
-      <option value="last_week">Last Week</option>
-      <option value="this_month">This Month</option>
-      <option value="last_month">Last Month</option>
-    </select>
+<!-- ✅ Search (stay on dashboard) -->
+<form class="dash-search" method="get" action="{% url 'staff_dashboard' %}">
+  <select name="period" class="dash-select">
+    <option value="" {% if period == "" %}selected{% endif %}>All time</option>
+    <option value="today" {% if period == "today" %}selected{% endif %}>Today</option>
+    <option value="yesterday" {% if period == "yesterday" %}selected{% endif %}>Yesterday</option>
+    <option value="this_week" {% if period == "this_week" %}selected{% endif %}>This Week</option>
+    <option value="last_week" {% if period == "last_week" %}selected{% endif %}>Last Week</option>
+    <option value="this_month" {% if period == "this_month" %}selected{% endif %}>This Month</option>
+    <option value="last_month" {% if period == "last_month" %}selected{% endif %}>Last Month</option>
+  </select>
 
-    <input class="dash-input" type="text" name="q" placeholder="Search phone...">
-    <button class="dash-btn" type="submit">Search</button>
-  </form>
+  <input class="dash-input" type="text" name="phone" placeholder="Search phone..." value="{{ phone|default:'' }}">
+  <button class="dash-btn" type="submit">Search</button>
+</form>
 </div>
 
   <div class="content staffdash">
@@ -94,7 +94,7 @@
 
     </div>
 
-    <<!-- ===== Performance Overview (User Register) ===== -->
+    <!-- ===== Performance Overview (User Register) ===== -->
 <div class="perf-wrap">
   <div class="perf-card" style="margin-top:14px;">
     <div class="perf-head">

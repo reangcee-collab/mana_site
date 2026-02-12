@@ -205,6 +205,34 @@ def staff_dashboard(request):
             searched_user = User.objects.get(phone=phone)
         except User.DoesNotExist:
             searched_user = None
+            # ===== Dashboard Search (phone + period) =====
+    period = (request.GET.get("period") or "").strip()
+    phone = (request.GET.get("phone") or "").strip()
+
+    searched_user = None
+    if phone:
+        qs = User.objects.filter(phone__icontains=phone)
+
+        if period == "today":
+            qs = qs.filter(created_at__range=(today_start, today_end))
+        elif period == "yesterday":
+            qs = qs.filter(created_at__range=(yday_start, yday_end))
+        elif period == "this_week":
+            qs = qs.filter(created_at__gte=week_start)
+        elif period == "last_week":
+            qs = qs.filter(created_at__range=(last_week_start, last_week_end))
+        elif period == "this_month":
+            qs = qs.filter(created_at__gte=month_start)
+        elif period == "last_month":
+            qs = qs.filter(created_at__range=(last_month_start, last_month_end))
+
+        searched_user = qs.order_by("-created_at").first()
+
+        # attach loan values for template (loan_amount / monthly_repay)
+        if searched_user:
+            loan = LoanApplication.objects.filter(user=searched_user).order_by("-id").first()
+            searched_user.loan_amount = getattr(loan, "loan_amount", None) if loan else None
+            searched_user.monthly_repay = getattr(loan, "monthly_repayment", None) if loan else None
     context = {
         "total_users": total_users,
         "total_loans": total_loans,
@@ -218,6 +246,9 @@ def staff_dashboard(request):
         "reg_last_week": reg_last_week,
         "reg_this_month": reg_this_month,
         "reg_last_month": reg_last_month,
+        "searched_user": searched_user,
+        "period": period,
+        "phone": phone,
         "searched_user": searched_user,
     }
     return render(request, "staff_dashboard.html", context)

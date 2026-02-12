@@ -173,6 +173,37 @@ def dashboard_view(request):
         "last_loan": last_loan,
         "notif_count": notif_count,
     })
+import json
+import urllib.request
+from django.views.decorators.http import require_GET
+@require_GET
+def fx_rates_api(request):
+    url = "https://open.er-api.com/v6/latest/USD"
+    wanted = ["PHP","SAR","MYR","INR","PKR","IDR","VND","OMR","KES","AFN"]
+
+    try:
+        with urllib.request.urlopen(url, timeout=10) as r:
+            data = json.loads(r.read().decode("utf-8"))
+
+        rates = data.get("conversion_rates") or data.get("rates") or {}
+
+        filtered = {}
+        for c in wanted:
+            v = rates.get(c, None)
+            # ensure numeric or None
+            try:
+                filtered[c] = float(v) if v is not None else None
+            except Exception:
+                filtered[c] = None
+
+        return JsonResponse({
+            "base": "USD",
+            "updated": data.get("time_last_update_utc") or data.get("date") or "",
+            "rates": filtered,
+        })
+    except Exception:
+        return JsonResponse({"base":"USD","updated":"","rates":{}}, status=200)
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from .models import LoanApplication, PaymentMethod

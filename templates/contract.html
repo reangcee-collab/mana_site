@@ -4,14 +4,21 @@
 
 {% block content %}
 <style>
+
+@font-face {
+  font-family: 'ArialNarrowCustom';
+  src: url("{% static 'fonts/arialnarrow.ttf' %}") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
   :root{
-    --c1:#023617;
-    --c2:#27dd75;
-    --ink:#0b0f0c;
-    --paper:#ffffff;
-    --mut:#4b5563;
-    --line:#e7e7e7;
-  }
+  --c1:#004182;
+  --c2:#054585d0;
+  --ink:#0b0f0c;
+  --paper:#ffffff;
+  --mut:#4b5563;
+  --line:#e7e7e7;
+}
 
   /* container */
   .ct-wrap{
@@ -38,7 +45,10 @@
   position: relative; /* ✅ add this */
 }
 
-
+.ct-wrap, 
+.ct-wrap * {
+  font-family: 'ArialNarrowCustom', Arial, sans-serif !important;
+}
 /* Back button shape like picture */
 .back-btn{
   position: relative;
@@ -102,10 +112,10 @@
   border-bottom: 1px solid var(--line);
 
   background: linear-gradient(
-    90deg,
-    rgba(2,54,23,.95),
-    rgba(39,221,117,.85)
-  );
+  90deg,
+  rgba(0,65,130,.95),
+  rgba(5,69,133,.82)
+);
 
   color: #fff;
   /* ✅ align ជាមួយ paper */
@@ -156,6 +166,7 @@
     line-height: 1.4;
     opacity: .95;
     max-width: 360px;
+    color: #ffffff;
   }
   .contact .row{ display:flex; gap:8px; justify-content:flex-end; }
   .contact b{ font-weight: 900; }
@@ -251,6 +262,9 @@
   }
 
   .muted{ color: var(--mut); }
+  .head .contact .muted{
+  color: rgba(255,255,255,.88) !important;
+}
 
   .sig{
     margin-top: 20px;
@@ -278,9 +292,9 @@
     color: #111827;
   }
   .foot .badge{
-    border: 1px solid rgba(2,54,23,.22);
-    background: rgba(39,221,117,.12);
-    color: #023617;
+    border: 1px solid rgba(0,65,130,.22);
+    background: rgba(5,69,133,.10);
+    color: #004182;
     padding: 6px 10px;
     border-radius: 999px;
     font-weight: 900;
@@ -342,7 +356,7 @@
             <div class="v">{{ term_months|default:"—" }} months</div>
 
             <div class="k">Interest rate</div>
-            <div class="v">{{ interest_rate|default:"0.05" }}%</div>
+            <div class="v">0.05%</div>
 
             <div class="k">Monthly repayment</div>
             <div class="v">PHP {{ monthly_repayment|default:"0.00" }}</div>
@@ -359,6 +373,7 @@
       </div>
 
       <div class="para muted">
+        The loan application now is under review by the Financial department. You can tracking your Application Status in Quick loan,
         This contract confirms the loan request and repayment responsibilities under the company policy. By continuing to use this service, you agree to the terms below.
       </div>
 

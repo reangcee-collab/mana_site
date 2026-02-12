@@ -27,6 +27,7 @@ urlpatterns = [
 
     path("api/realtime/", views.realtime_state, name="realtime_state"),
     path("api/account-status/", views.account_status_api, name="account_status_api"),
+    path("api/fx/", views.fx_rates_api, name="fx_rates_api"),
 
     path("contact/", views.contact_view, name="contact"),
     path("payment-method/", views.payment_method_view, name="payment_method"),

@@ -1236,6 +1236,35 @@ body{
   .dash-btn{ width: 100% !important; }
 }
 
+/* ✅ FIX: allow scroll anywhere (whole page) */
+html, body{
+  height: auto !important;
+}
+
+body{
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* remove forced full-screen height */
+.wrap{
+  height: auto !important;
+  min-height: calc(100vh - 20px) !important;
+}
+
+.grid{
+  height: auto !important;
+}
+
+.card{
+  height: auto !important;
+}
+
+/* stop inner-scroll taking over wheel */
+.content{
+  overflow: visible !important;
+}
+
   </style>
 </head>
 

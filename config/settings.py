@@ -121,6 +121,13 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # where collectstatic puts files in production
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# where collectstatic puts files in production
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# ✅ ADD THIS LINE (fix Railway collectstatic crash)
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+MEDIA_URL = "/media/"
 
 MEDIA_URL = "/media/"
 

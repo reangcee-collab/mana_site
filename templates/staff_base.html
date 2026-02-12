@@ -1127,6 +1127,13 @@ table a{
 table a:hover{
   text-decoration: underline;
 }
+/* ===== WELCOME ANIMATION: play ONCE per session ===== */
+body.no-welcome-anim .pill.pill-anim-top,
+body.no-welcome-anim .card.card-anim,
+body.no-welcome-anim .card.card-anim-left,
+body.no-welcome-anim .perf-bars .bar{
+  animation: none !important;
+}
   </style>
 </head>
 
@@ -1316,6 +1323,17 @@ table a:hover{
       window.addEventListener("load", () => {
         setTimeout(runPerfCounters, 250);
       });
+    })();
+  </script>
+  <script>
+    (function(){
+      // if already played in this tab/session, disable animations
+      if (sessionStorage.getItem("staffWelcomePlayed") === "1"){
+        document.body.classList.add("no-welcome-anim");
+        return;
+      }
+      // first time: allow animations, then mark as played
+      sessionStorage.setItem("staffWelcomePlayed", "1");
     })();
   </script>
 </body>

@@ -1,10 +1,52 @@
-from django import forms
-from django.core.exceptions import ValidationError
-from .models import PaymentMethod
-from django.utils.html import format_html
-from django import forms
-from .models import LoanApplication
+# forms.py
 
+import os
+from django import forms
+from django.utils.html import format_html
+
+from .models import User, PaymentMethod, LoanApplication
+
+
+# =========================
+# Upload Validation Helpers
+# =========================
+ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
+ALLOWED_PROOF_EXT = {".pdf", ".jpg", ".jpeg", ".png", ".webp"}
+
+MAX_IMAGE_MB = 5
+MAX_PROOF_MB = 8
+
+
+def _validate_file(f, allowed_ext, max_mb, label="File"):
+    """
+    Validate file extension + file size.
+    - Blocks iPhone HEIC (unless you add support later)
+    - Blocks huge files (avoid slow + storage waste)
+    """
+    if not f:
+        return
+
+    ext = os.path.splitext(getattr(f, "name", "") or "")[1].lower()
+
+    # iPhone HEIC block (common issue)
+    if ext == ".heic":
+        raise forms.ValidationError("iPhone HEIC មិន support។ សូម convert ទៅ JPG/PNG/WebP មុន upload.")
+
+    if ext not in allowed_ext:
+        raise forms.ValidationError(f"{label} type មិនត្រឹមត្រូវ: {ext}")
+
+    try:
+        size_mb = (f.size or 0) / (1024 * 1024)
+    except Exception:
+        size_mb = 0
+
+    if size_mb > max_mb:
+        raise forms.ValidationError(f"{label} ធំពេក ({size_mb:.1f}MB). Max {max_mb}MB.")
+
+
+# =========================
+# Staff Loan Form (ModelForm)
+# =========================
 class StaffLoanApplicationForm(forms.ModelForm):
     class Meta:
         model = LoanApplication
@@ -24,6 +66,36 @@ class StaffLoanApplicationForm(forms.ModelForm):
             "id_front", "id_back", "selfie_with_id", "signature_image",
         ]
 
+    # ✅ File validators (only adds safety; does not change your logic)
+    def clean_id_front(self):
+        f = self.cleaned_data.get("id_front")
+        _validate_file(f, ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "ID Front")
+        return f
+
+    def clean_id_back(self):
+        f = self.cleaned_data.get("id_back")
+        _validate_file(f, ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "ID Back")
+        return f
+
+    def clean_selfie_with_id(self):
+        f = self.cleaned_data.get("selfie_with_id")
+        _validate_file(f, ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "Selfie + ID")
+        return f
+
+    def clean_signature_image(self):
+        f = self.cleaned_data.get("signature_image")
+        _validate_file(f, ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "Signature")
+        return f
+
+    def clean_income_proof(self):
+        f = self.cleaned_data.get("income_proof")
+        _validate_file(f, ALLOWED_PROOF_EXT, MAX_PROOF_MB, "Income Proof")
+        return f
+
+
+# =========================
+# Admin Image Preview Widget
+# =========================
 class AdminImagePreviewWidget(forms.ClearableFileInput):
     """
     Show image preview instead of text link in admin form.
@@ -37,12 +109,12 @@ class AdminImagePreviewWidget(forms.ClearableFileInput):
 
     def get_context(self, name, value, attrs):
         ctx = super().get_context(name, value, attrs)
-        # Add preview html
+
         if value and hasattr(value, "url"):
             ctx["preview_html"] = format_html(
                 '<div style="margin:6px 0 10px;">'
                 '<img src="{}" style="height:110px;border-radius:10px;object-fit:cover;border:1px solid #ddd;" />'
-                '</div>',
+                "</div>",
                 value.url
             )
         else:
@@ -51,7 +123,6 @@ class AdminImagePreviewWidget(forms.ClearableFileInput):
 
     def render(self, name, value, attrs=None, renderer=None):
         ctx = self.get_context(name, value, attrs)
-        # preview on top + normal file input below (Change:)
         html = "{}{}".format(ctx.get("preview_html", ""), super().render(name, value, attrs, renderer))
         return html
 
@@ -67,9 +138,20 @@ class LoanApplicationAdminForm(forms.ModelForm):
             "signature_image": AdminImagePreviewWidget(label="Signature"),
         }
 
-from django import forms
-from .models import PaymentMethod
+    # ✅ Add upload safety in admin too (doesn't change any existing fields)
+    def clean(self):
+        cleaned = super().clean()
+        _validate_file(cleaned.get("id_front"), ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "ID Front")
+        _validate_file(cleaned.get("id_back"), ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "ID Back")
+        _validate_file(cleaned.get("selfie_with_id"), ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "Selfie + ID")
+        _validate_file(cleaned.get("signature_image"), ALLOWED_IMAGE_EXT, MAX_IMAGE_MB, "Signature")
+        _validate_file(cleaned.get("income_proof"), ALLOWED_PROOF_EXT, MAX_PROOF_MB, "Income Proof")
+        return cleaned
 
+
+# =========================
+# Payment Method Form (keep your exact logic)
+# =========================
 class PaymentMethodForm(forms.ModelForm):
     class Meta:
         model = PaymentMethod
@@ -103,8 +185,11 @@ class PaymentMethodForm(forms.ModelForm):
             raise forms.ValidationError("Wallet requires BOTH: Account name + Phone number.")
 
         return cleaned
-from .models import User, PaymentMethod
 
+
+# =========================
+# Staff User / Payment Method Forms (unchanged)
+# =========================
 class StaffUserForm(forms.ModelForm):
     class Meta:
         model = User
@@ -116,7 +201,7 @@ class StaffUserForm(forms.ModelForm):
             "success_message",
             "status_message",
             "is_active",
-            "balance",   # ✅ ADD THIS
+            "balance",
         ]
 
 

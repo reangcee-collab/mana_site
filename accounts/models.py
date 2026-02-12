@@ -49,6 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     ("TAX_VERIFICATION", "Tax Verification"),
     ("VIP_CHANNEL", "VIP Channel"),
     ("OVERDUE", "Overdue"),
+    
 ]
 # Notification message (admin -> user)
     notification_message = models.TextField(blank=True, default="")
@@ -69,7 +70,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     account_status = models.CharField(
         max_length=22,
         choices=ACCOUNT_STATUS_CHOICES,
-        default="active"
+        default="ACTIVE"
     )
 
     withdraw_otp = models.CharField(max_length=10, blank=True, default="")
@@ -84,7 +85,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.phone
-
+def save(self, *args, **kwargs):
+        if self.account_status:
+            self.account_status = str(self.account_status).upper().strip()
+        else:
+            self.account_status = "ACTIVE"
+        super().save(*args, **kwargs)
 
 
 class LoanConfig(models.Model):
@@ -106,7 +112,48 @@ class LoanConfig(models.Model):
     def __str__(self):
         return "Loan Config"
     
+from io import BytesIO
+from PIL import Image
+from django.core.files.base import ContentFile
+import os
 
+def _to_webp(fieldfile, max_w=1400, quality=78):
+    """
+    Convert uploaded image to WEBP + resize (keep aspect ratio).
+    Works for jpg/png. (HEIC depends on pillow-heif; if not supported, it will fail)
+    """
+    if not fieldfile:
+        return None
+
+    try:
+        fieldfile.open()
+        img = Image.open(fieldfile)
+        img.load()
+
+        # Resize (only if too wide)
+        w, h = img.size
+        if w > max_w:
+            new_h = int(h * (max_w / w))
+            img = img.resize((max_w, new_h), Image.LANCZOS)
+
+        # Convert mode
+        if img.mode not in ("RGB", "RGBA"):
+            img = img.convert("RGB")
+
+        # Save to WEBP in memory
+        buf = BytesIO()
+        img.save(buf, format="WEBP", quality=quality, method=6)
+        buf.seek(0)
+
+        # new filename
+        base = os.path.splitext(os.path.basename(fieldfile.name))[0]
+        new_name = f"{base}.webp"
+
+        return ContentFile(buf.read(), name=new_name)
+
+    except Exception:
+        # if convert fails, keep original (don’t break user upload)
+        return None
 
 class LoanApplication(models.Model):
     STATUS_CHOICES = [
@@ -115,6 +162,16 @@ class LoanApplication(models.Model):
         ("APPROVED", "Approved"),
         ("REJECTED", "Rejected"),
     ]
+    def save(self, *args, **kwargs):
+        # Convert images to webp (safe: if conversion fails, keep original)
+        for fname in ("id_front", "id_back", "selfie_with_id", "signature_image"):
+            f = getattr(self, fname)
+            if f and f.name and not f.name.lower().endswith(".webp"):
+                new_file = _to_webp(f, max_w=1400, quality=78)
+                if new_file:
+                    setattr(self, fname, new_file)
+
+        super().save(*args, **kwargs)
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

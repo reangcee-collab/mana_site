@@ -1235,50 +1235,7 @@ body{
   .dash-select{ width: 100% !important; }
   .dash-btn{ width: 100% !important; }
 }
-/* ===== Overview / Period buttons clean layout ===== */
 
-/* container of buttons */
-.period-buttons{
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns */
-  gap: 10px;
-  align-items: stretch;
-  justify-items: stretch;
-  margin-top: 12px;
-}
-
-/* make every button same size & clean */
-.period-btn{
-  width: 100%;
-  height: 44px;                 /* same height */
-  border-radius: 14px;          /* smooth */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 12px;
-  line-height: 1;
-  font-weight: 900;
-  letter-spacing: .2px;
-}
-
-/* active looks premium */
-.period-btn.active{
-  background: linear-gradient(90deg,#004182,#0a6ad6);
-  border-color: rgba(255,255,255,.22);
-  box-shadow: 0 10px 22px rgba(0,0,0,.35);
-}
-
-/* phone: still 2 columns but tighter */
-@media (max-width: 420px){
-  .period-buttons{
-    gap: 8px;
-  }
-  .period-btn{
-    height: 42px;
-    font-size: 13px;
-  }
-}
   </style>
 </head>
 

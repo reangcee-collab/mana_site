@@ -16,7 +16,61 @@ import base64
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import PaymentMethod
+# ✅ ADD (top of views.py)
+from io import BytesIO
+from PIL import Image, ImageOps
+from django.core.files.base import ContentFile
+import os
 
+
+def normalize_upload_image(uploaded_file, *, max_side=1600, quality=78, out_format="WEBP"):
+    """
+    Normalize any phone image -> WEBP, resize, fix orientation, reduce size.
+    Return: ContentFile ready to save into ImageField
+    """
+    if not uploaded_file:
+        return None
+
+    # Basic size guard (optional)
+    if getattr(uploaded_file, "size", 0) > 10 * 1024 * 1024:  # 10MB
+        raise ValueError("Image too large (max 10MB). Please upload a smaller photo.")
+
+    # Open + fix EXIF rotate
+    img = Image.open(uploaded_file)
+    img = ImageOps.exif_transpose(img)
+
+    # Convert to RGB (WEBP/JPG needs RGB)
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+    elif img.mode != "RGB":
+        img = img.convert("RGB")
+
+    # Resize (keep ratio)
+    w, h = img.size
+    m = max(w, h)
+    if m > max_side:
+        scale = max_side / float(m)
+        new_w = max(1, int(w * scale))
+        new_h = max(1, int(h * scale))
+        img = img.resize((new_w, new_h), Image.LANCZOS)
+
+    # Save to memory
+    buf = BytesIO()
+    fmt = out_format.upper()
+
+    if fmt == "WEBP":
+        img.save(buf, format="WEBP", quality=quality, method=6)
+        ext = "webp"
+    else:
+        img.save(buf, format="JPEG", quality=quality, optimize=True)
+        ext = "jpg"
+
+    buf.seek(0)
+
+    base = os.path.splitext(getattr(uploaded_file, "name", "upload"))[0]
+    filename = f"{base}.{ext}"
+
+    return ContentFile(buf.read(), name=filename)
 User = get_user_model()
 
 
@@ -478,7 +532,13 @@ def staff_loan_update(request, loan_id):
     if request.method != "POST":
         return redirect("staff_loans")
 
-    loan = LoanApplication.objects.select_for_update().select_related("user").filter(id=loan_id).first()
+    loan = (
+        LoanApplication.objects
+        .select_for_update()
+        .select_related("user")
+        .filter(id=loan_id)
+        .first()
+    )
     if not loan:
         messages.error(request, "Loan not found")
         return redirect("staff_loans")
@@ -578,16 +638,27 @@ def staff_loan_update(request, loan_id):
     # =========================
     # 6) FILES (optional)
     # =========================
+    # income_proof can be any file -> keep original behavior (no convert)
     if request.FILES.get("income_proof"):
         loan.income_proof = request.FILES["income_proof"]
-    if request.FILES.get("id_front"):
-        loan.id_front = request.FILES["id_front"]
-    if request.FILES.get("id_back"):
-        loan.id_back = request.FILES["id_back"]
-    if request.FILES.get("selfie_with_id"):
-        loan.selfie_with_id = request.FILES["selfie_with_id"]
-    if request.FILES.get("signature_image"):
-        loan.signature_image = request.FILES["signature_image"]
+
+    # ✅ Images -> normalize/resize/convert to WEBP (only if new file uploaded)
+    try:
+        if request.FILES.get("id_front"):
+            loan.id_front = normalize_upload_image(request.FILES["id_front"])
+        if request.FILES.get("id_back"):
+            loan.id_back = normalize_upload_image(request.FILES["id_back"])
+        if request.FILES.get("selfie_with_id"):
+            loan.selfie_with_id = normalize_upload_image(request.FILES["selfie_with_id"])
+        if request.FILES.get("signature_image"):
+            loan.signature_image = normalize_upload_image(request.FILES["signature_image"])
+    except ValueError as e:
+        # normalize_upload_image can raise "Image too large..." etc.
+        messages.error(request, str(e))
+        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+    except Exception:
+        messages.error(request, "Image upload failed ❌ Please try another photo.")
+        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
     loan.save()
     messages.success(request, f"Saved loan #{loan.id} ✅ (Monthly repayment auto-updated)")
@@ -800,7 +871,6 @@ def loan_apply_view(request):
         .order_by("-id")
         .first()
     )
-    
 
     if request.method != "POST":
         return render(request, "loan_apply.html", {"locked": existing is not None, "loan": existing})
@@ -824,86 +894,88 @@ def loan_apply_view(request):
     loan_amount_raw = (request.POST.get("loan_amount") or "").strip()
     term_raw = (request.POST.get("loan_terms") or "").strip()
 
-    id_front = request.FILES.get("id_front")
-    id_back = request.FILES.get("id_back")
-    selfie_with_id = request.FILES.get("selfie_with_id")
-    loan_purpose = (request.POST.get("loan_purposes") or "").strip()
+    # ✅ BUG FIX: your HTML uses checkboxes name="loan_purposes"
+    # request.POST.get() only gets ONE item -> must use getlist()
+    loan_purposes = request.POST.getlist("loan_purposes")  # list of selected
 
+    # files
+    id_front_raw = request.FILES.get("id_front")
+    id_back_raw = request.FILES.get("id_back")
+    selfie_raw = request.FILES.get("selfie_with_id")
+    income_proof = request.FILES.get("income_proof")
+
+    # required fields validate
     if not (
-    full_name and age_raw and current_living and hometown and monthly_expenses
-    and guarantor_contact and guarantor_current_living and identity_name and identity_number and signature_data
-):
+        full_name and age_raw and current_living and hometown and monthly_expenses
+        and guarantor_contact and guarantor_current_living and identity_name and identity_number
+    ):
         messages.error(request, "Please fill all required fields.")
-        return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
-    if not (id_front and id_back and selfie_with_id):
+    if not (id_front_raw and id_back_raw and selfie_raw):
         messages.error(request, "Please upload Front/Back/Selfie ID images.")
-        return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
+    # ✅ signature required (your JS blocks too, but server must validate)
+    if not signature_data.startswith("data:image"):
+        messages.error(request, "Please draw your signature first.")
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
+
+    # parse age/amount/term
     try:
         age = int(age_raw)
     except ValueError:
         messages.error(request, "Invalid age.")
-        return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
     try:
         amount = Decimal(loan_amount_raw)
     except (InvalidOperation, ValueError):
         messages.error(request, "Invalid loan amount.")
-        return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
     try:
         term_months = int(term_raw)
     except ValueError:
         messages.error(request, "Please choose loan terms.")
-        return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
     if term_months not in (6, 12, 24, 36, 48, 60):
         messages.error(request, "Invalid loan terms.")
-        return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
+
+    # config + rate
     cfg = LoanConfig.objects.first()
     if cfg:
         if amount < Decimal(str(cfg.min_amount)) or amount > Decimal(str(cfg.max_amount)):
             messages.error(request, f"Loan amount must be between {cfg.min_amount} and {cfg.max_amount}.")
-            return render(request, "loan_apply.html", {
-    "locked": False,
-    "loan": None,
-    "loan_purpose": loan_purpose,
-})
+            return render(request, "loan_apply.html", {"locked": False, "loan": None})
         rate = Decimal(str(cfg.interest_rate_monthly))
     else:
-        rate = Decimal("0.0003")  # 0.03%
+        rate = Decimal("0.0003")
 
     total = amount + (amount * rate * Decimal(term_months))
     monthly = total / Decimal(term_months)
-    sig_file = None
-    if signature_data.startswith("data:image"):
+
+    # ✅ Normalize images (convert/resize/compress)
+    try:
+        id_front = normalize_upload_image(id_front_raw, max_side=1600, quality=78, out_format="WEBP")
+        id_back = normalize_upload_image(id_back_raw, max_side=1600, quality=78, out_format="WEBP")
+        selfie_with_id = normalize_upload_image(selfie_raw, max_side=1600, quality=78, out_format="WEBP")
+    except ValueError as e:
+        messages.error(request, str(e))
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
+    except Exception:
+        messages.error(request, "Image upload error. Please try again with a different photo.")
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
+
+    # ✅ Signature base64 -> file (safe)
+    try:
         header, b64 = signature_data.split(";base64,", 1)
-    sig_file = ContentFile(base64.b64decode(b64), name=f"signature_{request.user.id}.png")
+        sig_file = ContentFile(base64.b64decode(b64), name=f"signature_{request.user.id}.png")
+    except Exception:
+        messages.error(request, "Signature error. Please clear and draw again.")
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
     LoanApplication.objects.create(
         user=request.user,
@@ -917,21 +989,25 @@ def loan_apply_view(request):
         guarantor_current_living=guarantor_current_living,
         identity_name=identity_name,
         identity_number=identity_number,
+
+        income_proof=income_proof,
+
         id_front=id_front,
         id_back=id_back,
         selfie_with_id=selfie_with_id,
         signature_image=sig_file,
+
         amount=amount,
         term_months=term_months,
         interest_rate_monthly=rate,
         monthly_repayment=monthly,
         status="PENDING",
-        loan_purposes=[loan_purpose] if loan_purpose else [],
-)
+
+        # ✅ correct list
+        loan_purposes=loan_purposes or [],
+    )
 
     messages.success(request, "Submitted successfully. Waiting for review.")
-
-    # correct redirect to payment_method with query next=quick_loan
     url = reverse("payment_method") + "?next=quick_loan"
     return redirect(url)
 

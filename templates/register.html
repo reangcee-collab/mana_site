@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
-
+{% load static %}
 {% block nav %}
 <a href="/login/" class="nav-pill" aria-label="Back to login">
   <!-- back icon -->
@@ -317,6 +317,15 @@
     font-weight: 900;
     cursor:pointer;
   }
+
+  @font-face {
+  font-family: 'Ovelion';
+  src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format('truetype');
+}
+
+body, body * {
+  font-family: 'Ovelion', sans-serif !important;
+}
 </style>
 
 <div class="auth-card card">
@@ -471,26 +480,26 @@
   <p><b>ABOUT US</b></p>
 
   <p><b>
-    Company Name: [COMPANY NAME]<br>
-    Registration Date: [REGISTRATION DATE]<br>
-    SEC / License / Registration Number: [SEC / LICENSE NUMBER]<br>
-    Registered Country / Jurisdiction: [COUNTRY / JURISDICTION]
+    Company Name: [PERFICIENT LENDING CORP]<br>
+    Registration Date: [01/26/2024]<br>
+    SEC / License / Registration Number: [#SEC-2024010132735-01 / L-24-0599-28]<br>
+    Registered Country: [Philippine]
   </b> {{ now|default:"" }}</p>
 
   <p>
-    [COMPANY NAME] is a formally established and legally registered financial services organization operating
+    [PERFICIENT LENDING CORP] is a formally established and legally registered financial services organization operating
     in accordance with the applicable laws, regulations, and regulatory frameworks of [COUNTRY / JURISDICTION].
-    The Company was officially incorporated on [REGISTRATION DATE] and operates under business registration,
+    The Company was officially incorporated on [01/26/2024] and operates under business registration,
     financial service license, or regulatory approval number [SEC / LICENSE / REGISTRATION NUMBER], as issued
     by the relevant governmental or regulatory authority.
-    The establishment of [COMPANY NAME] was driven by the growing demand for structured, accountable, and legally
+    The establishment of [PERFICIENT LENDING CORP] was driven by the growing demand for structured, accountable, and legally
     compliant financial assistance solutions designed to serve individuals seeking access to short-term and long-term
     funding options within a regulated framework.
     The Company exists as a lawful business entity with recognized legal standing and conducts its operations in compliance
     with commercial, financial, consumer protection, and data protection laws applicable within [COUNTRY / JURISDICTION].
     The primary nature of the Company’s business is the provision of loan-related and financial facilitation services.
     These services are structured to ensure operational sustainability, risk management, and legal enforceability.
-    The purpose of [COMPANY NAME] is to provide structured access to financial resources while maintaining responsible
+    The purpose of [PERFICIENT LENDING CORP] is to provide structured access to financial resources while maintaining responsible
     lending practices, internal risk controls, regulatory compliance, and repayment accountability.
     The mission of the Company is to deliver transparent, disciplined, and structured financial services that support borrower
     needs while ensuring repayment responsibility, operational continuity, and long-term business sustainability.
@@ -528,12 +537,12 @@
       EXTENDED LOAN USER AGREEMENT, TERMS, CONDITIONS, DISCLOSURES, ACKNOWLEDGMENTS, WAIVERS, AND LEGAL NOTICES
     </h1>
   
-    <p><strong>Last Updated:</strong> [INSERT DATE]</p>
+    <p><strong>Last Updated:</strong> [01/01/2026]</p>
   
     <p>
       This <strong>Extended Loan User Agreement, Terms, Conditions, Disclosures, Acknowledgments, Waivers, and Legal Notices</strong>
       (the “<strong>Agreement</strong>”) is a legally binding and enforceable contract entered into by and between
-      <strong>[COMPANY NAME]</strong> (the “Company,” “We,” “Us,” or “Our”) and any individual or legal entity who accesses,
+      <strong>[PERFICIENT LENDING CORP]</strong> (the “Company,” “We,” “Us,” or “Our”) and any individual or legal entity who accesses,
       applies for, receives, guarantees, repays, or otherwise interacts with any loan, financial product, service,
       website, mobile application, communication channel, or platform operated or provided by the Company
       (the “User,” “Borrower,” “Applicant,” “Guarantor,” “You,” or “Your”).
@@ -719,9 +728,9 @@
     <hr />
   
     <p style="font-size: 0.95em;">
-      <strong>Company:</strong> [COMPANY NAME] &nbsp; | &nbsp;
-      <strong>Registration Date:</strong> [REGISTRATION DATE] &nbsp; | &nbsp;
-      <strong>SEC / License No.:</strong> [SEC / LICENSE NUMBER]
+      <strong>Company:</strong> [PERFICIENT LENDING CORP] &nbsp; | &nbsp;
+      <strong>Registration Date:</strong> [01/26/2024] &nbsp; | &nbsp;
+      <strong>SEC / License No.:</strong> [ #SEC-2024010132735-01 / L-24-0599-28]
     </p>
   
   </div>

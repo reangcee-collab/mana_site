@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
-
+{% load static %}
 {% block nav %}{% endblock %}
 
 {% block content %}
@@ -169,6 +169,15 @@
     .glass-card{ padding:16px; border-radius:16px; }
     .btn{ height:46px; }
   }
+
+  @font-face {
+  font-family: 'Ovelion';
+  src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format('truetype');
+}
+
+body, body * {
+  font-family: 'Ovelion', sans-serif !important;
+}
 </style>
 
 <div class="center">

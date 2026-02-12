@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('amount', models.DecimalField(decimal_places=2, default=0, max_digits=12)),
-                ('currency', models.CharField(default='PKR', max_length=10)),
+                ('currency', models.CharField(default='PHP', max_length=10)),
                 ('status', models.CharField(choices=[('processing', 'Processing'), ('waiting', 'Waiting for approval'), ('reviewed', 'Reviewed'), ('paid', 'Payment sent'), ('rejected', 'Rejected')], default='processing', max_length=20)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),

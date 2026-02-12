@@ -1,7 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Welcome{% endblock %}
-
+{% load static %}
 {% block content %}
+
+<style>
+  @font-face {
+    font-family: 'Ovelion';
+    src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format('truetype');
+  }
+  
+  body, body * {
+    font-family: 'Ovelion', sans-serif !important;
+  }
+  </style>
 <div class="card">
 
   <h1 style="margin:0 0 10px;font-size:36px;font-weight:900;letter-spacing:.6px;">

@@ -95,87 +95,77 @@
     </div>
 
     <!-- ===== Performance Overview (User Register) ===== -->
-<div class="perf-wrap">
-  <div class="perf-card" style="margin-top:14px;">
-    <div class="perf-head">
-      <div>
-        <div class="perf-title">Performance Overview</div>
-        <div class="perf-sub">User register activity</div>
+    <div class="perf-wrap">
+
+      <div class="perf-card" style="margin-top:14px;">
+        <div class="perf-head">
+          <div>
+            <div class="perf-title">Performance Overview</div>
+            <div class="perf-sub">User register activity</div>
+          </div>
+        </div>
+    
+        <div class="perf-bars">
+          <div class="bar teal" style="height:120px;">
+            <i class="count" data-value="{{ reg_today }}">{{ reg_today }}</i>
+            <span>Today</span>
+          </div>
+    
+          <div class="bar teal" style="height:100px;">
+            <i class="count" data-value="{{ reg_yesterday }}">{{ reg_yesterday }}</i>
+            <span>Yesterday</span>
+          </div>
+    
+          <div class="bar orange" style="height:160px;">
+            <i class="count" data-value="{{ reg_this_week }}">{{ reg_this_week }}</i>
+            <span>This Week</span>
+          </div>
+    
+          <div class="bar orange" style="height:140px;">
+            <i class="count" data-value="{{ reg_last_week }}">{{ reg_last_week }}</i>
+            <span>Last Week</span>
+          </div>
+    
+          <div class="bar purple" style="height:170px;">
+            <i class="count" data-value="{{ reg_this_month }}">{{ reg_this_month }}</i>
+            <span>This Month</span>
+          </div>
+    
+          <div class="bar purple" style="height:150px;">
+            <i class="count" data-value="{{ reg_last_month }}">{{ reg_last_month }}</i>
+            <span>Last Month</span>
+          </div>
+        </div>
       </div>
+    
+      {% if searched_user %}
+      <div class="user-mini-card">
+        <div class="user-mini-head">
+          <div class="user-mini-icon">
+            <img src="{% static 'icons/users.webp' %}" alt="User">
+          </div>
+          <div class="user-mini-phone">{{ searched_user.phone }}</div>
+        </div>
+    
+        <div class="user-mini-body">
+          <div class="mini-row">
+            <span>Date Register</span>
+            <strong>{{ searched_user.date_joined|date:"d M Y" }}</strong>
+          </div>
+    
+          <div class="mini-row">
+            <span>Loan Amount</span>
+            <strong>{% if searched_user.loan_amount %}{{ searched_user.loan_amount }}{% else %}Not Applied{% endif %}</strong>
+          </div>
+    
+          <div class="mini-row">
+            <span>Monthly Repay</span>
+            <strong>{% if searched_user.monthly_repay %}{{ searched_user.monthly_repay }}{% else %}-{% endif %}</strong>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    
     </div>
 
-    <div class="perf-bars">
-      <div class="bar teal" style="height:120px;">
-        <i class="count" data-value="{{ reg_today }}">{{ reg_today }}</i>
-        <span>Today</span>
-      </div>
-    
-      <div class="bar teal" style="height:100px;">
-        <i class="count" data-value="{{ reg_yesterday }}">{{ reg_yesterday }}</i>
-        <span>Yesterday</span>
-      </div>
-    
-      <div class="bar orange" style="height:160px;">
-        <i class="count" data-value="{{ reg_this_week }}">{{ reg_this_week }}</i>
-        <span>This Week</span>
-      </div>
-    
-      <div class="bar orange" style="height:140px;">
-        <i class="count" data-value="{{ reg_last_week }}">{{ reg_last_week }}</i>
-        <span>Last Week</span>
-      </div>
-    
-      <div class="bar purple" style="height:170px;">
-        <i class="count" data-value="{{ reg_this_month }}">{{ reg_this_month }}</i>
-        <span>This Month</span>
-      </div>
-    
-      <div class="bar purple" style="height:150px;">
-        <i class="count" data-value="{{ reg_last_month }}">{{ reg_last_month }}</i>
-        <span>Last Month</span>
-      </div>
-    </div>
-  </div>
-</div>
-{% if searched_user %}
-<div class="user-mini-card">
-  <div class="user-mini-head">
-    <div class="user-mini-icon">
-      <img src="{% static 'icons/users.webp' %}" alt="User">
-    </div>
-    <div class="user-mini-phone">
-      {{ searched_user.phone }}
-    </div>
-  </div>
-
-  <div class="user-mini-body">
-    <div class="mini-row">
-      <span>Date Register</span>
-      <strong>{{ searched_user.date_joined|date:"d M Y" }}</strong>
-    </div>
-
-    <div class="mini-row">
-      <span>Loan Amount</span>
-      <strong>
-        {% if searched_user.loan_amount %}
-          {{ searched_user.loan_amount }}
-        {% else %}
-          Not Applied
-        {% endif %}
-      </strong>
-    </div>
-
-    <div class="mini-row">
-      <span>Monthly Repay</span>
-      <strong>
-        {% if searched_user.monthly_repay %}
-          {{ searched_user.monthly_repay }}
-        {% else %}
-          -
-        {% endif %}
-      </strong>
-    </div>
-  </div>
-</div>
-{% endif %}
 {% endblock %}

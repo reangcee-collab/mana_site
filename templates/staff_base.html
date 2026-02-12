@@ -1032,6 +1032,56 @@ input,select{
   color:#ffffff;
   font-weight:900;
 }
+/* ===== User mini card (right side) ===== */
+.perf-wrap .user-mini-card{
+  grid-column: 3 / span 2;     /* ឲ្យទៅខាងស្តាំ 2 columns */
+  min-height: 360px;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.30);
+  box-shadow: 0 18px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18);
+  padding: 16px;
+}
+
+@media (max-width:1100px){
+  .perf-wrap .user-mini-card{ grid-column: 1 / -1; } /* Tablet/mobile => xuốngក្រោម */
+}
+
+.user-mini-head{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom: 14px;
+}
+.user-mini-icon{
+  width:42px;height:42px;
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.14);
+}
+.user-mini-icon img{ width:20px;height:20px; }
+.user-mini-phone{
+  font-weight: 950;
+  color: rgba(255,255,255,.95);
+}
+.user-mini-body .mini-row{
+  display:flex;
+  justify-content:space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.user-mini-body .mini-row span{ opacity:.75; }
+.user-mini-body .mini-row strong{ color: rgba(255,255,255,.95); }
+
+/* Make phone links white (tables/pages) */
+table a{
+  color: rgba(255,255,255,.95) !important;
+  text-decoration: none;
+}
+table a:hover{
+  text-decoration: underline;
+}
   </style>
 </head>
 

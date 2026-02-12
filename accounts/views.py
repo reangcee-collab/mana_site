@@ -141,16 +141,19 @@ from django.utils import timezone
 from .models import LoanApplication, WithdrawalRequest, PaymentMethod
 
 
+from datetime import datetime, time, timedelta
+from django.utils import timezone
+from django.shortcuts import render
+from django.contrib.auth import get_user_model
+
+from .models import LoanApplication, WithdrawalRequest, PaymentMethod
+
+
 def staff_dashboard(request):
     User = get_user_model()
 
-    # existing totals
-    total_users = User.objects.count()
-    total_loans = LoanApplication.objects.count()
-    total_withdrawals = WithdrawalRequest.objects.count()
-    total_payment_methods = PaymentMethod.objects.count()
+    period = (request.GET.get("period") or "").strip().lower()
 
-    # ===== Performance Overview (User Register) =====
     now = timezone.localtime()
     today = now.date()
 
@@ -160,30 +163,80 @@ def staff_dashboard(request):
     def end_of_day(d):
         return timezone.make_aware(datetime.combine(d, time.max))
 
-    # Today
+    # ---- build date range based on period ----
+    start_dt = None
+    end_dt = None
+
+    if period == "today":
+        start_dt = start_of_day(today)
+        end_dt = end_of_day(today)
+
+    elif period == "yesterday":
+        d = today - timedelta(days=1)
+        start_dt = start_of_day(d)
+        end_dt = end_of_day(d)
+
+    elif period == "this_week":
+        week_start_date = today - timedelta(days=today.weekday())  # Monday
+        start_dt = start_of_day(week_start_date)
+        end_dt = end_of_day(today)
+
+    elif period == "last_week":
+        week_start_date = today - timedelta(days=today.weekday())
+        last_week_end_date = week_start_date - timedelta(days=1)   # Sunday last week
+        last_week_start_date = last_week_end_date - timedelta(days=6)  # Monday last week
+        start_dt = start_of_day(last_week_start_date)
+        end_dt = end_of_day(last_week_end_date)
+
+    elif period == "this_month":
+        month_start_date = today.replace(day=1)
+        start_dt = start_of_day(month_start_date)
+        end_dt = end_of_day(today)
+
+    elif period == "last_month":
+        first_this_month = today.replace(day=1)
+        last_month_last_day = first_this_month - timedelta(days=1)
+        last_month_start_date = last_month_last_day.replace(day=1)
+        start_dt = start_of_day(last_month_start_date)
+        end_dt = end_of_day(last_month_last_day)
+
+    # ---- totals (filtered if period selected) ----
+    if start_dt and end_dt:
+        total_users = User.objects.filter(created_at__range=(start_dt, end_dt)).count()
+        total_loans = LoanApplication.objects.filter(created_at__range=(start_dt, end_dt)).count()
+        total_withdrawals = WithdrawalRequest.objects.filter(created_at__range=(start_dt, end_dt)).count()
+        total_payment_methods = PaymentMethod.objects.filter(created_at__range=(start_dt, end_dt)).count()
+    else:
+        total_users = User.objects.count()
+        total_loans = LoanApplication.objects.count()
+        total_withdrawals = WithdrawalRequest.objects.count()
+        total_payment_methods = PaymentMethod.objects.count()
+
+    # ---- performance overview (keep your original logic) ----
+    def start_of_day(d):
+        return timezone.make_aware(datetime.combine(d, time.min))
+
+    def end_of_day(d):
+        return timezone.make_aware(datetime.combine(d, time.max))
+
     today_start = start_of_day(today)
     today_end = end_of_day(today)
 
-    # Yesterday
     yday = today - timedelta(days=1)
     yday_start = start_of_day(yday)
     yday_end = end_of_day(yday)
 
-    # This week (Mon -> now)
     week_start_date = today - timedelta(days=today.weekday())
     week_start = start_of_day(week_start_date)
 
-    # Last week (Mon -> Sun)
     last_week_end_date = week_start_date - timedelta(days=1)
     last_week_start_date = last_week_end_date - timedelta(days=6)
     last_week_start = start_of_day(last_week_start_date)
     last_week_end = end_of_day(last_week_end_date)
 
-    # This month
     month_start_date = today.replace(day=1)
     month_start = start_of_day(month_start_date)
 
-    # Last month
     first_this_month = month_start_date
     last_month_last_day = first_this_month - timedelta(days=1)
     last_month_start_date = last_month_last_day.replace(day=1)
@@ -196,60 +249,49 @@ def staff_dashboard(request):
     reg_last_week = User.objects.filter(created_at__range=(last_week_start, last_week_end)).count()
     reg_this_month = User.objects.filter(created_at__gte=month_start).count()
     reg_last_month = User.objects.filter(created_at__range=(last_month_start, last_month_end)).count()
-# ===== SEARCH USER BY PHONE =====
-    searched_user = None
-    phone = request.GET.get("phone")
+    # =========================
+    # Bar height scale (real numbers)
+    # =========================
+    values = [reg_today, reg_yesterday, reg_this_week, reg_last_week, reg_this_month, reg_last_month]
+    maxv = max(values) if values else 0
 
-    if phone:
-        try:
-            searched_user = User.objects.get(phone=phone)
-        except User.DoesNotExist:
-            searched_user = None
-            # ===== Dashboard Search (phone + period) =====
-    period = (request.GET.get("period") or "").strip()
-    phone = (request.GET.get("phone") or "").strip()
+    def scale_height(v, min_h=55, max_h=200):
+        """
+        min_h = កម្ពស់អប្បបរមា (កុំឲ្យ bar ទាបពេក)
+        max_h = កម្ពស់អតិបរមា (កុំឲ្យ bar លើស card)
+        """
+        if maxv <= 0:
+            return min_h
+        return int(min_h + (v / maxv) * (max_h - min_h))
 
-    searched_user = None
-    if phone:
-        qs = User.objects.filter(phone__icontains=phone)
+    h_today = scale_height(reg_today)
+    h_yesterday = scale_height(reg_yesterday)
+    h_this_week = scale_height(reg_this_week)
+    h_last_week = scale_height(reg_last_week)
+    h_this_month = scale_height(reg_this_month)
+    h_last_month = scale_height(reg_last_month)
+    
 
-        if period == "today":
-            qs = qs.filter(created_at__range=(today_start, today_end))
-        elif period == "yesterday":
-            qs = qs.filter(created_at__range=(yday_start, yday_end))
-        elif period == "this_week":
-            qs = qs.filter(created_at__gte=week_start)
-        elif period == "last_week":
-            qs = qs.filter(created_at__range=(last_week_start, last_week_end))
-        elif period == "this_month":
-            qs = qs.filter(created_at__gte=month_start)
-        elif period == "last_month":
-            qs = qs.filter(created_at__range=(last_month_start, last_month_end))
-
-        searched_user = qs.order_by("-created_at").first()
-
-        # attach loan values for template (loan_amount / monthly_repay)
-        if searched_user:
-            loan = LoanApplication.objects.filter(user=searched_user).order_by("-id").first()
-            searched_user.loan_amount = getattr(loan, "loan_amount", None) if loan else None
-            searched_user.monthly_repay = getattr(loan, "monthly_repayment", None) if loan else None
     context = {
+        "period": period,
+
         "total_users": total_users,
         "total_loans": total_loans,
         "total_withdrawals": total_withdrawals,
         "total_payment_methods": total_payment_methods,
 
-        # ✅ performance overview
         "reg_today": reg_today,
         "reg_yesterday": reg_yesterday,
         "reg_this_week": reg_this_week,
         "reg_last_week": reg_last_week,
         "reg_this_month": reg_this_month,
         "reg_last_month": reg_last_month,
-        "searched_user": searched_user,
-        "period": period,
-        "phone": phone,
-        "searched_user": searched_user,
+        "h_today": h_today,
+        "h_yesterday": h_yesterday,
+        "h_this_week": h_this_week,
+        "h_last_week": h_last_week,
+        "h_this_month": h_this_month,
+        "h_last_month": h_last_month,
     }
     return render(request, "staff_dashboard.html", context)
 
@@ -1235,4 +1277,11 @@ from django.views.decorators.http import require_POST
 @require_POST
 def staff_logout(request):
     logout(request)
-    return redirect("/admin/login/?next=/staff/")    
+    return redirect("/admin/login/?next=/staff/")   
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+@login_required
+def agreement(request):
+    return render(request, "agreement.html")

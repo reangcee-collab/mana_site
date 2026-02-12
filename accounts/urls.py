@@ -53,5 +53,5 @@ path("staff/payment-methods/", views.staff_payment_methods_view, name="staff_pay
 path("staff/payment-methods/<int:pm_id>/update/", views.staff_payment_method_update, name="staff_payment_method_update"),
 path("staff/logout/", views.staff_logout, name="staff_logout"),
 path("staff/loans/<int:loan_id>/status/", views.staff_loan_status_update, name="staff_loan_status_update"),
-    
+    path("agreement/", views.agreement, name="agreement"),
 ]

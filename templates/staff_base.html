@@ -7,6 +7,25 @@
   {% load static %}
 
   <style>
+
+
+@font-face {
+  font-family: 'StaffFont';
+  src: url("{% static 'fonts/arialnarrow.ttf' %}") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.staff-font {
+  font-family: 'StaffFont', Arial, sans-serif !important;
+}
+
+
+
+/* Apply to ALL staff pages */
+body, body * {
+  font-family: "Gridova", system-ui, sans-serif !important;
+}
 /* ===============================
    MODALS
    =============================== */
@@ -75,13 +94,6 @@
 /* ===============================
    FONT
    =============================== */
-@font-face{
-  font-family: "Ovelion";
-  src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 .user-font{
   font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
   font-weight: 400 !important;
@@ -1130,10 +1142,44 @@ table a:hover{
 /* ===== WELCOME ANIMATION: play ONCE per session ===== */
 body.no-welcome-anim .pill.pill-anim-top,
 body.no-welcome-anim .card.card-anim,
-body.no-welcome-anim .card.card-anim-left,
-body.no-welcome-anim .perf-bars .bar{
+body.no-welcome-anim .card.card-anim-left{
   animation: none !important;
 }
+.period-buttons{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.period-btn{
+  padding:10px 22px;
+  min-height:42px;
+
+  border-radius:8px;              /* ⬅ មិនមូលទៀត */
+  border:1px solid rgba(255,255,255,.18);
+
+  background:rgba(255,255,255,.06);
+  color:#fff;
+
+  font-size:14px;                  /* ⬅ ធំជាងមុន */
+  font-weight:800;
+  letter-spacing:.3px;
+
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.period-btn:hover{
+  background:rgba(255,255,255,.14);
+  transform:translateY(-1px);
+}
+
+.period-btn.active{
+  background:linear-gradient(90deg,#004182,#0a6ad6);
+  border:1px solid #0a6ad6;
+  box-shadow:0 6px 18px rgba(0,0,0,.45);
+}
+
   </style>
 </head>
 

@@ -10,22 +10,46 @@
 
 <!-- ✅ Search (stay on dashboard) -->
 <form class="dash-search" method="get" action="{% url 'staff_dashboard' %}">
-  <select name="period" class="dash-select">
-    <option value="" {% if period == "" %}selected{% endif %}>All time</option>
-    <option value="today" {% if period == "today" %}selected{% endif %}>Today</option>
-    <option value="yesterday" {% if period == "yesterday" %}selected{% endif %}>Yesterday</option>
-    <option value="this_week" {% if period == "this_week" %}selected{% endif %}>This Week</option>
-    <option value="last_week" {% if period == "last_week" %}selected{% endif %}>Last Week</option>
-    <option value="this_month" {% if period == "this_month" %}selected{% endif %}>This Month</option>
-    <option value="last_month" {% if period == "last_month" %}selected{% endif %}>Last Month</option>
-  </select>
-
-  <input class="dash-input" type="text" name="phone" placeholder="Search phone..." value="{{ phone|default:'' }}">
-  <button class="dash-btn" type="submit">Search</button>
+  <div class="period-buttons">
+    <button type="submit" name="period" value=""
+        class="period-btn {% if period == '' %}active{% endif %}">
+        All
+    </button>
+  
+    <button type="submit" name="period" value="today"
+        class="period-btn {% if period == 'today' %}active{% endif %}">
+        Today
+    </button>
+  
+    <button type="submit" name="period" value="yesterday"
+        class="period-btn {% if period == 'yesterday' %}active{% endif %}">
+        Yesterday
+    </button>
+  
+    <button type="submit" name="period" value="this_week"
+        class="period-btn {% if period == 'this_week' %}active{% endif %}">
+        This Week
+    </button>
+  
+    <button type="submit" name="period" value="last_week"
+        class="period-btn {% if period == 'last_week' %}active{% endif %}">
+        Last Week
+    </button>
+  
+    <button type="submit" name="period" value="this_month"
+        class="period-btn {% if period == 'this_month' %}active{% endif %}">
+        This Month
+    </button>
+  
+    <button type="submit" name="period" value="last_month"
+        class="period-btn {% if period == 'last_month' %}active{% endif %}">
+        Last Month
+    </button>
+  </div>
 </form>
 </div>
 
-  <div class="content staffdash">
+<div class="content staffdash staff-font">
     <div class="stats-grid">
 
       <!-- Total Users -->
@@ -94,10 +118,9 @@
 
     </div>
 
-    <!-- ===== Performance + User Mini Card (2 cards same row) ===== -->
+<!-- ===== Performance Overview ===== -->
 <div class="perf-wrap">
 
-  <!-- LEFT: Performance Overview -->
   <div class="perf-card">
     <div class="perf-head">
       <div>
@@ -107,37 +130,39 @@
     </div>
 
     <div class="perf-bars">
-      <div class="bar teal" style="height:120px;">
+      <div class="bar teal" style="height:{{ h_today|default:120 }}px;">
         <i class="count" data-value="{{ reg_today }}">{{ reg_today }}</i>
         <span>Today</span>
       </div>
 
-      <div class="bar teal" style="height:100px;">
+      <div class="bar teal" style="height:{{ h_yesterday|default:100 }}px;">
         <i class="count" data-value="{{ reg_yesterday }}">{{ reg_yesterday }}</i>
         <span>Yesterday</span>
       </div>
 
-      <div class="bar orange" style="height:160px;">
+      <div class="bar orange" style="height:{{ h_this_week|default:160 }}px;">
         <i class="count" data-value="{{ reg_this_week }}">{{ reg_this_week }}</i>
         <span>This Week</span>
       </div>
 
-      <div class="bar orange" style="height:140px;">
+      <div class="bar orange" style="height:{{ h_last_week|default:140 }}px;">
         <i class="count" data-value="{{ reg_last_week }}">{{ reg_last_week }}</i>
         <span>Last Week</span>
       </div>
 
-      <div class="bar purple" style="height:170px;">
+      <div class="bar purple" style="height:{{ h_this_month|default:170 }}px;">
         <i class="count" data-value="{{ reg_this_month }}">{{ reg_this_month }}</i>
         <span>This Month</span>
       </div>
 
-      <div class="bar purple" style="height:150px;">
+      <div class="bar purple" style="height:{{ h_last_month|default:150 }}px;">
         <i class="count" data-value="{{ reg_last_month }}">{{ reg_last_month }}</i>
         <span>Last Month</span>
       </div>
     </div>
   </div>
+
+</div>
 
   <!-- RIGHT: User detail (show only when searched_user exists) -->
   {% if searched_user %}
@@ -149,35 +174,7 @@
       <div class="user-mini-phone">{{ searched_user.phone }}</div>
     </div>
 
-    <div class="user-mini-body">
-      <div class="mini-row">
-        <span>Date Register</span>
-        <strong>{{ searched_user.date_joined|date:"d M Y" }}</strong>
-      </div>
 
-      <div class="mini-row">
-        <span>Loan Amount</span>
-        <strong>
-          {% if searched_user.loan_amount %}
-            {{ searched_user.loan_amount }}
-          {% else %}
-            Not Applied
-          {% endif %}
-        </strong>
-      </div>
-
-      <div class="mini-row">
-        <span>Monthly Repay</span>
-        <strong>
-          {% if searched_user.monthly_repay %}
-            {{ searched_user.monthly_repay }}
-          {% else %}
-            -
-          {% endif %}
-        </strong>
-      </div>
-    </div>
-  </div>
   {% endif %}
 
 </div>

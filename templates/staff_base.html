@@ -639,52 +639,31 @@ input,select{
 }
 
 /* ===== Performance card aligns with Loan Applications right edge ===== */
+/* ===== Performance row: 2 cards (LEFT perf, RIGHT user mini) ===== */
 .perf-wrap{
   margin-top:14px;
   display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: 1fr 1fr;   /* 2 cards side-by-side */
   gap:14px;
+  align-items: stretch;
 }
 
-/* Make performance card span 2 columns (same width as first 2 stat cards) */
+/* LEFT card */
 .perf-wrap .perf-card{
-  grid-column: 1 / span 2;
-  width: 100%;
   min-height: 360px;
-  padding-bottom: 22px;
+  height: auto;
 }
 
-/* Match responsive with stats-grid */
-@media (max-width: 1100px){
-  .perf-wrap{ grid-template-columns: repeat(2, 1fr); }
-  .perf-wrap .perf-card{ grid-column: 1 / -1; } /* full width on tablet */
-}
-@media (max-width: 560px){
-  .perf-wrap{ grid-template-columns: 1fr; }
-  .perf-wrap .perf-card{ grid-column: 1 / -1; }
-}
-/* ===== FIX: User mini card size + align with Performance (same height) ===== */
-/* Paste at the END of <style> in staff_base.html */
-
-  .perf-wrap{
-  align-items: stretch; /* make both cards same height */
-}
-
-.perf-wrap .perf-card,
+/* RIGHT card */
 .perf-wrap .user-mini-card{
   min-height: 360px;
-  height: 360px;        /* force same height */
-  margin-top: 14px;     /* same top spacing */
-  overflow: hidden;
-}
+  height: auto;
 
-/* ===== Paper style (light glass/paper) for mini card ===== */
-.perf-wrap .user-mini-card{
-  grid-column: 3 / span 2;
-  padding: 16px;
   border-radius: 22px;
+  padding: 16px;
 
-  background: rgba(255,255,255,.14);
+  /* paper / glass */
+  background: rgba(255,255,255,.12);
   border: 1px solid rgba(255,255,255,.18);
   box-shadow:
     0 18px 50px rgba(0,0,0,.35),
@@ -693,23 +672,30 @@ input,select{
   -webkit-backdrop-filter: blur(14px);
 }
 
-/* text color for paper look */
-.perf-wrap .user-mini-card *{
-  color: rgba(255,255,255,.94);
+/* inside text */
+.user-mini-phone{
+  color: rgba(255,255,255,.96);
+  font-weight: 950;
 }
 
-/* header icon box slightly paper */
-.user-mini-icon{
-  background: rgba(255,255,255,.16);
-  border: 1px solid rgba(255,255,255,.20);
-}
-
-/* rows look cleaner */
+/* rows */
 .user-mini-body .mini-row{
-  border-bottom: 1px solid rgba(255,255,255,.12);
+  display:flex;
+  justify-content:space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,.10);
 }
-.user-mini-body .mini-row span{ opacity:.80; }
-.user-mini-body .mini-row strong{ font-weight: 900; }
+.user-mini-body .mini-row span{ opacity:.75; }
+.user-mini-body .mini-row strong{ font-weight: 950; }
+
+/* Responsive: stack */
+@media (max-width: 1100px){
+  .perf-wrap{ grid-template-columns: 1fr; }
+  .perf-wrap .perf-card,
+  .perf-wrap .user-mini-card{
+    min-height: 300px;
+  }
+}
 
 /* Responsive: on tablet/mobile full width */
 @media (max-width:1100px){

@@ -99,6 +99,7 @@
     color: rgba(255,255,255,.82);
   }
 
+
   /* ===== Bottom Nav (MATCH DASHBOARD PILL STYLE) ===== */
   /* ===== Bottom Nav (NO background bar, only buttons) ===== */
 /* ✅ Bottom actions INSIDE page (NOT fixed) */
@@ -149,11 +150,104 @@
   cursor:not-allowed;
   filter: grayscale(.15);
 }
+
+/* ===== POPOUT ALERT (Toast) - INSIDE CARD (NO OVERLAP) ===== */
+.pm-toast{
+  display:none;              /* hidden by default */
+  width:100%;
+  margin: 12px 0 14px;       /* ✅ take space inside card */
+  z-index: 5;
+}
+
+.pm-toast.show{
+  display:block;
+  animation: pmIn .18s ease-out;
+}
+
+.pm-toast-inner{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+
+  padding: 14px 14px;
+  border-radius: 18px;
+
+  background: rgba(10,10,10,.92);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 18px 60px rgba(0,0,0,.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.pm-toast-ico{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  /* ✅ RED STRONGER */
+  background: rgba(233, 23, 23, 0.534);
+  border: 1px solid rgba(239, 68, 68, .85);
+  box-shadow:
+    0 0 0 1px rgba(239, 68, 68, .55),
+    0 10px 26px rgba(239, 68, 68, .20);
+
+  flex: 0 0 auto;
+}
+
+.pm-toast-ico span{
+  font-weight: 950;
+
+  /* ✅ RED STRONGER */
+  color: #ff4d4d;
+  text-shadow: 0 2px 10px rgba(239,68,68,.35);
+
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pm-toast-text{ flex: 1 1 auto; min-width:0; }
+.pm-toast-title{ color:#fff; font-weight:950; font-size:14px; margin:0; }
+.pm-toast-msg{ color: rgba(255,255,255,.78); font-size:12px; margin-top:3px; line-height:1.35; }
+
+.pm-toast-close{
+  border:0;
+  background: transparent;
+  color: rgba(255,255,255,.65);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+.pm-toast-close:active{ transform: scale(.98); }
+
+@keyframes pmIn{
+  from{ transform: translateY(-6px); opacity: .2; }
+  to{ transform: translateY(0); opacity: 1; }
+}
 </style>
 
-<div class="pm-page">
-  <div class="dash-wrap">
     <div class="cardx">
+
+    <!-- ✅ POPOUT ALERT (INSIDE THIS CARD) -->
+    <div class="pm-toast" id="pmToast">
+      <div class="pm-toast-inner">
+        <div class="pm-toast-ico"><span>!</span></div>
+
+        <div class="pm-toast-text">
+          <div class="pm-toast-title" id="pmToastTitle">Choose only ONE method</div>
+          <div class="pm-toast-msg" id="pmToastMsg">
+            Please keep only Bank OR Mobile Wallet. Clear one section, then Save.
+          </div>
+        </div>
+
+        <button class="pm-toast-close" type="button" id="pmToastClose">×</button>
+      </div>
+    </div>
+
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px;">
       <div>
         <h2 style="margin:0;font-size:26px;font-weight:950;">
@@ -175,7 +269,7 @@
       PayPal email is optional.
     </div>
 
-    <form method="post">
+<form method="post" id="pmForm">
       {% csrf_token %}
 
       <!-- Bank -->
@@ -242,4 +336,132 @@
   </div>
 </div>
 </div>
-{% endblock %}
+
+<!-- ✅ PASTE THIS WHOLE BLOCK at the END of payment_method.html (replace your current 2 scripts) -->
+
+<script>
+  (function(){
+    const form = document.getElementById("pmForm");
+    const toast = document.getElementById("pmToast");
+    const btnClose = document.getElementById("pmToastClose");
+    const titleEl = document.getElementById("pmToastTitle");
+    const msgEl = document.getElementById("pmToastMsg");
+
+    if(!form) return;
+
+    function showToast(title, msg){
+      if(!toast || !titleEl || !msgEl){
+        alert((title ? title + "\n\n" : "") + (msg || ""));
+        return;
+      }
+
+      titleEl.textContent = title || "Alert";
+      msgEl.textContent = msg || "";
+
+      toast.classList.add("show");
+
+      /* ✅ IMPORTANT: SCROLL TO TOP SO USER SEE IT */
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 5500);
+    }
+
+    if(btnClose && toast){
+      btnClose.addEventListener("click", () => {
+        toast.classList.remove("show");
+      });
+    }
+
+    const bankName   = form.querySelector('[name="bank_name"]');
+    const bankAcc    = form.querySelector('[name="bank_account"]');
+    const walletName = form.querySelector('[name="wallet_name"]');
+    const walletPh   = form.querySelector('[name="wallet_phone"]');
+
+    const v = (el) => (el && typeof el.value === "string" ? el.value.trim() : "");
+
+    form.addEventListener("submit", function(e){
+
+      const bn = v(bankName);
+      const ba = v(bankAcc);
+      const wn = v(walletName);
+      const wp = v(walletPh);
+
+      const bankFilled   = bn.length > 0 || ba.length > 0;
+      const bankComplete = bn.length > 0 && ba.length > 0;
+
+      const walletFilled   = wn.length > 0 || wp.length > 0;
+      const walletComplete = wn.length > 0 && wp.length > 0;
+
+      if(!bankComplete && !walletComplete){
+        e.preventDefault();
+        showToast(
+          "Complete at least ONE payout method",
+          "Please complete Bank OR Mobile Wallet before saving."
+        );
+        return;
+      }
+
+      if(bankComplete && walletComplete){
+        e.preventDefault();
+        showToast(
+          "Choose only ONE method",
+          "Please keep only Bank OR Mobile Wallet."
+        );
+        return;
+      }
+
+      if(bankFilled && !bankComplete){
+        e.preventDefault();
+        showToast(
+          "Bank is incomplete",
+          "Fill BOTH Bank name and Bank account number."
+        );
+        return;
+      }
+
+      if(walletFilled && !walletComplete){
+        e.preventDefault();
+        showToast(
+          "Wallet is incomplete",
+          "Fill BOTH Wallet name and Phone number."
+        );
+        return;
+      }
+    });
+
+  })();
+</script>
+  
+  <script>
+  (function(){
+    const root = document.querySelector(".pm-page") || document;
+  
+    // targets: all inputs + textarea (skip buttons/hidden)
+    const fields = root.querySelectorAll(
+      'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]), textarea'
+    );
+  
+    fields.forEach(el => {
+      // Block paste
+      el.addEventListener("paste", (e) => e.preventDefault());
+  
+      // Block drop text
+      el.addEventListener("drop", (e) => e.preventDefault());
+  
+      // Block insertFromPaste / insertFromDrop
+      el.addEventListener("beforeinput", (e) => {
+        if (e.inputType === "insertFromPaste" || e.inputType === "insertFromDrop") {
+          e.preventDefault();
+        }
+      });
+    });
+  })();
+  </script>
+  
+  {% endblock %}

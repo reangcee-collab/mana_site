@@ -160,43 +160,42 @@
 <div class="dash-wrap">
   <div class="cardx">
 
-    {# ✅ SUCCESS MESSAGE (Congratulations, no icon, not red) #}
-    {% if success_msg %}
-  <div class="msg-box success">
-    <div class="msg-body">
-      <div class="msg-head">Congratulations</div>
-      <div class="muted msg-text">{{ success_msg }}</div>
-      {% if success_at %}
-        <div class="muted msg-meta">Updated: {{ success_at }}</div>
-      {% endif %}
-    </div>
-  </div>
-{% endif %}
+    {% if items %}
+      {% for n in items %}
+        {% if n.kind == "success" %}
+          <div class="msg-box success">
+            <div class="msg-body">
+              <div class="msg-head">{{ n.title }}</div>
+              <div class="muted msg-text">{{ n.msg }}</div>
+              {% if n.at %}
+                <div class="muted msg-meta">Updated: {{ n.at }}</div>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="msg-box danger">
+            <div class="msg-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/>
+              </svg>
+            </div>
 
-{% if alert_msg %}
-  <div class="msg-box danger">
-    <div class="msg-ico" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/>
-      </svg>
-    </div>
-
-    <div class="msg-body">
-      <div class="msg-head">Important Notice</div>
-      <div class="muted msg-text">{{ alert_msg }}</div>
-      {% if alert_at %}
-        <div class="muted msg-meta">Updated: {{ alert_at }}</div>
-      {% endif %}
-    </div>
-  </div>
-{% endif %}
-
-{% if not success_msg and not alert_msg %}
-  <div class="empty-note">
-    <div class="muted" style="font-weight:900; color:#fff;">No notifications</div>
-    <div class="muted" style="margin-top:4px;">You don’t have any new messages right now.</div>
-  </div>
-{% endif %}
+            <div class="msg-body">
+              <div class="msg-head">{{ n.title }}</div>
+              <div class="muted msg-text">{{ n.msg }}</div>
+              {% if n.at %}
+                <div class="muted msg-meta">Updated: {{ n.at }}</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="empty-note">
+        <div class="muted" style="font-weight:900; color:#fff;">No notifications</div>
+        <div class="muted" style="margin-top:4px;">You don’t have any new messages right now.</div>
+      </div>
+    {% endif %}
 
   </div>
 

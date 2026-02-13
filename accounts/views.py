@@ -1246,6 +1246,11 @@ def account_status_api(request):
     })
 
 
+from datetime import datetime
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils import timezone
+
 @login_required(login_url="login")
 def notifications_view(request):
     alert_msg = (request.user.notification_message or "").strip()
@@ -1267,11 +1272,29 @@ def notifications_view(request):
     if changed:
         request.user.save(update_fields=changed)
 
+    # ✅ build list + sort newest first
+    items = []
+    if success_msg:
+        items.append({
+            "kind": "success",
+            "title": "Congratulations",
+            "msg": success_msg,
+            "at": success_at,
+        })
+    if alert_msg:
+        items.append({
+            "kind": "alert",
+            "title": "Important Notice",
+            "msg": alert_msg,
+            "at": alert_at,
+        })
+
+    tz = timezone.get_current_timezone()
+    min_dt = timezone.make_aware(datetime.min, tz)
+    items.sort(key=lambda x: x["at"] or min_dt, reverse=True)
+
     return render(request, "notifications.html", {
-        "alert_msg": alert_msg,
-        "alert_at": alert_at,
-        "success_msg": success_msg,
-        "success_at": success_at,
+        "items": items,
     })
 
 

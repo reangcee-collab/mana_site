@@ -262,13 +262,6 @@
       </span>
     </div>
 
-    <div class="rule-note">
-      ✅ You must complete at least <b>ONE</b> payout method before saving:<br>
-      • Mobile Wallet: <b>Account name + Phone number</b><br>
-      • Bank: <b>Account name + Account number</b><br>
-      PayPal email is optional.
-    </div>
-
 <form method="post" id="pmForm">
       {% csrf_token %}
 
@@ -298,20 +291,6 @@
           <div>
             <div class="muted" style="font-size:12px;margin-bottom:6px;">Phone number</div>
             {{ form.wallet_phone }}
-          </div>
-        </div>
-      </div>
-
-      <!-- PayPal (optional) -->
-      <div class="pm-section {% if saved %}pm-locked{% endif %}">
-        <div class="pm-title">PayPal (Optional)</div>
-        <div class="muted pm-sub">Bind PayPal email (safe)</div>
-
-        <div>
-          <div class="muted" style="font-size:12px;margin-bottom:6px;">PayPal email</div>
-          {{ form.paypal_email }}
-          <div class="muted hint">
-            Note: For security, we don’t store card/CVV here. PayPal handles payments on their side.
           </div>
         </div>
       </div>

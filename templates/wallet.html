@@ -260,7 +260,11 @@
 
   <!-- Card 1: Balance -->
 
-  <div id="statusAlert" class="status-alert status-danger" style="display:none;"></div>
+  {% with s=request.user.account_status|upper %}
+  {% if s != "ACTIVE" and s != "ACCOUNT_UPDATED" and s != "APP_MAINTENANCE" and s != "LOCKED" and s != "BANNED" %}
+    <div id="statusAlert" class="status-alert status-danger" style="display:none;"></div>
+  {% endif %}
+{% endwith %}
   <div class="cardx">
     <div class="row">
       <div>

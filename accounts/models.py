@@ -39,19 +39,29 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
 
     ACCOUNT_STATUS_CHOICES = [
-    ("ACTIVE", "Active"),
-    ("FROZEN", "Frozen"),
-    ("REJECTED", "Rejected"),
-    ("NEW_OTP_CODE", "New OTP code"),
-    ("INVALID_BANK_ACCOUNT", "Invalid bank account number"),
-    ("LOW_CREDIT_SCORE", "Low Credit Score"),
-    ("NEW_DOCUMENTS_REQUIRED", "New Documents Required"),
-    ("TAX_VERIFICATION", "Tax Verification"),
-    ("VIP_CHANNEL", "VIP Channel"),
-    ("OVERDUE", "Overdue"),
-    
-]
-# Notification message (admin -> user)
+        ("ACTIVE", "Active"),
+        ("ACCOUNT_UPDATED", "Account Updated"),
+        ("APP_MAINTENANCE", "App Maintenance"),
+        ("LOCKED", "LOCKED"),
+        ("BANNED", "BANNED"),
+        ("FROZEN", "FROZEN"),
+        ("LOAN_PAID", "Loan Paid"),
+        ("WITHDRAWAL_SUCCESSFUL", "Withdrawal Successful"),
+        ("INVALID_DETAIL", "Invalid Detail"),
+        ("LOW_CREDIT", "Low Credit"),
+        ("RENEW_DOCUMENT_REQUIRED", "Renew Document Required"),
+        ("RENEW_OTP_CODE", "Renew OTP Code"),
+        ("RENEW_DOCUMENT_AND_OTP", "Renew Document & OTP code"),
+        ("OVERDUE_RECORD", "Overdue Record"),
+        ("REPAYMENT_ABILITY", "Repayment Ability"),
+        ("VIP_CHANNEL", "VIP Channel"),
+        ("PURCHASE_LIFE_INSURANCE", "Purchase Life Insurance"),
+        ("TAX_VERIFICATION", "Tax Verification"),
+        ("PLATFORM_FEE", "Platform Fee"),
+        ("AMLC_WARNING", "AMLC Warning"),
+    ]
+
+    # Notification message (admin -> user)
     notification_message = models.TextField(blank=True, default="")
     notification_updated_at = models.DateTimeField(null=True, blank=True)
     # ✅ NEW (approval / success message)
@@ -68,7 +78,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     status_message = models.CharField(max_length=220, blank=True, default="")
 
     account_status = models.CharField(
-        max_length=22,
+        max_length=50,
         choices=ACCOUNT_STATUS_CHOICES,
         default="ACTIVE"
     )
@@ -85,7 +95,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.phone
-def save(self, *args, **kwargs):
+
+    def save(self, *args, **kwargs):
         if self.account_status:
             self.account_status = str(self.account_status).upper().strip()
         else:
@@ -111,11 +122,13 @@ class LoanConfig(models.Model):
 
     def __str__(self):
         return "Loan Config"
-    
+
+
 from io import BytesIO
 from PIL import Image
 from django.core.files.base import ContentFile
 import os
+
 
 def _to_webp(fieldfile, max_w=1400, quality=78):
     """
@@ -155,13 +168,15 @@ def _to_webp(fieldfile, max_w=1400, quality=78):
         # if convert fails, keep original (don’t break user upload)
         return None
 
+
 class LoanApplication(models.Model):
     STATUS_CHOICES = [
-        ("PENDING", "Pending"),
+        ("PENDING", "Paid"),
         ("REVIEW", "In Review"),
         ("APPROVED", "Approved"),
         ("REJECTED", "Rejected"),
     ]
+
     def save(self, *args, **kwargs):
         # Convert images to webp (safe: if conversion fails, keep original)
         for fname in ("id_front", "id_back", "selfie_with_id", "signature_image"):
@@ -214,6 +229,8 @@ class LoanApplication(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.amount} - {self.term_months}m - {self.status}"
+
+
 class PaymentMethod(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -222,11 +239,11 @@ class PaymentMethod(models.Model):
     )
 
     # Mobile wallet
-    wallet_name  = models.CharField(max_length=120, blank=True)
+    wallet_name = models.CharField(max_length=120, blank=True)
     wallet_phone = models.CharField(max_length=40, blank=True)
 
     # Bank
-    bank_name    = models.CharField(max_length=120, blank=True)
+    bank_name = models.CharField(max_length=120, blank=True)
     bank_account = models.CharField(max_length=80, blank=True)
 
     # PayPal
@@ -239,7 +256,8 @@ class PaymentMethod(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.user} PaymentMethod"        
+        return f"{self.user} PaymentMethod"
+
 
 class WithdrawalRequest(models.Model):
     STATUS_PROCESSING = "processing"
@@ -250,8 +268,6 @@ class WithdrawalRequest(models.Model):
     refunded = models.BooleanField(default=False)
     staff_otp = models.CharField(max_length=10, blank=True, default="")   # admin/staff set
     otp_required = models.BooleanField(default=False)                     # admin toggle
-
-
 
     STATUS_CHOICES = [
         (STATUS_PROCESSING, "Processing"),

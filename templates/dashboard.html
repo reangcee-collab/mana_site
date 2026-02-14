@@ -157,6 +157,11 @@
   background: #dc2626; /* red */
   color: #fff;
 }
+/* WARNING / YELLOW */
+.status-warn{
+  background: #eab308; /* yellow strong */
+  color: #111;         /* readable */
+}
   /* if base.html uses wrapper flex causing “twist” */
   .wrap{
     padding-top:0 !important;
@@ -184,7 +189,7 @@
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     background:
       linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.78)),
-      url("{% static 'img/SL-012322-48100-03.jpg' %}") center / cover no-repeat scroll !important;
+      url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat scroll !important;
   }
 
   /* ===== Top bar (mini only) ===== */
@@ -646,7 +651,10 @@
   background: rgba(0,0,0,.72) !important;
 }
 
-
+/* ✅ FORCE badge color (prevent CSS override) */
+#accStatusBadge.status-active { background:#16a34a !important; color:#fff !important; }
+#accStatusBadge.status-warn   { background:#eab308 !important; color:#111 !important; }
+#accStatusBadge.status-danger { background:#dc2626 !important; color:#fff !important; }
 </style>
 
 <div id="top"></div>
@@ -720,10 +728,23 @@
       <div class="amount">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
       <div class="muted" style="margin-top:6px;">
         {# Dashboard status badge #}
-        <span id="accStatusBadge"
-        class="status-badge {% if request.user.account_status|lower == 'active' %}status-active{% else %}status-danger{% endif %}">
-    {{ request.user.account_status|upper }}
-  </span>
+{% with raw=request.user.account_status|default:""|upper %}
+  {% with nospace=raw|cut:" " %}
+    <span id="accStatusBadge"
+          class="status-badge
+            {% if raw == 'ACTIVE' %}
+              status-active
+            {% elif raw == 'ACCOUNT_UPDATED' or raw == 'ACCOUNT UPDATED' or nospace == 'ACCOUNTUPDATED' %}
+              status-active
+            {% elif raw == 'APP_MAINTENANCE' or raw == 'APP MAINTENANCE' or nospace == 'APPMAINTENANCE' %}
+              status-warn
+            {% else %}
+              status-danger
+            {% endif %}">
+      {{ raw }}
+    </span>
+  {% endwith %}
+{% endwith %}
       </div>      
     </div>
   </div>
@@ -1028,6 +1049,7 @@
       document.documentElement.classList.add("android-no-blur");
     }
   })();
+  
   </script>  
 
 {% endblock %}

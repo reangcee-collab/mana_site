@@ -50,7 +50,7 @@
     min-height:100vh;
     background:
       linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.78)),
-      url("{% static 'img/SL-012322-48100-03.jpg' %}") center / cover no-repeat fixed !important;
+      url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed !important;
     color:#fff;
   }
   .wrap{
@@ -280,15 +280,15 @@
 </style>
 
 <div class="p-wrap">
-  {% if request.user.status_message %}
-    <div class="muted" style="margin-top:8px;">{{ request.user.status_message }}</div>
-  {% endif %}
-
-  <div id="statusAlert"
-       style="display:none; margin-bottom:12px; padding:12px 14px; border-radius:14px;
-              background: rgba(220, 38, 38, 0.658); border:1px solid rgba(220,38,38,.26);
-              color:#fff; font-weight:900; text-align:center;">
-  </div>
+{% with s=request.user.account_status|upper %}
+    {% if s != "ACTIVE" and s != "ACCOUNT_UPDATED" and s != "APP_MAINTENANCE" and s != "LOCKED" and s != "BANNED" %}
+      <div id="statusAlert"
+           style="display:none; margin-bottom:12px; padding:12px 14px; border-radius:14px;
+                  background: rgba(220, 38, 38, 0.658); border:1px solid rgba(220,38,38,.26);
+                  color:#fff; font-weight:900; text-align:center;">
+      </div>
+    {% endif %}
+  {% endwith %}
 
   <div class="cardx" id="profile-currency-section">
     <div class="head">
@@ -297,7 +297,7 @@
         <div class="h-sub">Account: {{ request.user.phone }}</div>
       </div>
 
-      {% if request.user.account_status == "active" %}
+      {% if request.user.account_status|upper == "ACTIVE" %}
         <span id="accStatusBadge"
           class="status-badge {% if request.user.account_status|lower == 'active' %}status-active{% else %}status-danger{% endif %}">
           {{ request.user.account_status|upper }}

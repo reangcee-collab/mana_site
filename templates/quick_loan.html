@@ -322,7 +322,7 @@
     <div class="step-labels three">
       <div>Under review</div>
       <div>Initial approval</div>
-      <div>Paid</div>
+      <div>Successful Paid</div>
     </div>
 
     <div style="margin-top:12px;">
@@ -419,48 +419,52 @@
 
   // ===== Status Tracker (poll API) =====
   function stepFromStatus(st){
-    const s = String(st || "").toUpperCase();
-    if(s === "PENDING") return 1;
-    if(s === "REVIEW") return 2;
-    if(s === "APPROVED") return 3;
-    if(s === "PAID") return 4;
-    return 1;
-  }
+  const s = String(st || "").toUpperCase().trim();
+  if(s === "PENDING") return 1;
+  if(s === "REVIEW") return 2;
+  if(s === "APPROVED") return 3;
+  if(s === "PAID") return 3;      // ✅ Paid is final step (3)
+  return 1;
+}
 
-  function applyStep(n, label){
-    const dots = [null, "s1", "s2", "s3", "s4"];
-    const lines = [null, "l1", "l2", "l3"];
+function applyStep(n, label){
+  const dots = [null, "s1", "s2", "s3"];
+  const lines = [null, "l1", "l2"];
 
-    for(let i=1;i<=4;i++){
-      const d = document.getElementById(dots[i]);
-      if (d){
-        const isDone = i < n;      // completed steps
-        const isActive = i <= n;   // active + done
+  for(let i=1;i<=3;i++){
+    const d = document.getElementById(dots[i]);
+    if(d){
+      const isDone = i < n;
+      const isActive = i <= n;
 
-        d.classList.toggle("active", isActive);
+      d.classList.toggle("active", isActive);
 
-        // ✅ show tick for completed steps, number for current/future
-        d.textContent = isDone ? "✓" : String(i);
-      }
-
-      if(i<=3){
-        const ln = document.getElementById(lines[i]);
-        if (ln) ln.classList.toggle("active", i < n);
+      // ✅ Completed = ✓, and FINAL (step 3) when active also = ✓
+      if(isDone || (i === 3 && n === 3)){
+        d.textContent = "✓";
+      }else{
+        d.textContent = String(i);
       }
     }
 
-    const pill = document.getElementById("statusPill");
-    if (pill) pill.textContent = String(label || "PENDING").toUpperCase();
-
-    const text = document.getElementById("statusText");
-    const map = {
-      1: "Our team is reviewing your documents. Please wait.",
-      2: "Initial approval in progress. Please wait.",
-      3: "Final approval. Almost done.",
-      4: "Paid. Your loan has been completed."
-    };
-    if (text) text.textContent = map[n] || map[1];
+    if(i<=2){
+      const ln = document.getElementById(lines[i]);
+      if(ln) ln.classList.toggle("active", i < n);
+    }
   }
+
+  const pill = document.getElementById("statusPill");
+  if (pill) pill.textContent = String(label || "PENDING").toUpperCase();
+
+  const text = document.getElementById("statusText");
+  const s = String(label || "").toUpperCase().trim();
+  if(text){
+    if(s === "REVIEW") text.textContent = "Initial approval in progress. Please wait.";
+    else if(s === "APPROVED") text.textContent = "Final approval. Almost done.";
+    else if(s === "PAID") text.textContent = "Success Paid. Your loan has been completed.";
+    else text.textContent = "Our team is reviewing your documents. Please wait.";
+  }
+}
 
   async function pollLoanStatus(){
     try{

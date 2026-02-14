@@ -42,9 +42,13 @@
               <select name="status">
                 {% for v,label in loan.STATUS_CHOICES %}
                   {% if v == "REVIEW" or v == "APPROVED" or v == "REJECTED" %}
-                    <option value="{{ v }}" {% if loan.status == v %}selected{% endif %}>
+                  <option value="{{ v }}" {% if loan.status == v %}selected{% endif %}>
+                    {% if v == "REVIEW" %}
+                      Under review
+                    {% else %}
                       {{ label }}
-                    </option>
+                    {% endif %}
+                  </option>
                   {% endif %}
                 {% endfor %}
               </select>

@@ -233,7 +233,7 @@ from django.contrib.auth import get_user_model
 
 from .models import LoanApplication, WithdrawalRequest, PaymentMethod
 
-
+from django.contrib.auth.decorators import login_required
 def staff_dashboard(request):
     User = get_user_model()
 

@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.admin.views.decorators import staff_member_required
 from . import views
 from .views import staff_user_update
 
@@ -11,7 +12,6 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
 
     path("dashboard/", views.dashboard_view, name="dashboard"),
-    path("staff-dashboard/", views.staff_dashboard, name="staff_dashboard"),
     path("profile/", views.profile_view, name="profile"),
     path("credit-score/", views.credit_score_view, name="credit_score"),
     path("transactions/", views.transactions_view, name="transactions"),
@@ -35,24 +35,25 @@ urlpatterns = [
     path("api/loan-status/", views.loan_status_api, name="loan_status_api"),
     path("contract/", views.contract_view, name="contract"),
     # =========================
-# STAFF ROUTES (clean, no duplicate)
 # =========================
-path("staff/", views.staff_dashboard, name="staff_dashboard"),
+# STAFF ROUTES (protected)
+# =========================
+path("staff/", staff_member_required(views.staff_dashboard, login_url="/admin/login/"), name="staff_dashboard"),
 
-path("staff/users/", views.staff_users_view, name="staff_users"),
-path("staff/users/<int:user_id>/", views.staff_user_detail_view, name="staff_user_detail"),
-path("staff/users/<int:user_id>/update/", views.staff_user_update, name="staff_user_update"),
+path("staff/users/", staff_member_required(views.staff_users_view, login_url="/admin/login/"), name="staff_users"),
+path("staff/users/<int:user_id>/", staff_member_required(views.staff_user_detail_view, login_url="/admin/login/"), name="staff_user_detail"),
+path("staff/users/<int:user_id>/update/", staff_member_required(views.staff_user_update, login_url="/admin/login/"), name="staff_user_update"),
 
-path("staff/loans/", views.staff_loans_view, name="staff_loans"),
-path("staff/loans/<int:loan_id>/", views.staff_loan_detail_view, name="staff_loan_detail"),
-path("staff/loans/<int:loan_id>/update/", views.staff_loan_update, name="staff_loan_update"),
+path("staff/loans/", staff_member_required(views.staff_loans_view, login_url="/admin/login/"), name="staff_loans"),
+path("staff/loans/<int:loan_id>/", staff_member_required(views.staff_loan_detail_view, login_url="/admin/login/"), name="staff_loan_detail"),
+path("staff/loans/<int:loan_id>/update/", staff_member_required(views.staff_loan_update, login_url="/admin/login/"), name="staff_loan_update"),
+path("staff/loans/<int:loan_id>/status/", staff_member_required(views.staff_loan_status_update, login_url="/admin/login/"), name="staff_loan_status_update"),
 
-path("staff/withdrawals/", views.staff_withdrawals_view, name="staff_withdrawals"),
-path("staff/withdrawals/<int:wid>/update/", views.staff_withdrawal_update, name="staff_withdrawal_update"),
+path("staff/withdrawals/", staff_member_required(views.staff_withdrawals_view, login_url="/admin/login/"), name="staff_withdrawals"),
+path("staff/withdrawals/<int:wid>/update/", staff_member_required(views.staff_withdrawal_update, login_url="/admin/login/"), name="staff_withdrawal_update"),
 
-path("staff/payment-methods/", views.staff_payment_methods_view, name="staff_payment_methods"),
-path("staff/payment-methods/<int:pm_id>/update/", views.staff_payment_method_update, name="staff_payment_method_update"),
-path("staff/logout/", views.staff_logout, name="staff_logout"),
-path("staff/loans/<int:loan_id>/status/", views.staff_loan_status_update, name="staff_loan_status_update"),
-    path("agreement/", views.agreement, name="agreement"),
+path("staff/payment-methods/", staff_member_required(views.staff_payment_methods_view, login_url="/admin/login/"), name="staff_payment_methods"),
+path("staff/payment-methods/<int:pm_id>/update/", staff_member_required(views.staff_payment_method_update, login_url="/admin/login/"), name="staff_payment_method_update"),
+
+path("staff/logout/", staff_member_required(views.staff_logout, login_url="/admin/login/"), name="staff_logout"),
 ]

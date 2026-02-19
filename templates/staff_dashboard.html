@@ -181,4 +181,40 @@
     
     </div>
 
+    <style>
+      /* ===== Dashboard period buttons (All / Today / ...) ===== */
+      .period-buttons{
+        display:flex;
+        gap:10px;
+        align-items:center;
+        flex-wrap:wrap;
+      }
+    
+      /* default (not active) */
+      .period-btn{
+        appearance:none;
+        border:1px solid rgba(0,65,130,.25);
+        background:rgba(255,255,255,.70);
+        color:#004182 !important;          /* ✅ blue text */
+        font-weight:900;
+        padding:10px 16px;
+        border-radius:12px;
+        cursor:pointer;
+        box-shadow: 0 10px 22px rgba(0,0,0,.10);
+        transition: .15s ease;
+      }
+    
+      .period-btn:hover{
+        background:rgba(0,65,130,.08);
+        border-color:rgba(0,65,130,.45);
+      }
+    
+      /* active button */
+      .period-btn.active{
+        background:#004182 !important;     /* ✅ blue background */
+        color:#fff !important;             /* ✅ white text */
+        border-color:rgba(0,65,130,.85);
+        box-shadow: 0 12px 26px rgba(0,0,0,.18);
+      }
+    </style>    
 {% endblock %}

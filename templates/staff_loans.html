@@ -19,6 +19,7 @@
         <tr>
           <th>ID</th>
           <th>User</th>
+          <th>NAME</th>
           <th>Amount</th>
           <th>Term</th>
           <th>Status</th>
@@ -36,6 +37,7 @@
                 {{ loan.user.phone }}
               </a>
             </td>
+            <td>{{ loan.full_name|default:"-" }}</td> 
             <td>{{ loan.amount }}</td>
             <td>{{ loan.term_months }}</td>
             <td>
@@ -57,7 +59,7 @@
           </form>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="muted">No loans</td></tr>
+        <tr><td colspan="7" class="muted">No loans</td></tr>
         {% endfor %}
       </tbody>
     </table>

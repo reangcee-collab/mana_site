@@ -119,22 +119,7 @@ body, body * {
 .pill.pill-anim-top{ animation: slideInTopToBottom 1200ms ease-out both; will-change: transform, opacity; }
 .card.card-anim{ animation: slideInRightToLeft 1200ms ease-out both; }
 .card.card-anim-left{ animation: slideInLeftToRight 1200ms ease-out both; }
-/* ===== Override Overview Card Background ===== */
-.card.card-anim{
-  background: linear-gradient(
-    145deg,
-    rgba(61, 60, 60, 0.226),
-    rgba(35, 35, 35, 0.404)
-  );
 
-  border: 1px solid rgba(255,255,255,.08);
-
-  box-shadow:
-    0 20px 60px rgba(29, 28, 28, 0.568),
-    inset 0 1px 0 rgba(255,255,255,.05);
-
-  backdrop-filter: blur(18px);
-}
 
 /* ===============================
    THEME
@@ -169,60 +154,6 @@ body{
   padding: 0;
   box-sizing: border-box;
   height: calc(100vh - 20px);
-}
-/* ===== Animated Lightning Topbar ===== */
-.topbar{
-  position: relative;
-  overflow: hidden;
-  border-radius: 18px;
-  padding: 10px 14px;
-  background: linear-gradient(120deg, #021b2f, #043c63, #021b2f);
-  background-size: 300% 300%;
-  animation: topbarFlow 8s ease infinite;
-}
-
-/* Lightning sweep effect */
-.topbar::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-150%;
-  width:60%;
-  height:100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(0,255,255,.35),
-    rgba(0,120,255,.45),
-    transparent
-  );
-  transform: skewX(-25deg);
-  animation: lightningMove 4s linear infinite;
-}
-
-/* Glow border */
-.topbar::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:18px;
-  box-shadow:
-    0 0 20px rgba(0,180,255,.35),
-    inset 0 0 25px rgba(0,150,255,.25);
-  pointer-events:none;
-}
-
-/* Background flow */
-@keyframes topbarFlow{
-  0%{ background-position: 0% 50%; }
-  50%{ background-position: 100% 50%; }
-  100%{ background-position: 0% 50%; }
-}
-
-/* Lightning animation */
-@keyframes lightningMove{
-  0%{ left:-150%; }
-  100%{ left:150%; }
 }
 
 /* ===========================
@@ -289,10 +220,6 @@ body{
   100%{ background-position: 0% 50%; }
 }
 
-@keyframes lightningMove{
-  0%{ left:-150%; }
-  100%{ left:150%; }
-}
 .brand{font-family: 'Ovelion', inherit;font-weight: 400;letter-spacing: .04em;}
 .pill{
   display:inline-flex; gap:10px; align-items:center;
@@ -358,32 +285,7 @@ body{
     inset 0 0 30px rgba(0,150,255,.08);
 }
 
-/* vertical light sweep */
-.card.side::before{
-  content:"";
-  position:absolute;
-  top:-120%;
-  left:0;
-  width:100%;
-  height:60%;
 
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(0,255,255,.35),
-    rgba(0,120,255,.45),
-    transparent
-  );
-
-  animation: menuShineDown 3.5s linear infinite;
-  pointer-events:none;
-}
-
-/* animation top → bottom */
-@keyframes menuShineDown{
-  0%{ top:-120%; }
-  100%{ top:120%; }
-}
 
 .card.side::after{
   content:"";
@@ -555,7 +457,7 @@ th,td{
   font-weight: 400;
   letter-spacing: .02em;
 }
-td{ color: rgba(255,255,255,.96); }
+td{ color: rgba(255, 255, 255, 0.96); }
 th{ text-align:left; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.90); }
 
 input,select{
@@ -972,16 +874,7 @@ input,select{
   font-weight:900;
   cursor:pointer;
 }
-/* ===== Dashboard Overview Glass Effect ===== */
-.dashboard-card{
-  background: rgba(0, 0, 0, 0.2) !important;   /* កាត់ភាពខ្មៅ */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,.08);
-  box-shadow:
-    0 20px 60px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.15);
-}
+
 /* ===== Bright White Titles ===== */
 .brand,
 .h1{
@@ -1263,6 +1156,186 @@ body{
 /* stop inner-scroll taking over wheel */
 .content{
   overflow: visible !important;
+}
+
+thead tr{ border-bottom: 1px solid rgba(255, 255, 255, 0.911); }
+th{ text-align:left; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.90); }
+
+/* ===============================
+   STAFF TABLE HEADER BAR (ALL STAFF PAGES)
+   =============================== */
+
+/* Only tables inside the RIGHT content card */
+.dashboard-card table thead th{
+  background: #004182;              /* culture / brand color */
+  color: #ffffff !important;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-bottom: 0 !important;
+}
+
+/* remove the old white border under thead */
+.dashboard-card table thead tr{
+  border-bottom: 0 !important;
+}
+
+/* make it look like one clean bar */
+.dashboard-card table thead th:first-child{
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.dashboard-card table thead th:last-child{
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+/* keep header visible when scroll long table */
+.dashboard-card table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ===== ONLY change TITLE area inside RIGHT big card ===== */
+:root{ --staff-blue: #004182; }
+
+/* Users (title) */
+.dashboard-card .h1{
+  color: var(--staff-blue) !important;
+  text-shadow: none !important;
+}
+
+/* "Edit status, OTP, messages" (subtitle) */
+.dashboard-card .muted{
+  color: rgba(0, 65, 130, 0.75) !important;
+  text-shadow: none !important;
+}
+/* ==================================================
+   ALL STAFF TABLE BODY TEXT -> BLUE (ALL PAGES)
+   (Only rows data / tbody. Not the header row)
+   ================================================== */
+   :root{
+  --staff-blue: #004182;
+}
+
+/* all text inside table rows */
+.dashboard-card table tbody td,
+.dashboard-card table tbody td a,
+.dashboard-card table tbody td span,
+.dashboard-card table tbody td strong,
+.dashboard-card table tbody td b{
+  color: var(--staff-blue) !important;
+  text-shadow: none !important;
+  font-weight: 700;
+}
+
+/* if some pages use <p> or <div> inside td */
+.dashboard-card table tbody td p,
+.dashboard-card table tbody td div{
+  color: var(--staff-blue) !important;
+}
+
+/* OPTIONAL: make text inside inputs/selects also blue (for pages that use input fields) */
+.dashboard-card table tbody td input,
+.dashboard-card table tbody td select,
+.dashboard-card table tbody td textarea{
+  color: var(--staff-blue) !important;
+}
+/* =========================================
+   RIGHT BIG CARD -> CLEAN WHITE BACKGROUND
+   (ALL STAFF PAGES)
+   ========================================= */
+   .dashboard-card{
+  background: #ffffffe8 !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08) !important;
+  backdrop-filter: none !important;
+}
+
+/* remove dark glass effect if any */
+.dashboard-card::before,
+.dashboard-card::after{
+  display: none !important;
+}
+.dashboard-card thead tr{
+  background: #004182 !important;
+}
+
+.dashboard-card thead th{
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   STAFF TABLE: REMOVE BLACK BOX INPUTS + ADD VERTICAL LINES
+   (ALL STAFF PAGES inside .dashboard-card)
+   ========================================================= */
+
+/* 1) Make table look clean + allow vertical separators */
+.dashboard-card table{
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+
+
+/* Remove line on first column */
+.dashboard-card table thead th:first-child,
+.dashboard-card table tbody td:first-child{
+  border-left: 0 !important;
+}
+
+/* Optional: keep horizontal row separators light */
+.dashboard-card table tbody tr td{
+  border-bottom: 1px solid rgba(0,0,0,.10) !important;
+}
+
+/* 3) REMOVE the black box backgrounds for inputs/select/textarea inside tables */
+.dashboard-card table tbody td input,
+.dashboard-card table tbody td select,
+.dashboard-card table tbody td textarea{
+  background: transparent !important;   /* remove black box */
+  border: 0 !important;
+  border-bottom: 2px solid rgba(0,0,0,.45) !important; /* underline style */
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  padding: 8px 6px !important;
+  color: #004182 !important;            /* keep your blue text */
+  font-weight: 800 !important;
+  outline: none !important;
+}
+
+/* 4) Focus style (clean) */
+.dashboard-card table tbody td input:focus,
+.dashboard-card table tbody td select:focus,
+.dashboard-card table tbody td textarea:focus{
+  border-bottom-color: #004182 !important;
+}
+
+/* 5) Placeholder color */
+.dashboard-card table tbody td input::placeholder,
+.dashboard-card table tbody td textarea::placeholder{
+  color: rgba(0,65,130,.55) !important;
+}
+
+/* 6) If some pages use "status-select" class, force same no-box style */
+.dashboard-card .status-select{
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 2px solid rgba(0,0,0,.45) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #004182 !important;
+}
+
+/* 7) Make sure links in table stay blue too */
+.dashboard-card table tbody td a{
+  color: #004182 !important;
+  text-decoration: none;
+}
+.dashboard-card table tbody td a:hover{
+  text-decoration: underline;
 }
 
   </style>

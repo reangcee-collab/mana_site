@@ -17,6 +17,7 @@
       <thead>
         <tr>
           <th>User</th>
+          <th>Name</th>
           <th>Wallet</th>
           <th>Bank</th>
           <th>PayPal</th>
@@ -30,8 +31,9 @@
           <form method="post" action="{% url 'staff_payment_method_update' pm.id %}">
             {% csrf_token %}
             <td class="user-font">{{ pm.user.phone }}</td>
-            <td>
-              <input name="wallet_name" value="{{ pm.wallet_name }}">
+<td class="user-font">{{ pm.display_name|default:"—" }}</td>
+<td>
+  <input name="wallet_name" value="{{ pm.wallet_name }}">
               <div style="height:8px"></div>
               <input name="wallet_phone" value="{{ pm.wallet_phone }}">
             </td>
@@ -51,7 +53,7 @@
           </form>
         </tr>
         {% empty %}
-        <tr><td colspan="6" class="muted">No payment methods</td></tr>
+        <tr><td colspan="7" class="muted">No payment methods</td></tr>
         {% endfor %}
       </tbody>
     </table>

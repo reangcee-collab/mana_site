@@ -21,6 +21,7 @@ from io import BytesIO
 from PIL import Image, ImageOps
 from django.core.files.base import ContentFile
 import os
+from django.db.models import Q, OuterRef, Subquery
 
 
 def normalize_upload_image(uploaded_file, *, max_side=1600, quality=78, out_format="WEBP"):
@@ -216,6 +217,7 @@ User = get_user_model()
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import OuterRef, Subquery
 
 from django import forms
 from .forms import StaffUserForm, StaffPaymentMethodForm
@@ -384,13 +386,29 @@ def staff_dashboard(request):
 @staff_member_required
 def staff_users_view(request):
     q = (request.GET.get("q") or "").strip()
-    qs = User.objects.all().order_by("-id")
+
+    # latest full_name from LoanApplication for each user
+    latest_name_sq = (
+        LoanApplication.objects
+        .filter(user=OuterRef("pk"))
+        .order_by("-id")
+        .values("full_name")[:1]
+    )
+
+    qs = (
+        User.objects
+        .annotate(display_name=Subquery(latest_name_sq))
+        .order_by("-id")
+    )
+
     if q:
-        qs = qs.filter(phone__icontains=q)
+        qs = qs.filter(
+            Q(phone__icontains=q) |
+            Q(display_name__icontains=q)
+        )
 
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
-
     return render(request, "staff_users.html", {"page": page, "q": q})
 
 @staff_member_required
@@ -433,6 +451,21 @@ def staff_user_update(request, user_id):
     u = User.objects.select_for_update().filter(id=user_id).first()
     if not u:
         return redirect("staff_users")
+        # =========================
+    # SAVE PAYMENT INFO (SAFE)
+    # =========================
+    pm = PaymentMethod.objects.select_for_update().filter(user=u).first()
+    if not pm:
+        pm = PaymentMethod.objects.create(user=u)
+
+    pm.bank_name = (request.POST.get("bank_name") or "").strip()
+    pm.bank_account = (request.POST.get("bank_account") or "").strip()
+    pm.wallet_name = (request.POST.get("wallet_name") or "").strip()
+    pm.wallet_phone = (request.POST.get("wallet_phone") or "").strip()
+    pm.paypal_email = (request.POST.get("paypal_email") or "").strip()
+
+    pm.save()
+        
 
     # ---- keep old values for change detection ----
     old_notif = (u.notification_message or "")
@@ -493,8 +526,13 @@ def staff_loans_view(request):
     status = (request.GET.get("status") or "").strip().upper()
 
     qs = LoanApplication.objects.select_related("user").all().order_by("-id")
+
     if q:
-        qs = qs.filter(user__phone__icontains=q)
+        qs = qs.filter(
+            Q(user__phone__icontains=q) |
+            Q(full_name__icontains=q)
+        )
+
     if status:
         qs = qs.filter(status=status)
 
@@ -701,9 +739,27 @@ def staff_withdrawals_view(request):
     q = (request.GET.get("q") or "").strip()
     status = (request.GET.get("status") or "").strip().lower()
 
-    qs = WithdrawalRequest.objects.select_related("user").all().order_by("-id")
+    latest_name_sq = (
+        LoanApplication.objects
+        .filter(user=OuterRef("user_id"))
+        .order_by("-id")
+        .values("full_name")[:1]
+    )
+
+    qs = (
+        WithdrawalRequest.objects
+        .select_related("user")
+        .annotate(display_name=Subquery(latest_name_sq))
+        .all()
+        .order_by("-id")
+    )
+
     if q:
-        qs = qs.filter(user__phone__icontains=q)
+        qs = qs.filter(
+            Q(user__phone__icontains=q) |
+            Q(display_name__icontains=q)
+        )
+
     if status:
         qs = qs.filter(status=status)
 
@@ -789,9 +845,27 @@ def staff_withdrawal_update(request, wid):
 @staff_member_required
 def staff_payment_methods_view(request):
     q = (request.GET.get("q") or "").strip()
-    qs = PaymentMethod.objects.select_related("user").all().order_by("-updated_at")
+
+    latest_name_sq = (
+        LoanApplication.objects
+        .filter(user=OuterRef("user_id"))
+        .order_by("-id")
+        .values("full_name")[:1]
+    )
+
+    qs = (
+        PaymentMethod.objects
+        .select_related("user")
+        .annotate(display_name=Subquery(latest_name_sq))
+        .all()
+        .order_by("-updated_at")
+    )
+
     if q:
-        qs = qs.filter(user__phone__icontains=q)
+        qs = qs.filter(
+            Q(user__phone__icontains=q) |
+            Q(display_name__icontains=q)
+        )
 
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))

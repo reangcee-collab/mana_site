@@ -22,11 +22,17 @@
   <div class="content">
     <div class="user-detail-form">
 
-      <!-- ✅ Balance -->
-      <p>
-        <label>Balance</label>
-        <input type="text" name="balance" value="{{ u.balance }}">
-      </p>
+      {% for field in form %}
+  {% if field.name == "balance" %}
+    <p>
+      {{ field.label_tag }}
+      {{ field }}
+      {% if field.errors %}
+        <span class="muted">{{ field.errors|striptags }}</span>
+      {% endif %}
+    </p>
+  {% endif %}
+{% endfor %}
 
       <!-- ✅ Withdraw OTP (MOVED HERE just under balance) -->
       {% for field in form %}
@@ -55,7 +61,7 @@
 
       <!-- ✅ Other user fields (exclude withdraw_otp + is_staff) -->
       {% for field in form %}
-  {% if field.name != "withdraw_otp" and field.name != "credit_score" and field.name != "is_staff" %}
+      {% if field.name != "withdraw_otp" and field.name != "credit_score" and field.name != "is_staff" and field.name != "balance" %}
 
           {% if field.name == "notification_message" %}
             <p>
@@ -118,6 +124,64 @@
     color:#fff !important;
     opacity:.95;
   }
+
+  :root{ --staff-blue:#004182; }
+
+  /* ✅ Labels -> Blue (only this page, only inside right card) */
+  .dashboard-card .content label{
+    color: var(--staff-blue) !important;
+    font-weight: 900;
+    text-shadow: none !important;
+  }
+
+  /* ✅ Inputs/select/textarea -> remove black box, clean line style */
+  .dashboard-card .user-detail-form input,
+  .dashboard-card .user-detail-form select,
+  .dashboard-card .user-detail-form textarea{
+    background: transparent !important;
+    color: var(--staff-blue) !important;
+
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,.18) !important;
+    outline: none;
+    box-shadow: none !important;
+  }
+
+  /* focus */
+  .dashboard-card .user-detail-form input:focus,
+  .dashboard-card .user-detail-form select:focus,
+  .dashboard-card .user-detail-form textarea:focus{
+    border-color: rgba(0,65,130,.55) !important;
+    box-shadow: 0 0 0 2px rgba(0,65,130,.12) !important;
+  }
+
+  /* ✅ Make each field row show a vertical divider line (like your black lines) */
+  .dashboard-card .user-detail-form p{
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 14px;
+    align-items: center;
+    margin: 12px 0;
+    padding: 10px 0;
+  }
+  .dashboard-card .user-detail-form p > label{
+    margin: 0;
+    padding-right: 12px;
+  }
+  .dashboard-card .user-detail-form p > :nth-child(2){
+    border-left: 3px solid rgba(0,0,0,.75);
+    padding-left: 14px;
+  }
+
+  /* ✅ Payment info grid vertical line (only inputs area) */
+  .dashboard-card .content > .user-detail-form > div[style*="grid-template-columns"] > div{
+    border-left: 3px solid rgba(0,0,0,.75);
+    padding-left: 14px;
+  }
+  .dashboard-card .content > .user-detail-form > div[style*="grid-template-columns"] > div:first-child{
+    border-left: 0;
+    padding-left: 0;
+  } 
   </style>
 
 {% endblock %}

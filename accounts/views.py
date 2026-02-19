@@ -383,29 +383,24 @@ def staff_dashboard(request):
     return render(request, "staff_dashboard.html", context)
 
 
+from django.db.models import OuterRef, Subquery
+from .models import LoanApplication
+
 @staff_member_required
 def staff_users_view(request):
     q = (request.GET.get("q") or "").strip()
 
-    # latest full_name from LoanApplication for each user
-    latest_name_sq = (
+    latest_name = Subquery(
         LoanApplication.objects
-        .filter(user=OuterRef("pk"))
+        .filter(user_id=OuterRef("pk"))
         .order_by("-id")
         .values("full_name")[:1]
     )
 
-    qs = (
-        User.objects
-        .annotate(display_name=Subquery(latest_name_sq))
-        .order_by("-id")
-    )
+    qs = User.objects.all().annotate(display_name=latest_name).order_by("-id")
 
     if q:
-        qs = qs.filter(
-            Q(phone__icontains=q) |
-            Q(display_name__icontains=q)
-        )
+        qs = qs.filter(phone__icontains=q) | qs.filter(display_name__icontains=q)
 
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
@@ -529,9 +524,9 @@ def staff_loans_view(request):
 
     if q:
         qs = qs.filter(
-            Q(user__phone__icontains=q) |
-            Q(full_name__icontains=q)
-        )
+        Q(user__phone__icontains=q) |
+        Q(full_name__icontains=q)
+    )
 
     if status:
         qs = qs.filter(status=status)
@@ -739,21 +734,16 @@ def staff_withdrawals_view(request):
     q = (request.GET.get("q") or "").strip()
     status = (request.GET.get("status") or "").strip().lower()
 
-    latest_name_sq = (
-        LoanApplication.objects
-        .filter(user=OuterRef("user_id"))
-        .order_by("-id")
-        .values("full_name")[:1]
-    )
+    # ✅ get latest loan full_name for each withdrawal user
+    latest_name = LoanApplication.objects.filter(
+        user_id=OuterRef("user_id")
+    ).order_by("-id").values("full_name")[:1]
 
-    qs = (
-        WithdrawalRequest.objects
-        .select_related("user")
-        .annotate(display_name=Subquery(latest_name_sq))
-        .all()
-        .order_by("-id")
-    )
+    qs = WithdrawalRequest.objects.select_related("user").annotate(
+        display_name=Subquery(latest_name)
+    ).all().order_by("-id")
 
+    # ✅ search phone OR name
     if q:
         qs = qs.filter(
             Q(user__phone__icontains=q) |
@@ -766,6 +756,7 @@ def staff_withdrawals_view(request):
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_withdrawals.html", {"page": page, "q": q, "status": status})
+    
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
 from django.shortcuts import redirect
@@ -846,20 +837,13 @@ def staff_withdrawal_update(request, wid):
 def staff_payment_methods_view(request):
     q = (request.GET.get("q") or "").strip()
 
-    latest_name_sq = (
-        LoanApplication.objects
-        .filter(user=OuterRef("user_id"))
-        .order_by("-id")
-        .values("full_name")[:1]
-    )
+    latest_name = LoanApplication.objects.filter(
+        user_id=OuterRef("user_id")
+    ).order_by("-id").values("full_name")[:1]
 
-    qs = (
-        PaymentMethod.objects
-        .select_related("user")
-        .annotate(display_name=Subquery(latest_name_sq))
-        .all()
-        .order_by("-updated_at")
-    )
+    qs = PaymentMethod.objects.select_related("user").annotate(
+        display_name=Subquery(latest_name)
+    ).all().order_by("-id")
 
     if q:
         qs = qs.filter(

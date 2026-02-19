@@ -16,8 +16,8 @@
     <table>
       <thead>
         <tr>
-          <th>User</th>
           <th>Name</th>
+          <th>User</th>
           <th>Wallet</th>
           <th>Bank</th>
           <th>PayPal</th>
@@ -30,8 +30,8 @@
         <tr>
           <form method="post" action="{% url 'staff_payment_method_update' pm.id %}">
             {% csrf_token %}
-            <td class="user-font">{{ pm.user.phone }}</td>
-<td class="user-font">{{ pm.display_name|default:"—" }}</td>
+            <td class="user-font">{{ pm.display_name|default:"-" }}</td>
+<td class="user-font">{{ pm.user.phone }}</td>
 <td>
   <input name="wallet_name" value="{{ pm.wallet_name }}">
               <div style="height:8px"></div>

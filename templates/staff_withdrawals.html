@@ -18,8 +18,8 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>User</th>
           <th>Name</th>
+          <th>User</th>
           <th>Amount</th>
           <th>Status</th>
           <th></th>
@@ -30,8 +30,8 @@
         {% for w in page.object_list %}
           <tr>
             <td>#{{ w.id }}</td>
-            <td class="user-font">{{ w.user.phone }}</td>
 <td class="user-font">{{ w.display_name|default:"—" }}</td>
+<td class="user-font">{{ w.user.phone }}</td>
 <td>{{ w.amount }} {{ w.currency }}</td>
     
             <td>

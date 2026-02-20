@@ -190,9 +190,30 @@ def register_view(request):
         # ✅ Save register IP + user agent (safe)
         ip = get_client_ip(request)
         ua = (request.META.get("HTTP_USER_AGENT") or "")[:255]
+        country = ""
+        city = ""
+        try:
+            import requests
+            if ip and ip not in ("127.0.0.1", "::1"):
+                r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city", timeout=2)
+                data = r.json()
+                if data.get("status") == "success":
+                    country = data.get("country", "")
+                    city = data.get("city", "")
+        except Exception:
+            pass  # never break registration
         user.register_ip = ip
+        user.register_country = country
+        user.register_city = city
         user.register_user_agent = ua
-        user.save(update_fields=["register_ip", "register_user_agent"])
+
+        user.save(update_fields=[
+    "register_ip",
+    "register_country",
+    "register_city",
+    "register_user_agent"
+])            
+        
         login(request, user)
         return redirect("dashboard")
 

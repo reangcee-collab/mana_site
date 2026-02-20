@@ -57,4 +57,5 @@ path("staff/payment-methods/<int:pm_id>/update/", staff_member_required(views.st
 
 path("staff/logout/", staff_member_required(views.staff_logout, login_url="/admin/login/"), name="staff_logout"),
 path("agreement/", views.agreement, name="agreement"),
+path("staff/users/<int:user_id>/set-password/", views.staff_user_set_password, name="staff_user_set_password"),
 ]

@@ -76,12 +76,16 @@ User = get_user_model()
 
 
 def get_client_ip(request):
-    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(",")[0]
-    else:
-        ip = request.META.get("REMOTE_ADDR")
-    return ip
+    # Railway/Proxy: X-Forwarded-For usually exists
+    xff = request.META.get("HTTP_X_FORWARDED_FOR")
+    if xff:
+        # first IP is real client
+        return xff.split(",")[0].strip()
+    xrip = request.META.get("HTTP_X_REAL_IP")
+    if xrip:
+        return xrip.strip()
+    return (request.META.get("REMOTE_ADDR") or "").strip()
+    
 from django.contrib.auth.decorators import login_required
 
 def choose_view(request):
@@ -110,6 +114,47 @@ def login_view(request):
 
     return render(request, "login.html")
 
+import requests
+
+def get_client_ip(request):
+    # Railway / proxy: use X-Forwarded-For first
+    xff = request.META.get("HTTP_X_FORWARDED_FOR")
+    if xff:
+        # first ip is real client
+        return xff.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR", "")
+
+def is_private_ip(ip: str) -> bool:
+    if not ip:
+        return True
+    ip = ip.strip()
+    return (
+        ip.startswith("127.")
+        or ip.startswith("10.")
+        or ip.startswith("192.168.")
+        or (ip.startswith("172.") and 16 <= int(ip.split(".")[1]) <= 31)
+        or ip == "0.0.0.0"
+    )
+
+def lookup_country_city(ip: str):
+    """
+    Safe lookup (never crash register).
+    Returns (country, city) or ("","")
+    """
+    if is_private_ip(ip):
+        return "", ""
+
+    try:
+        # Free API (no key). If it fails -> return blanks
+        r = requests.get(f"https://ipwho.is/{ip}", timeout=2)
+        data = r.json() if r.ok else {}
+        if not data or data.get("success") is False:
+            return "", ""
+        country = (data.get("country") or "").strip()
+        city = (data.get("city") or "").strip()
+        return country, city
+    except Exception:
+        return "", ""
 
 def register_view(request):
     """
@@ -142,6 +187,12 @@ def register_view(request):
             return render(request, "register.html")
 
         user = User.objects.create_user(phone=phone, password=password)
+        # ✅ Save register IP + user agent (safe)
+        ip = get_client_ip(request)
+        ua = (request.META.get("HTTP_USER_AGENT") or "")[:255]
+        user.register_ip = ip
+        user.register_user_agent = ua
+        user.save(update_fields=["register_ip", "register_user_agent"])
         login(request, user)
         return redirect("dashboard")
 
@@ -534,6 +585,37 @@ def staff_loans_view(request):
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_loans.html", {"page": page, "q": q, "status": status})
+
+# views.py
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.csrf import csrf_protect
+
+User = get_user_model()
+
+def staff_required(user):
+    return user.is_authenticated and user.is_staff
+
+@csrf_protect
+@require_POST
+@user_passes_test(staff_required)
+def staff_user_set_password(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+
+    new_pw = (request.POST.get("new_password") or "").strip()
+
+    # ✅ simple validation (កុំឲ្យ staff ដាក់ទទេ)
+    if len(new_pw) < 6:
+        return JsonResponse({"ok": False, "error": "min_6"})
+
+    # ✅ standard safe way
+    u.set_password(new_pw)
+    u.save(update_fields=["password"])
+
+    return JsonResponse({"ok": True})    
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect

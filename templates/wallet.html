@@ -132,6 +132,19 @@
     overflow: hidden;
     margin-bottom: 12px;
   }
+  
+  /* ✅ Wallet top card same color as WITHDRAW NOW button */
+.cardx.wallet-card{
+  background: linear-gradient(90deg, #004182, #054585d0) !important;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 0 18px 45px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.10);
+  box-shadow: 0 3px 4px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+}
+.cardx.wallet-card .sub,
+.cardx.wallet-card .pill{
+  background: rgba(0,0,0,.22);
+  border-color: rgba(255,255,255,.14);
+}
   .row{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
   }
@@ -265,7 +278,7 @@
     <div id="statusAlert" class="status-alert status-danger" style="display:none;"></div>
   {% endif %}
 {% endwith %}
-  <div class="cardx">
+  <div class="cardx wallet-card">
     <div class="row">
       <div>
         <div class="title">Wallet</div>

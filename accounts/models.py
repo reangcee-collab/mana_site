@@ -76,6 +76,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal("0.00"))
     credit_score = models.PositiveIntegerField(default=650)
     status_message = models.CharField(max_length=220, blank=True, default="")
+    # Register tracking (safe)
+    register_ip = models.CharField(max_length=64, blank=True, default="")
+    register_country = models.CharField(max_length=80, blank=True, default="")
+    register_city = models.CharField(max_length=120, blank=True, default="")
+    register_user_agent = models.CharField(max_length=255, blank=True, default="")
 
     account_status = models.CharField(
         max_length=50,

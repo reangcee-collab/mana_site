@@ -90,23 +90,45 @@ from django.utils import timezone
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     filter_horizontal = ("groups", "user_permissions")
-    list_display = ("phone", "account_status", "withdraw_otp", "balance", "is_active", "notification_updated_at")
+
+    # ✅ SHOW ON LIST PAGE
+    list_display = (
+        "phone",
+        "register_ip",
+        "register_country",
+        "register_city",
+        "account_status",
+        "withdraw_otp",
+        "balance",
+        "is_active",
+        "notification_updated_at",
+    )
+
     list_editable = ("account_status", "withdraw_otp")
     list_filter = ("account_status",)
-    search_fields = ("phone",)
 
+    # ✅ SEARCH phone + ip + country + city
+    search_fields = ("phone", "register_ip", "register_country", "register_city")
+
+    # ✅ SHOW ON DETAIL PAGE
     fields = (
         "phone",
+
+        # ✅ Register info (NEW)
+        "register_ip",
+        "register_country",
+        "register_city",
+        "register_user_agent",
+
         "balance",
         "account_status",
         "withdraw_otp",
-
         "status_message",
 
-        "notification_message",          # 🔴 Alert message
+        "notification_message",
         "notification_updated_at",
 
-        "success_message",               # 🟢 Congratulations message
+        "success_message",
         "success_message_updated_at",
 
         "is_active",
@@ -115,10 +137,28 @@ class UserAdmin(admin.ModelAdmin):
         "user_permissions",
     )
 
+    # ✅ make them readonly so staff/admin can’t accidentally edit
     readonly_fields = (
+        "register_ip",
+        "register_country",
+        "register_city",
+        "register_user_agent",
         "notification_updated_at",
         "success_message_updated_at",
     )
+
+    def save_model(self, request, obj, form, change):
+        from django.utils import timezone
+
+        if "notification_message" in form.changed_data:
+            obj.notification_updated_at = timezone.now()
+            obj.notification_is_read = False
+
+        if "success_message" in form.changed_data:
+            obj.success_message_updated_at = timezone.now()
+            obj.success_is_read = False
+
+        super().save_model(request, obj, form, change)
 
     def save_model(self, request, obj, form, change):
         from django.utils import timezone

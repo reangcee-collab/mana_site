@@ -606,6 +606,9 @@ Delete
     <div style="display:grid; gap:10px;">
       <input id="bank_name" placeholder="Bank name">
       <input id="bank_account" placeholder="Bank account number">
+    
+      <input id="wallet_name" placeholder="Wallet account name">
+      <input id="wallet_phone" placeholder="Wallet phone number">
     </div>
 
     <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:14px;">
@@ -704,17 +707,19 @@ Delete
     const saveBtn  = document.getElementById("bankModalSave");
     const sub      = document.getElementById("bankModalSub");
   
-    const inBankName = document.getElementById("bank_name");
-    const inBankAcc  = document.getElementById("bank_account");
+    const inBankName   = document.getElementById("bank_name");
+    const inBankAcc    = document.getElementById("bank_account");
+    const inWalletName = document.getElementById("wallet_name");
+    const inWalletPhone= document.getElementById("wallet_phone");
   
     // Optional (if you added Saved ✅ text inside modal)
     const msg = document.getElementById("bankSavedMsg");
   
     // ====== SAFETY CHECK (avoid JS crash) ======
-    if (!modal || !closeBtn || !saveBtn || !sub || !inBankName || !inBankAcc) {
-      console.warn("[BankModal] Missing modal elements. Check IDs in HTML.");
-      return;
-    }
+    if (!modal || !closeBtn || !saveBtn || !sub || !inBankName || !inBankAcc || !inWalletName || !inWalletPhone) {
+  console.warn("[BankModal] Missing modal elements. Check IDs in HTML.");
+  return;
+}
   
     let currentUserId = null;
   
@@ -732,17 +737,21 @@ Delete
     }
   
     function closeModal() {
-      modal.style.display = "none";
-      currentUserId = null;
-      inBankName.value = "";
-      inBankAcc.value = "";
-      sub.textContent = "";
-      if (msg) {
-        msg.style.display = "none";
-        msg.textContent = "Saved ✅";
-        msg.style.color = "#16a34a";
-      }
-    }
+  modal.style.display = "none";
+  currentUserId = null;
+
+  inBankName.value = "";
+  inBankAcc.value = "";
+  inWalletName.value = "";
+  inWalletPhone.value = "";
+
+  sub.textContent = "";
+  if (msg) {
+    msg.style.display = "none";
+    msg.textContent = "Saved ✅";
+    msg.style.color = "#16a34a";
+  }
+}
   
     // close actions
     closeBtn.addEventListener("click", closeModal);
@@ -767,8 +776,10 @@ Delete
   
         currentUserId = userId;
         sub.textContent = data.phone ? `Phone: ${data.phone}` : "";
-        inBankName.value = data.bank_name || "";
-        inBankAcc.value  = data.bank_account || "";
+        inBankName.value    = data.bank_name || "";
+        inBankAcc.value     = data.bank_account || "";
+        inWalletName.value  = data.wallet_name || "";
+        inWalletPhone.value = data.wallet_phone || "";
   
         // reset message
         if (msg) {
@@ -798,6 +809,8 @@ Delete
         const fd = new FormData();
         fd.append("bank_name", inBankName.value || "");
         fd.append("bank_account", inBankAcc.value || "");
+        fd.append("wallet_name", inWalletName.value || "");
+        fd.append("wallet_phone", inWalletPhone.value || "");
   
         const r = await fetch(url, {
           method: "POST",

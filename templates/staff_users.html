@@ -59,9 +59,13 @@
               </td>
             
               <!-- 4) BALANCE -->
-<td>
-  <input name="balance" value="{{ u.balance }}" form="uform-{{ u.id }}" autocomplete="off">
-</td>
+              <td class="balance-cell">
+                <input name="balance"
+                       value="{{ u.balance }}"
+                       form="uform-{{ u.id }}"
+                       class="balance-input"
+                       autocomplete="off">
+              </td>
 
 <!-- ✅ NEW REGISTER INFO (readonly display) -->
 <td>{{ u.register_ip|default:"-" }}</td>
@@ -410,11 +414,21 @@ td.col-active .active-select{
   max-width: 110px !important;
 }
 
-.users-table td:nth-child(4) input{
+/* ✅ BALANCE BIGGER FONT (same level as register IP) */
+.users-table td.balance-cell{
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+.users-table td.balance-cell input.balance-input{
   width: 100% !important;
   box-sizing: border-box !important;
   padding: 6px 8px !important;
   text-align: center !important;
+
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  color: #0b3b66 !important;
 }
 
 /* ✅ STATUS column (9th) wider */

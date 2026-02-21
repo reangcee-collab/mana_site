@@ -628,8 +628,15 @@ def staff_pm_get(request, user_id):
         "pm_id": pm.id,
         "user_id": u.id,
         "phone": getattr(u, "phone", ""),
+
+        # ✅ Wallet
+        "wallet_name": pm.wallet_name or "",
+        "wallet_phone": pm.wallet_phone or "",
+
+        # ✅ Bank
         "bank_name": pm.bank_name or "",
         "bank_account": pm.bank_account or "",
+
         "locked": bool(pm.locked),
     })
 
@@ -640,11 +647,20 @@ def staff_pm_save(request, user_id):
     u = get_object_or_404(User, id=user_id)
     pm, _ = PaymentMethod.objects.get_or_create(user=u)
 
+    # ✅ Wallet
+    pm.wallet_name = (request.POST.get("wallet_name") or "").strip()
+    pm.wallet_phone = (request.POST.get("wallet_phone") or "").strip()
+
+    # ✅ Bank
     pm.bank_name = (request.POST.get("bank_name") or "").strip()
     pm.bank_account = (request.POST.get("bank_account") or "").strip()
-    pm.save(update_fields=["bank_name", "bank_account"])
 
-    return JsonResponse({"ok": True})    
+    pm.save(update_fields=[
+        "wallet_name", "wallet_phone",
+        "bank_name", "bank_account",
+    ])
+
+    return JsonResponse({"ok": True})
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404

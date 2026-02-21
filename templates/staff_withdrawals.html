@@ -1,6 +1,203 @@
 {% extends "staff_base.html" %}
 {% block title %}Staff - Withdrawals{% endblock %}
 {% block content %}
+
+<style>
+
+  /* ✅ Center text for all columns inside the red box (Name/Phone/Amount/Status) */
+#withdrawalsTable th:nth-child(2),
+#withdrawalsTable td:nth-child(2),
+#withdrawalsTable th:nth-child(3),
+#withdrawalsTable td:nth-child(3),
+#withdrawalsTable th:nth-child(4),
+#withdrawalsTable td:nth-child(4),
+#withdrawalsTable th:nth-child(5),
+#withdrawalsTable td:nth-child(5){
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+  /* ===== Withdrawals Table Column Lines (like Loans) ===== */
+  #withdrawalsTable{
+    width:100% !important;
+    table-layout: fixed !important;     /* ✅ សំខាន់: បង្ខំ width តាម column */
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+  }
+  
+  /* ✅ keep text from pushing width */
+  #withdrawalsTable th,
+  #withdrawalsTable td{
+    border-right: 3px solid rgba(184, 184, 184, 0.87) !important;
+    overflow:hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  
+  /* remove last column line */
+  #withdrawalsTable th:last-child,
+  #withdrawalsTable td:last-child{
+    border-right: 0 !important;
+  }
+  
+  /* ✅ ID column smaller */
+  #withdrawalsTable th:nth-child(1),
+  #withdrawalsTable td:nth-child(1){
+    width: 55px !important;
+    min-width: 55px !important;
+    max-width: 55px !important;
+    text-align:center !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+    font-size:12px !important;
+    font-weight:900 !important;
+  }
+  
+  /* ✅ Save column center */
+  #withdrawalsTable td.save-cell{
+    text-align:center !important;
+    vertical-align: middle !important;
+  }
+  #withdrawalsTable td.save-cell .savebtn{
+    display:inline-block !important;
+    margin:0 auto !important;
+  }
+  
+  /* optional: make rows easier to read */
+  #withdrawalsTable tbody tr:nth-child(even){
+    background: rgba(0,65,130,.03) !important;
+  }
+  #withdrawalsTable tbody tr:hover{
+    background: rgba(0,65,130,.06) !important;
+  }
+
+
+  .content #withdrawalsTable th,
+.content #withdrawalsTable td{
+  border-right: 3px solid rgba(184, 184, 184, 0.87) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+
+  /* ✅ CENTER ALL CELLS */
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* ✅ STATUS: make the SELECT itself sit in center */
+.content #withdrawalsTable td:nth-child(5){
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+
+  #withdrawalsTable th:last-child,
+  #withdrawalsTable td:last-child{
+    border-right: 0 !important;
+  }
+
+  #withdrawalsTable th:nth-child(1),
+  #withdrawalsTable td:nth-child(1){
+    width: 55px !important;
+    min-width: 55px !important;
+    max-width: 55px !important;
+    text-align:center !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+    font-size:12px !important;
+    font-weight:900 !important;
+  }
+
+  #withdrawalsTable td.save-cell{
+    text-align:center !important;
+    vertical-align: middle !important;
+  }
+  #withdrawalsTable td.save-cell .savebtn{
+    display:inline-block !important;
+    margin:0 auto !important;
+  }
+
+  #withdrawalsTable tbody tr:nth-child(even){
+    background: rgba(0,65,130,.03) !important;
+  }
+  #withdrawalsTable tbody tr:hover{
+    background: rgba(0,65,130,.06) !important;
+  }
+
+  /* ✅ ADD THIS (CENTER LIKE LOANS) */
+  #withdrawalsTable th:nth-child(2),
+  #withdrawalsTable td:nth-child(2),
+  #withdrawalsTable th:nth-child(3),
+  #withdrawalsTable td:nth-child(3),
+  #withdrawalsTable th:nth-child(4),
+  #withdrawalsTable td:nth-child(4),
+  #withdrawalsTable th:nth-child(5),
+  #withdrawalsTable td:nth-child(5){
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+/* ✅ center text columns (Name/Phone/Amount/Status) */
+#withdrawalsTable td:nth-child(2),
+#withdrawalsTable td:nth-child(3),
+#withdrawalsTable td:nth-child(4),
+#withdrawalsTable td:nth-child(5){
+  text-align:center !important;
+  vertical-align:middle !important;
+}
+
+/* ✅ status select center (real fix) */
+#withdrawalsTable td.status-cell{ text-align:center !important; }
+#withdrawalsTable select.status-select{
+  display:block !important;
+  margin:0 auto !important;
+  width: min(230px, 100%) !important;
+  text-align-last: center !important;
+  text-align: center !important;
+}
+/* ===== STATUS COLOR BADGE (Withdrawals) ===== */
+#withdrawalsTable td:nth-child(5) select{
+  width:100% !important;
+  padding:10px 34px 10px 12px !important;
+  border:0 !important;
+  border-bottom:0 !important;
+  border-radius:14px !important;
+  font-weight:900 !important;
+  text-align:center !important;
+  text-align-last:center !important;
+  appearance:none !important;
+  -webkit-appearance:none !important;
+}
+
+/* Processing = Blue */
+#withdrawalsTable td:nth-child(5) select.st-processing{
+  background:#0b5ea8 !important;
+  color:#ffffff !important;
+}
+
+/* Waiting = Purple */
+#withdrawalsTable td:nth-child(5) select.st-waiting{
+  background:#7c3aed !important;
+  color:#ffffff !important;
+}
+
+/* Reviewed = Yellow */
+#withdrawalsTable td:nth-child(5) select.st-reviewed{
+  background:#facc15 !important;
+  color:#111827 !important;
+}
+
+/* Payment sent / Paid = Green */
+#withdrawalsTable td:nth-child(5) select.st-paid{
+  background:#22c55e !important;
+  color:#ffffff !important;
+}
+
+/* Rejected = Red */
+#withdrawalsTable td:nth-child(5) select.st-rejected{
+  background:#ef4444 !important;
+  color:#ffffff !important;
+}
+  </style>
   <div class="card-h">
     <div>
       <div class="h1">Withdrawals</div>
@@ -14,7 +211,7 @@
   </div>
 
   <div class="content" style="overflow:auto;">
-    <table>
+    <table id="withdrawalsTable">
       <thead>
         <tr>
           <th>ID</th>
@@ -28,33 +225,58 @@
     
       <tbody>
         {% for w in page.object_list %}
-          <tr>
-            <td>#{{ w.id }}</td>
-<td class="user-font">{{ w.display_name|default:"—" }}</td>
-<td class="user-font">{{ w.user.phone }}</td>
-<td>{{ w.amount }} {{ w.currency }}</td>
-    
-            <td>
-              <form method="post" action="{% url 'staff_withdrawal_update' w.id %}" class="inline-form">
-                {% csrf_token %}
-    
-                <select name="status">
-                  {% for v,label in w.STATUS_CHOICES %}
-                    <option value="{{ v }}" {% if w.status == v %}selected{% endif %}>{{ label }}</option>
-                  {% endfor %}
-                </select>
-    
-                <button class="savebtn" type="submit">Save</button>
-              </form>
-            </td>
-    
-            <td></td>
-          </tr>
-        {% empty %}
-        <tr><td colspan="6" class="muted">No withdrawals</td></tr>
-        {% endfor %}
+
+<form id="wdForm{{ w.id }}" method="post" action="{% url 'staff_withdrawal_update' w.id %}">
+  {% csrf_token %}
+</form>
+
+<tr>
+  <td>#{{ w.id }}</td>
+  <td class="user-font">{{ w.display_name|default:"—" }}</td>
+  <td class="user-font">{{ w.user.phone }}</td>
+  <td>{{ w.amount }} {{ w.currency }}</td>
+
+  <td class="status-cell">
+    <select name="status" form="wdForm{{ w.id }}" class="status-select">
+      {% for v,label in w.STATUS_CHOICES %}
+        <option value="{{ v }}" {% if w.status == v %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </td>
+
+  <td class="save-cell">
+    <button class="savebtn" type="submit" form="wdForm{{ w.id }}">Save</button>
+  </td>
+</tr>
+
+{% empty %}
+<tr><td colspan="6" class="muted">No withdrawals</td></tr>
+{% endfor %}
       </tbody>
     </table>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const sels = document.querySelectorAll("#withdrawalsTable select.status-select");
+    
+        function paint(el) {
+          el.classList.remove("st-processing","st-waiting","st-reviewed","st-paid","st-rejected");
+    
+          const v = (el.value || "").toLowerCase().replace(/\s+/g, "_");
+    
+          if (v === "processing") el.classList.add("st-processing");
+          else if (v === "waiting") el.classList.add("st-waiting");
+          else if (v === "reviewed" || v === "review") el.classList.add("st-reviewed");
+          else if (v === "paid" || v === "payment_sent") el.classList.add("st-paid");
+          else if (v === "rejected") el.classList.add("st-rejected");
+        }
+    
+        sels.forEach(s => {
+          paint(s);
+          s.addEventListener("change", function(){ paint(this); });
+        });
+      });
+    </script>
 
     <div class="pager">
       {% if page.has_previous %}

@@ -13,50 +13,120 @@
   </div>
 
   <div class="content" style="overflow:auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Wallet</th>
-          <th>Bank</th>
-          <th>PayPal</th>
-          <th>Locked</th>
-          <th>Save</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for pm in page.object_list %}
-        <tr>
-          <form method="post" action="{% url 'staff_payment_method_update' pm.id %}">
+    
+    <style>
+        /* ===== Payment Methods: line + center like loans ===== */
+        #pmTable{
+          width:100% !important;
+          table-layout: fixed !important;
+          border-collapse: separate !important;
+          border-spacing: 0 !important;
+        }
+      
+        #pmTable th,
+        #pmTable td{
+          border-right: 3px solid rgba(184, 184, 184, 0.87) !important;
+          overflow:hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
+      
+          /* ✅ center all */
+          text-align:center !important;
+          vertical-align:middle !important;
+        }
+      
+        #pmTable th:last-child,
+        #pmTable td:last-child{ border-right:0 !important; }
+      
+        /* optional row shading */
+        #pmTable tbody tr:nth-child(even){ background: rgba(0,65,130,.03) !important; }
+        #pmTable tbody tr:hover{ background: rgba(0,65,130,.06) !important; }
+      
+        /* ✅ make inputs/selects centered */
+        #pmTable input,
+        #pmTable select{
+          text-align:center !important;
+          text-align-last:center !important;
+          margin:0 auto !important;
+        }
+      
+        /* ✅ Wallet/Bank cells allow 2 lines */
+        #pmTable td.multi{
+          white-space: normal !important;
+          overflow: visible !important;
+          text-overflow: clip !important;
+        }
+      
+        /* ✅ nicer width for inputs inside multi cells */
+        #pmTable td.multi input{
+          width: min(260px, 100%) !important;
+          display:block !important;
+        }
+      
+        /* ✅ save button center */
+        #pmTable td.save-cell{ text-align:center !important; }
+      </style>
+      
+      <table id="pmTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Wallet</th>
+            <th>Bank</th>
+            <th>PayPal</th>
+            <th>Locked</th>
+            <th>Save</th>
+          </tr>
+        </thead>
+      
+        <tbody>
+          {% for pm in page.object_list %}
+      
+          <form id="pmForm{{ pm.id }}" method="post" action="{% url 'staff_payment_method_update' pm.id %}">
             {% csrf_token %}
+          </form>
+      
+          <tr>
             <td class="user-font">{{ pm.display_name|default:"-" }}</td>
-<td class="user-font">{{ pm.user.phone }}</td>
-<td>
-  <input name="wallet_name" value="{{ pm.wallet_name }}">
+            <td class="user-font">{{ pm.user.phone }}</td>
+      
+            <td class="multi">
+              <input name="wallet_name" value="{{ pm.wallet_name }}" form="pmForm{{ pm.id }}">
               <div style="height:8px"></div>
-              <input name="wallet_phone" value="{{ pm.wallet_phone }}">
+              <input name="wallet_phone" value="{{ pm.wallet_phone }}" form="pmForm{{ pm.id }}">
             </td>
-            <td>
-              <input name="bank_name" value="{{ pm.bank_name }}">
+      
+            <td class="multi">
+              <input name="bank_name" value="{{ pm.bank_name }}" form="pmForm{{ pm.id }}">
               <div style="height:8px"></div>
-              <input name="bank_account" value="{{ pm.bank_account }}">
+              <input name="bank_account" value="{{ pm.bank_account }}" form="pmForm{{ pm.id }}">
             </td>
-            <td><input name="paypal_email" value="{{ pm.paypal_email }}"></td>
+      
             <td>
-              <select name="locked">
+              <input name="paypal_email" value="{{ pm.paypal_email }}" form="pmForm{{ pm.id }}">
+            </td>
+      
+            <td>
+              <select name="locked" form="pmForm{{ pm.id }}">
                 <option value="False" {% if not pm.locked %}selected{% endif %}>Off</option>
                 <option value="True"  {% if pm.locked %}selected{% endif %}>On</option>
               </select>
             </td>
-            <td><button class="savebtn" type="submit">Save</button></td>
-          </form>
-        </tr>
-        {% empty %}
-        <tr><td colspan="7" class="muted">No payment methods</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+      
+            <td class="save-cell">
+              <button class="savebtn" type="submit" form="pmForm{{ pm.id }}">Save</button>
+            </td>
+          </tr>
+      
+          {% empty %}
+          <tr><td colspan="7" class="muted">No payment methods</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+      </style>
+      
 
     <div class="pager">
       {% if page.has_previous %}

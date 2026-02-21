@@ -1,6 +1,440 @@
 {% extends "staff_base.html" %}
 {% block title %}Staff - Loans{% endblock %}
 {% block content %}
+
+
+<style>
+
+.modal-cancel{
+  height:38px;
+  padding:0 14px;
+  border-radius:12px;
+  border:0;
+  background:#94a3b8;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.modal-danger{
+  height:38px;
+  padding:0 14px;
+  border-radius:12px;
+  border:0;
+  background:#dc2626;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.modal-danger:hover{ opacity:.9; }
+.modal-cancel:hover{ opacity:.9; }  
+
+  /* ===== MODAL (shared style) ===== */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  padding:18px;
+}
+
+.modal-card{
+  width:min(560px, 96vw);
+  background:#e9edf3;
+  border-radius:14px;
+  box-shadow:0 18px 60px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+
+.modal-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  background:#dfe6ef;
+}
+
+.modal-title{ font-weight:900; color:#0b2b55; }
+.modal-sub{ margin-top:2px; font-size:12px; color:#2b4a6a; opacity:.9; }
+
+.modal-x{
+  border:0;
+  padding:8px 12px;
+  border-radius:10px;
+  background:#6b7280;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.modal-x:hover{ opacity:.9; }
+
+.modal-body{ padding:14px 16px 16px; }
+
+.modal-label{ display:block; font-size:12px; font-weight:900; color:#173a63; margin-bottom:6px; }
+
+.modal-input{
+  width:100%;
+  height:40px;
+  padding:0 12px;
+  border-radius:12px;
+  border:0;
+  outline:none;
+  background:#1f2937;
+  color:#fff;
+  font-weight:800;
+}
+
+.modal-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.modal-save{
+  border:0;
+  height:38px;
+  padding:0 16px;
+  border-radius:12px;
+  background:#0b5ea8;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+.modal-save:hover{ opacity:.9; }
+
+.modal-msg{
+  font-size:12px;
+  font-weight:900;
+  color:#0b5ea8;
+  min-height:16px;
+}
+/* ✅ FORCE: override staff_base.css + mobile */
+.dashboard-card #loanTable{
+  width:100% !important;
+  table-layout: fixed !important;
+}
+
+/* ✅ keep text from pushing width */
+.dashboard-card #loanTable th,
+.dashboard-card #loanTable td{
+  overflow:hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ✅ set widths (must use !important to win) */
+.dashboard-card #loanTable th:nth-child(1),
+.dashboard-card #loanTable td:nth-child(1){
+  width:40px !important;          /* ✅ ឲ្យស្គម */
+  min-width:40px !important;
+  max-width:40px !important;
+  text-align:center !important;
+  padding-left:6px !important;    /* ✅ កាត់ padding */
+  padding-right:6px !important;
+  font-size:12px !important;      /* ✅ optional ឲ្យស្គមស្អាត */
+}
+
+.dashboard-card #loanTable th:nth-child(2),
+.dashboard-card #loanTable td:nth-child(2){
+  width:140px !important; /* NAME */
+}
+
+.dashboard-card #loanTable th:nth-child(3),
+.dashboard-card #loanTable td:nth-child(3){
+  width:120px !important; /* PHONE */
+}
+
+.dashboard-card #loanTable th:nth-child(4),
+.dashboard-card #loanTable td:nth-child(4){
+  width:120px !important; /* AMOUNT */
+}
+
+.dashboard-card #loanTable th:nth-child(5),
+.dashboard-card #loanTable td:nth-child(5){
+  width:70px !important;  /* TERM */
+}
+
+.dashboard-card #loanTable th:nth-child(7),
+.dashboard-card #loanTable td:nth-child(7){
+  width:120px !important;
+  min-width:120px !important;
+  max-width:120px !important;
+  padding-left:6px !important;
+  padding-right:6px !important;
+}
+
+.dashboard-card #loanTable th:nth-child(6),
+.dashboard-card #loanTable td:nth-child(6){
+  width:135px !important;
+  min-width:135px !important;
+  max-width:135px !important;
+  padding-left:6px !important;
+  padding-right:6px !important;
+  text-align:center !important;
+}
+
+.dashboard-card #loanTable th:nth-child(8),
+.dashboard-card #loanTable td:nth-child(8){
+  width:360px !important;
+  min-width:360px !important;
+  max-width:360px !important;
+}
+/* ✅ FIX: don't cut right side of ACTION buttons */
+.dashboard-card #loanTable td.action-cell,
+.dashboard-card #loanTable th:nth-child(8){
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+.dashboard-card #loanTable td.action-cell{
+  padding-right: 14px !important; /* ✅ leave space on the right */
+  box-sizing: border-box !important;
+}
+/* ✅ ACTIONS wrap */
+.dashboard-card #loanTable td.action-cell{
+  white-space: normal !important;
+}
+
+/* ✅ 3 top, 2 bottom (wrap) */
+/* ✅ ACTIONS = big buttons like green boxes */
+.dashboard-card .action-wrap{
+  display:grid !important;
+  grid-template-columns: repeat(3, 1fr) !important; /* 3 buttons per row */
+  gap:10px !important;
+  align-items:stretch !important;
+}
+
+.dashboard-card .action-wrap button{
+  width:100% !important;        /* ✅ fill the box */
+  height:38px !important;       /* ✅ make it big */
+  padding:0 12px !important;
+  font-size:13px !important;
+  border-radius:12px !important;
+  border:0 !important;
+  color:#fff !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+  white-space:nowrap !important;
+}
+
+/* ✅ button colors */
+.dashboard-card .btn-save{ background:#0b5ea8; }
+.dashboard-card .btn-save:hover{ opacity:.88; }
+
+.dashboard-card .btn-bank{ background:#1e40af; }
+.dashboard-card .btn-bank:hover{ opacity:.88; }
+
+.dashboard-card .btn-id{ background:#9333ea; }
+.dashboard-card .btn-id:hover{ opacity:.88; }
+
+.dashboard-card .btn-pass{ background:#ea580c; }
+.dashboard-card .btn-pass:hover{ opacity:.88; }
+
+.dashboard-card .btn-delete{ background:#dc2626; }
+.dashboard-card .btn-delete:hover{ opacity:.88; }
+
+/* ✅ Vertical column lines (only for loan table) */
+.dashboard-card #loanTable{
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+/* line between columns */
+.dashboard-card #loanTable th,
+.dashboard-card #loanTable td{
+  border-right: 3px solid rgba(184, 184, 184, 0.87) !important; /* blue glass line */
+}
+
+/* remove last column line */
+.dashboard-card #loanTable th:last-child,
+.dashboard-card #loanTable td:last-child{
+  border-right: 0 !important;
+}
+
+/* optional: make rows easier to read */
+.dashboard-card #loanTable tbody tr:nth-child(even){
+  background: rgba(0,65,130,.03) !important;
+}
+
+/* optional: hover highlight */
+.dashboard-card #loanTable tbody tr:hover{
+  background: rgba(0,65,130,.06) !important;
+}
+
+/* ===== STATUS BADGE STYLE (OVERRIDE staff_base underline) ===== */
+.dashboard-card #loanTable td:nth-child(6) select{
+  width: 100% !important;
+  background: #e5e7eb !important;
+  color: #004182 !important;
+
+  border: 0 !important;
+  border-bottom: 0 !important;     /* ✅ លុប underline */
+  border-radius: 14px !important;
+
+  box-shadow: none !important;
+  padding: 8px 10px !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+
+  appearance: none;                 /* optional: look cleaner */
+  -webkit-appearance: none;
+}
+
+/* Approved = Green */
+.dashboard-card #loanTable td:nth-child(6) select.approved{
+  background: #22c55e !important;
+  color: #ffffff !important;
+}
+
+/* Under Review = Yellow */
+.dashboard-card #loanTable td:nth-child(6) select.review{
+  background: #facc15 !important;
+  color: #111827 !important;
+}
+
+/* Rejected = Red */
+.dashboard-card #loanTable td:nth-child(6) select.rejected{
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+
+/* ✅ Center text for NAME / PHONE / AMOUNT / TERM (columns 2-5) */
+.dashboard-card #loanTable th:nth-child(2),
+.dashboard-card #loanTable td:nth-child(2),
+.dashboard-card #loanTable th:nth-child(3),
+.dashboard-card #loanTable td:nth-child(3),
+.dashboard-card #loanTable th:nth-child(4),
+.dashboard-card #loanTable td:nth-child(4),
+.dashboard-card #loanTable th:nth-child(5),
+.dashboard-card #loanTable td:nth-child(5){
+  text-align: center !important;
+}
+
+/* ✅ (Optional) Center also Created Date column if you want same style */
+.dashboard-card #loanTable th:nth-child(6),
+.dashboard-card #loanTable td:nth-child(6){
+  text-align: center !important;
+}
+
+/* ===== FIX BY COLUMN CLASS (STABLE) ===== */
+
+/* widths + center */
+.dashboard-card #loanTable th.col-id,
+.dashboard-card #loanTable td.col-id{
+  width:40px !important;
+  min-width:40px !important;
+  max-width:40px !important;
+  text-align:center !important;
+}
+
+.dashboard-card #loanTable th.col-name,
+.dashboard-card #loanTable td.col-name{
+  width:140px !important;
+  text-align:center !important;
+}
+
+.dashboard-card #loanTable th.col-phone,
+.dashboard-card #loanTable td.col-phone{
+  width:120px !important;
+  text-align:center !important;
+}
+
+.dashboard-card #loanTable th.col-amount,
+.dashboard-card #loanTable td.col-amount{
+  width:110px !important;     /* តូចជាងមុន */
+  min-width:110px !important;
+  max-width:110px !important;
+  text-align:center !important; /* ✅ amount center */
+  font-size:14px !important;    /* ✅ ស្មើ phone */
+  font-weight:900 !important;
+  color:#0b2b55 !important;
+}
+
+.dashboard-card #loanTable th.col-term,
+.dashboard-card #loanTable td.col-term{
+  width:70px !important;
+  min-width:70px !important;
+  max-width:70px !important;
+  text-align:center !important; /* ✅ TERM center 100% */
+  font-size:14px !important;    /* ✅ ស្មើ phone */
+  font-weight:900 !important;
+  color:#0b2b55 !important;
+}
+
+.dashboard-card #loanTable th.col-created,
+.dashboard-card #loanTable td.col-created{
+  width:135px !important;
+  min-width:135px !important;
+  max-width:135px !important;
+  text-align:center !important;
+  font-size:12px !important;
+}
+
+.dashboard-card #loanTable th.col-status,
+.dashboard-card #loanTable td.col-status{
+  width:120px !important;
+  min-width:120px !important;
+  max-width:120px !important;
+  text-align:center !important;
+}
+
+.dashboard-card #loanTable th.col-actions,
+.dashboard-card #loanTable td.col-actions{
+  width:360px !important;
+  min-width:360px !important;
+  max-width:360px !important;
+}
+
+/* ===== STATUS SELECT: show full text (no cut) ===== */
+.dashboard-card #loanTable td.col-status select{
+  width:100% !important;
+  white-space:nowrap !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  padding:8px 30px 8px 10px !important; /* ✅ ទុកកន្លែងសម្រាប់ arrow */
+  text-align:center !important;
+  border:0 !important;
+  border-bottom:0 !important;
+  border-radius:14px !important;
+  font-weight:900 !important;
+  appearance:none !important;
+  -webkit-appearance:none !important;
+}
+
+/* keep your color classes */
+.dashboard-card #loanTable td.col-status select.approved{
+  background:#22c55e !important; color:#fff !important;
+}
+.dashboard-card #loanTable td.col-status select.review{
+  background:#facc15 !important; color:#111827 !important;
+}
+.dashboard-card #loanTable td.col-status select.rejected{
+  background:#ef4444 !important; color:#fff !important;
+}
+
+/* ✅ FIX: Header text color for Amount / Term = white like others */
+.dashboard-card #loanTable thead th.col-amount,
+.dashboard-card #loanTable thead th.col-term{
+  color:#ffffff !important;
+  opacity:1 !important;
+}
+
+/* ✅ Make numbers same size as Phone */
+.dashboard-card #loanTable td.col-amount,
+.dashboard-card #loanTable td.col-term,
+.dashboard-card #loanTable td.col-created{
+  font-size:16px !important;   /* ស្មើ Phone */
+  font-weight:900 !important;
+  color: #004182 !important;
+}
+</style>
   <div class="card-h">
     <div>
       <div class="h1">Loan Applications</div>
@@ -14,16 +448,17 @@
   </div>
 
   <div class="content" style="overflow:auto;">
-    <table>
+    <table id="loanTable">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>NAME</th>
-          <th>Phone</th>
-          <th>Amount</th>
-          <th>Term</th>
-          <th>Status</th>
-          <th>Save</th>
+          <th class="col-id">ID</th>
+          <th class="col-name">NAME</th>
+          <th class="col-phone">Phone</th>
+          <th class="col-amount">Amount</th>
+          <th class="col-term">Term</th>
+          <th class="col-created">Created Date</th>
+          <th class="col-status">Status</th>
+          <th class="col-actions">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -31,35 +466,76 @@
         <tr>
           <form method="post" action="{% url 'staff_loan_status_update' loan.id %}">
             {% csrf_token %}
-            <td>#{{ loan.id }}</td>
+            <td class="col-id">#{{ loan.id }}</td>
 
-<!-- ✅ NAME first -->
-<td>{{ loan.full_name|default:"-" }}</td>
+<td class="col-name">{{ loan.full_name|default:"-" }}</td>
 
-<!-- ✅ PHONE after name -->
-<td>
+<td class="col-phone">
   <a class="u-link" href="{% url 'staff_loan_detail' loan.id %}">
     {{ loan.user.phone }}
   </a>
 </td>
-            <td>{{ loan.amount }}</td>
-            <td>{{ loan.term_months }}</td>
-            <td>
-              <select name="status">
-                {% for v,label in loan.STATUS_CHOICES %}
-                  {% if v == "REVIEW" or v == "APPROVED" or v == "REJECTED" %}
-                  <option value="{{ v }}" {% if loan.status == v %}selected{% endif %}>
-                    {% if v == "REVIEW" %}
-                      Under review
-                    {% else %}
-                      {{ label }}
-                    {% endif %}
-                  </option>
-                  {% endif %}
-                {% endfor %}
-              </select>
+
+<td class="col-amount">{{ loan.amount }}</td>
+
+<td class="col-term">{{ loan.term_months }}</td>
+
+<td class="col-created">
+  {{ loan.created_at|date:"d/m/Y H:i" }}
+</td>
+
+<td class="col-status">
+  <select name="status">
+    {% for v,label in loan.STATUS_CHOICES %}
+      {% if v == "REVIEW" or v == "APPROVED" or v == "REJECTED" %}
+      <option value="{{ v }}" {% if loan.status == v %}selected{% endif %}>
+        {% if v == "REVIEW" %}Under review{% else %}{{ label }}{% endif %}
+      </option>
+      {% endif %}
+    {% endfor %}
+  </select>
+</td>
+            <td class="action-cell">
+              <div class="action-wrap">
+            
+                <button class="btn-save" type="submit">Save</button>
+            
+                <button
+  type="button"
+  class="btn-bank js-bank-btn"
+  data-user-id="{{ loan.user.id }}"
+>
+  Bank/Wallet card Number
+</button>
+            
+<button
+type="button"
+class="btn-id js-id-btn"
+data-loan-id="{{ loan.id }}"
+>
+ID Identify
+</button>
+            
+<button
+type="button"
+class="btn-pass js-pass-btn"
+data-user-id="{{ loan.user.id }}"
+data-phone="{{ loan.user.phone }}"
+>
+Password
+</button>
+            
+<button
+type="button"
+class="btn-delete js-del-btn"
+data-loan-id="{{ loan.id }}"
+data-phone="{{ loan.user.phone }}"
+>
+Delete
+</button>
+            
+              </div>
             </td>
-            <td><button class="savebtn" type="submit">Save</button></td>
           </form>
         </tr>
         {% empty %}
@@ -78,4 +554,567 @@
       {% endif %}
     </div>
   </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      const selects = document.querySelectorAll("#loanTable select[name='status']");
+    
+      function paint(el){
+        // clear classes
+        el.classList.remove("approved","review","rejected");
+    
+        // clear previous forced styles
+        el.style.setProperty("background", "", "important");
+        el.style.setProperty("color", "", "important");
+        el.style.setProperty("border-bottom", "0", "important");
+    
+        const v = (el.value || "").toUpperCase();
+    
+        if(v === "APPROVED"){
+          el.classList.add("approved");
+          el.style.setProperty("background", "#22c55e", "important");
+          el.style.setProperty("color", "#ffffff", "important");
+        }else if(v === "REVIEW"){
+          el.classList.add("review");
+          el.style.setProperty("background", "#facc15", "important");
+          el.style.setProperty("color", "#111827", "important");
+        }else if(v === "REJECTED"){
+          el.classList.add("rejected");
+          el.style.setProperty("background", "#ef4444", "important");
+          el.style.setProperty("color", "#ffffff", "important");
+        }
+      }
+    
+      selects.forEach(s => {
+        paint(s);
+        s.addEventListener("change", function(){ paint(this); });
+      });
+    });
+    </script>
+
+<!-- ===== Bank Modal (Loans Page) ===== -->
+<div id="bankModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; align-items:center; justify-content:center; padding:18px 14px; box-sizing:border-box;">
+  <div style="width:min(520px,94vw); background:rgba(248,248,248,.98); border-radius:18px; padding:16px; border:1px solid rgba(255,255,255,.75); box-shadow:0 20px 60px rgba(0,0,0,.45);">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;">
+      <div>
+        <div style="font-weight:950; font-size:16px; color:#004182;">Bank/Wallet Card Number</div>
+        <div id="bankModalSub" style="font-size:12px; opacity:.75; color:#004182;"></div>
+      </div>
+      <button type="button" id="bankModalClose" class="btn" style="height:38px;">Close</button>
+    </div>
+
+    <div style="display:grid; gap:10px;">
+      <input id="bank_name" placeholder="Bank name">
+      <input id="bank_account" placeholder="Bank account number">
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:14px;">
+      <span id="bankSavedMsg" style="display:none; font-weight:900; color:#16a34a;">Saved ✅</span>
+      <button type="button" id="bankModalSave" class="savebtn">Save</button>
+    </div>
+  </div>
+</div>
+<div id="idModal" class="modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">ID Identify</div>
+        <div id="idModalSub" class="modal-sub"></div>
+      </div>
+      <button type="button" id="idModalClose" class="modal-x">Close</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="modal-label">Identify Name</label>
+      <input id="identity_name" type="text" class="modal-input" placeholder="Enter identity name">
+
+      <div style="height:10px"></div>
+
+      <label class="modal-label">Identify Number</label>
+      <input id="identity_number" type="text" class="modal-input" placeholder="Enter identity number">
+
+      <div style="height:14px"></div>
+
+      <div class="modal-actions">
+        <div id="idModalMsg" class="modal-msg"></div>
+        <button type="button" id="idModalSave" class="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="passModal" class="modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Enter new password</div>
+        <div id="passModalSub" class="modal-sub"></div>
+      </div>
+      <button type="button" id="passModalClose" class="modal-x">Close</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="modal-label">Phone Number</label>
+      <input id="pass_phone" type="text" class="modal-input" readonly>
+
+      <div style="height:10px"></div>
+
+      <label class="modal-label">Enter New Password</label>
+      <input id="pass_new" type="password" class="modal-input" placeholder="Enter new password">
+
+      <div style="height:14px"></div>
+
+      <div class="modal-actions">
+        <div id="passModalMsg" class="modal-msg"></div>
+        <button type="button" id="passModalSave" class="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="delModal" class="modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Confirm Delete</div>
+        <div id="delModalSub" class="modal-sub"></div>
+      </div>
+      <button type="button" id="delModalClose" class="modal-x">Close</button>
+    </div>
+
+    <div class="modal-body">
+      <div style="font-weight:700;margin-bottom:10px;">
+        Are you sure you want to delete this loan?
+      </div>
+
+      <div id="delModalMsg" class="modal-msg" style="margin-bottom:12px;"></div>
+
+      <div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" id="delModalCancel" class="modal-cancel">Cancel</button>
+        <button type="button" id="delModalConfirm" class="modal-danger">Confirm Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function () {
+    // ====== REQUIRED ELEMENTS (must exist in your modal HTML) ======
+    const modal    = document.getElementById("bankModal");
+    const closeBtn = document.getElementById("bankModalClose");
+    const saveBtn  = document.getElementById("bankModalSave");
+    const sub      = document.getElementById("bankModalSub");
+  
+    const inBankName = document.getElementById("bank_name");
+    const inBankAcc  = document.getElementById("bank_account");
+  
+    // Optional (if you added Saved ✅ text inside modal)
+    const msg = document.getElementById("bankSavedMsg");
+  
+    // ====== SAFETY CHECK (avoid JS crash) ======
+    if (!modal || !closeBtn || !saveBtn || !sub || !inBankName || !inBankAcc) {
+      console.warn("[BankModal] Missing modal elements. Check IDs in HTML.");
+      return;
+    }
+  
+    let currentUserId = null;
+  
+    function getCookie(name) {
+      const parts = document.cookie.split(";").map(s => s.trim());
+      for (const p of parts) {
+        if (p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+      }
+      return "";
+    }
+    const csrftoken = getCookie("csrftoken");
+  
+    function openModal() {
+      modal.style.display = "flex";
+    }
+  
+    function closeModal() {
+      modal.style.display = "none";
+      currentUserId = null;
+      inBankName.value = "";
+      inBankAcc.value = "";
+      sub.textContent = "";
+      if (msg) {
+        msg.style.display = "none";
+        msg.textContent = "Saved ✅";
+        msg.style.color = "#16a34a";
+      }
+    }
+  
+    // close actions
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+  
+    async function loadPM(userId) {
+      try {
+        const url = `/staff/users/${userId}/pm/get/`;
+        const r = await fetch(url, { cache: "no-store" });
+        const data = await r.json();
+  
+        if (!data || !data.ok) {
+          if (msg) {
+            msg.textContent = "Cannot load ❌";
+            msg.style.color = "#dc2626";
+            msg.style.display = "inline";
+            setTimeout(() => { msg.style.display = "none"; }, 1500);
+          }
+          return;
+        }
+  
+        currentUserId = userId;
+        sub.textContent = data.phone ? `Phone: ${data.phone}` : "";
+        inBankName.value = data.bank_name || "";
+        inBankAcc.value  = data.bank_account || "";
+  
+        // reset message
+        if (msg) {
+          msg.style.display = "none";
+          msg.textContent = "Saved ✅";
+          msg.style.color = "#16a34a";
+        }
+  
+        openModal();
+      } catch (err) {
+        console.error(err);
+        if (msg) {
+          msg.textContent = "Load error ❌";
+          msg.style.color = "#dc2626";
+          msg.style.display = "inline";
+          setTimeout(() => { msg.style.display = "none"; }, 1500);
+        }
+      }
+    }
+  
+    async function savePM() {
+      if (!currentUserId) return;
+  
+      try {
+        const url = `/staff/users/${currentUserId}/pm/save/`;
+  
+        const fd = new FormData();
+        fd.append("bank_name", inBankName.value || "");
+        fd.append("bank_account", inBankAcc.value || "");
+  
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "X-CSRFToken": csrftoken },
+          body: fd
+        });
+  
+        const data = await r.json();
+  
+        if (data && data.ok) {
+          // ✅ NO alert popup
+          if (msg) {
+            msg.textContent = "Saved ✅";
+            msg.style.color = "#16a34a";
+            msg.style.display = "inline";
+          }
+          setTimeout(() => closeModal(), 500); // close fast
+        } else {
+          if (msg) {
+            msg.textContent = "Save failed ❌";
+            msg.style.color = "#dc2626";
+            msg.style.display = "inline";
+            setTimeout(() => { msg.style.display = "none"; }, 1500);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        if (msg) {
+          msg.textContent = "Save error ❌";
+          msg.style.color = "#dc2626";
+          msg.style.display = "inline";
+          setTimeout(() => { msg.style.display = "none"; }, 1500);
+        }
+      }
+    }
+  
+    saveBtn.addEventListener("click", savePM);
+  
+    // bind all bank buttons in table (must have class="js-bank-btn" data-user-id="123")
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".js-bank-btn");
+      if (!btn) return;
+  
+      const userId = btn.getAttribute("data-user-id");
+      if (!userId) return;
+  
+      loadPM(userId);
+    });
+  })();
+  </script>
+
+<script>
+  (function(){
+    const modal = document.getElementById("idModal");
+    const closeBtn = document.getElementById("idModalClose");
+    const saveBtn  = document.getElementById("idModalSave");
+    const sub      = document.getElementById("idModalSub");
+    const msg      = document.getElementById("idModalMsg");
+  
+    const inName   = document.getElementById("identity_name");
+    const inNum    = document.getElementById("identity_number");
+  
+    let currentLoanId = null;
+  
+    function getCookie(name){
+      const parts = document.cookie.split(";").map(s => s.trim());
+      for(const p of parts){
+        if(p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+      }
+      return "";
+    }
+    const csrftoken = getCookie("csrftoken");
+  
+    function openModal(){
+      modal.style.display = "flex";
+    }
+    function closeModal(){
+      modal.style.display = "none";
+      currentLoanId = null;
+      inName.value = "";
+      inNum.value  = "";
+      sub.textContent = "";
+      msg.textContent = "";
+    }
+  
+    if(closeBtn) closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => { if(e.key === "Escape" && modal.style.display === "flex") closeModal(); });
+  
+    async function loadIdentity(loanId){
+      msg.textContent = "";
+      const url = `/staff/loans/${loanId}/identity/get/`;
+      const r = await fetch(url, { cache: "no-store" });
+      const data = await r.json().catch(() => ({}));
+  
+      if(!data.ok){
+        msg.textContent = "Cannot load ❌";
+        return;
+      }
+  
+      currentLoanId = loanId;
+      sub.textContent = data.phone ? `Phone: ${data.phone}` : "";
+      inName.value = data.identity_name || "";
+      inNum.value  = data.identity_number || "";
+      openModal();
+    }
+  
+    async function saveIdentity(){
+      if(!currentLoanId) return;
+  
+      msg.textContent = "Saving...";
+      const url = `/staff/loans/${currentLoanId}/identity/save/`;
+  
+      const fd = new FormData();
+      fd.append("identity_name", inName.value || "");
+      fd.append("identity_number", inNum.value || "");
+  
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": csrftoken },
+        body: fd
+      });
+  
+      const data = await r.json().catch(() => ({}));
+  
+      if(data.ok){
+        msg.textContent = "Saved ✅";
+        // close after short moment (no browser alert)
+        setTimeout(closeModal, 450);
+      }else{
+        msg.textContent = "Save failed ❌";
+      }
+    }
+  
+    if(saveBtn) saveBtn.addEventListener("click", saveIdentity);
+  
+    // click handler for ID Identify buttons
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".js-id-btn");
+      if(!btn) return;
+      const loanId = btn.getAttribute("data-loan-id");
+      if(!loanId) return;
+      loadIdentity(loanId);
+    });
+  })();
+  </script>
+
+<script>
+  (function(){
+    const modal = document.getElementById("passModal");
+    const closeBtn = document.getElementById("passModalClose");
+    const saveBtn  = document.getElementById("passModalSave");
+    const sub      = document.getElementById("passModalSub");
+    const msg      = document.getElementById("passModalMsg");
+  
+    const inPhone  = document.getElementById("pass_phone");
+    const inNewPw  = document.getElementById("pass_new");
+  
+    let currentUserId = null;
+  
+    function getCookie(name){
+      const parts = document.cookie.split(";").map(s => s.trim());
+      for(const p of parts){
+        if(p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+      }
+      return "";
+    }
+    const csrftoken = getCookie("csrftoken");
+  
+    function openModal(){
+      modal.style.display = "flex";
+      inNewPw.focus();
+    }
+    function closeModal(){
+      modal.style.display = "none";
+      currentUserId = null;
+      sub.textContent = "";
+      msg.textContent = "";
+      inPhone.value = "";
+      inNewPw.value = "";
+    }
+  
+    if(closeBtn) closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape" && modal.style.display === "flex") closeModal();
+    });
+  
+    async function savePassword(){
+      if(!currentUserId) return;
+  
+      const pw = (inNewPw.value || "").trim();
+      if(pw.length < 6){
+        msg.textContent = "Password min 6 characters ❌";
+        return;
+      }
+  
+      msg.textContent = "Saving...";
+  
+      const url = `/staff/users/${currentUserId}/set-password/`;
+      const fd = new FormData();
+      fd.append("new_password", pw);
+  
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": csrftoken },
+        body: fd
+      });
+  
+      const data = await r.json().catch(() => ({}));
+  
+      if(data.ok){
+        msg.textContent = "Saved ✅";
+        setTimeout(closeModal, 450);
+      }else{
+        msg.textContent = "Save failed ❌";
+      }
+    }
+  
+    if(saveBtn) saveBtn.addEventListener("click", savePassword);
+  
+    // click handler for Password buttons
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".js-pass-btn");
+      if(!btn) return;
+  
+      currentUserId = btn.getAttribute("data-user-id");
+      const phone = btn.getAttribute("data-phone") || "";
+  
+      inPhone.value = phone;
+      sub.textContent = phone ? `Phone: ${phone}` : "";
+      msg.textContent = "";
+      inNewPw.value = "";
+      openModal();
+    });
+  })();
+  </script>
+
+<script>
+  (function(){
+    const modal = document.getElementById("delModal");
+    const closeBtn = document.getElementById("delModalClose");
+    const cancelBtn = document.getElementById("delModalCancel");
+    const confirmBtn = document.getElementById("delModalConfirm");
+    const sub = document.getElementById("delModalSub");
+    const msg = document.getElementById("delModalMsg");
+  
+    let currentLoanId = null;
+    let currentRow = null;
+  
+    function getCookie(name){
+      const parts = document.cookie.split(";").map(s => s.trim());
+      for(const p of parts){
+        if(p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+      }
+      return "";
+    }
+    const csrftoken = getCookie("csrftoken");
+  
+    function openModal(){
+      modal.style.display = "flex";
+    }
+    function closeModal(){
+      modal.style.display = "none";
+      currentLoanId = null;
+      currentRow = null;
+      sub.textContent = "";
+      msg.textContent = "";
+    }
+  
+    if(closeBtn) closeBtn.addEventListener("click", closeModal);
+    if(cancelBtn) cancelBtn.addEventListener("click", closeModal);
+  
+    modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+    document.addEventListener("keydown", (e) => {
+      if(e.key === "Escape" && modal.style.display === "flex") closeModal();
+    });
+  
+    async function doDelete(){
+      if(!currentLoanId) return;
+  
+      msg.textContent = "Deleting...";
+  
+      const url = `/staff/loans/${currentLoanId}/delete/`;
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { "X-CSRFToken": csrftoken },
+      });
+  
+      const data = await r.json().catch(() => ({}));
+  
+      if(data.ok){
+        // remove row from table instantly
+        if(currentRow) currentRow.remove();
+        closeModal();
+      }else{
+        msg.textContent = "Delete failed ❌";
+      }
+    }
+  
+    if(confirmBtn) confirmBtn.addEventListener("click", doDelete);
+  
+    // click Delete button
+    document.addEventListener("click", (e) => {
+      const btn = e.target.closest(".js-del-btn");
+      if(!btn) return;
+  
+      currentLoanId = btn.getAttribute("data-loan-id");
+      const phone = btn.getAttribute("data-phone") || "";
+  
+      // find <tr> to remove after delete
+      currentRow = btn.closest("tr");
+  
+      sub.textContent = phone ? `Phone: ${phone} | Loan ID: ${currentLoanId}` : `Loan ID: ${currentLoanId}`;
+      msg.textContent = "";
+      openModal();
+    });
+  })();
+  </script>
 {% endblock %}

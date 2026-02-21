@@ -704,7 +704,6 @@
 </div>
 
 <div class="dash-wrap">
-
   <!-- Profile card -->
   <div class="cardx profile-card metal reveal from-left">
     <div class="avatar" aria-hidden="true">
@@ -727,15 +726,13 @@
       <div class="amount">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
       <div class="muted" style="margin-top:6px;">
         {# Dashboard status badge #}
-{% with raw=request.user.account_status|default:""|upper %}
-  {% with nospace=raw|cut:" " %}
+        {% with raw=request.user.account_status|default:""|upper %}
+  {% with key=raw|cut:" "|cut:"_" %}
     <span id="accStatusBadge"
           class="status-badge
-            {% if raw == 'ACTIVE' %}
+            {% if key == 'ACTIVE' or key == 'ACCOUNTUPDATED' or key == 'LOANPAID' or key == 'WITHDRAWALSUCCESSFUL' %}
               status-active
-            {% elif raw == 'ACCOUNT_UPDATED' or raw == 'ACCOUNT UPDATED' or nospace == 'ACCOUNTUPDATED' %}
-              status-active
-            {% elif raw == 'APP_MAINTENANCE' or raw == 'APP MAINTENANCE' or nospace == 'APPMAINTENANCE' %}
+            {% elif key == 'APPMAINTENANCE' %}
               status-warn
             {% else %}
               status-danger

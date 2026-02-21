@@ -15,22 +15,24 @@
   </div>
 
   <div class="content">
-    <table>
+    <table class="users-table">
       <thead>
         <tr>
           <th>Name</th>
           <th>Phone</th>
           <th>Password</th>
-          <th>Status</th>
+      
           <th>Balance</th>
       
-          <!-- ✅ NEW -->
           <th>Register IP</th>
           <th>Country</th>
           <th>City</th>
       
-          <th class="col-active">Active</th>
-          <th>Save</th>
+          <th class="col-active">On/Off User</th>
+          <th>Status</th>
+      
+          <th>Delete User</th>
+          <th>Save Action</th>
         </tr>
       </thead>
 
@@ -56,27 +58,6 @@
                 '{{ u.phone|escapejs }}')">Password</button>
               </td>
             
-              <!-- ✅ 3) STATUS -->
-              <td>
-                <select name="account_status" class="status-select" form="uform-{{ u.id }}">
-                  {% for v,label in u.ACCOUNT_STATUS_CHOICES %}
-                    <option
-                      value="{{ v }}"
-                      class="
-                        {% if v == 'ACTIVE' or v == 'ACCOUNT_UPDATED' %}
-                          status-active
-                        {% elif v == 'APP_MAINTENANCE' %}
-                          status-warn
-                        {% else %}
-                          status-danger
-                        {% endif %}
-                      "
-                      {% if u.account_status == v %}selected{% endif %}
-                    >{{ label }}</option>
-                  {% endfor %}
-                </select>
-              </td>
-            
               <!-- 4) BALANCE -->
 <td>
   <input name="balance" value="{{ u.balance }}" form="uform-{{ u.id }}" autocomplete="off">
@@ -95,14 +76,37 @@
   </select>
 </td>
 
+<td>
+  <select name="account_status" class="status-select" form="uform-{{ u.id }}">
+    {% for v,label in u.ACCOUNT_STATUS_CHOICES %}
+      <option
+        value="{{ v }}"
+        class="{% if v == 'ACTIVE' or v == 'ACCOUNT_UPDATED' or v == 'LOAN_PAID' or v == 'WITHDRAWAL_SUCCESSFUL' %}status-active{% elif v == 'APP_MAINTENANCE' %}status-warn{% else %}status-danger{% endif %}"
+        {% if u.account_status == v %}selected{% endif %}
+      >
+        {{ label }}
+      </option>
+    {% endfor %}
+  </select>
+</td>
+
+<td>
+  <button type="button"
+          class="del-user-btn"
+          onclick="openUserDeleteModal({{ u.id }}, '{{ u.phone|escapejs }}')">
+    Delete
+  </button>
+</td>
 <!-- 6) Save -->
 <td class="row-actions">
   <button class="savebtn" type="submit" form="uform-{{ u.id }}">Save</button>
 </td>
+
+
             </tr>
 
         {% empty %}
-          <tr><td colspan="8" class="muted">No users</td></tr>
+        <tr><td colspan="11" class="muted">No users</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -167,7 +171,7 @@
     function statusColorKey(status){
   const s = (status || "").toUpperCase().trim();
 
-  if (s === "ACTIVE" || s === "ACCOUNT_UPDATED") return "green";
+  if (s === "ACTIVE" || s === "ACCOUNT_UPDATED" || s === "LOAN_PAID" || s === "WITHDRAWAL_SUCCESSFUL") return "green";
   if (s === "APP_MAINTENANCE") return "yellow";
   return "red";
 }
@@ -313,6 +317,128 @@ td.col-active .active-select{
     font-weight: 950;
     cursor:pointer;
   }
+
+  .del-user-btn{
+  height:38px;
+  padding:0 16px;
+  border-radius:12px;
+  border:0;
+  background:#dc2626;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.35);
+  transition:opacity .2s ease;
+
+  margin-left: 6px !important;   /* ✅ រំកិល Delete ទៅស្ដាំ 6px */
+}
+.del-user-btn:hover{
+  opacity:.9;
+}
+
+/* ✅ Vertical lines (Name → Active only) */
+.users-table{
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+/* Reset first */
+.users-table th,
+.users-table td{
+  border-right: 0 !important;
+}
+
+/* Apply vertical line style (col 1 → 9) */
+.users-table th:nth-child(-n+9),
+.users-table td:nth-child(-n+9){
+  border-right: 3px solid rgba(184, 184, 184, 0.87) !important;
+}
+
+/* Ensure NO line inside Delete / Save columns */
+.users-table th:nth-child(10),
+.users-table td:nth-child(10),
+.users-table th:nth-child(11),
+.users-table td:nth-child(11){
+  border-right: 0 !important;
+}
+
+/* ✅ CENTER EVERYTHING inside yellow box (col 1 → 9 only) */
+.users-table th:nth-child(-n+9),
+.users-table td:nth-child(-n+9){
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* ✅ make links take full cell width so center looks perfect */
+.users-table td:nth-child(2) a.u-link{
+  display: inline-block !important;
+  width: 100% !important;
+  text-align: center !important;
+}
+
+/* ✅ center inputs/selects inside yellow box */
+.users-table td:nth-child(-n+9) input,
+.users-table td:nth-child(-n+9) select{
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* ✅ make select arrow + text look centered */
+.users-table td:nth-child(-n+9) select{
+  text-align-last: center !important;
+}
+
+/* ✅ Password button in center (optional but nice) */
+.users-table td:nth-child(3) .pw-btn{
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+/* ✅ DO NOT affect Delete / Save columns */
+.users-table td:nth-child(10),
+.users-table td:nth-child(11){
+  text-align: left !important; /* ឬ center បើបងចង់ */
+}
+
+/* ✅ BALANCE column (4th) smaller */
+.users-table th:nth-child(4),
+.users-table td:nth-child(4){
+  width: 110px !important;     /* ប្រែជា 90/100/120 តាមចិត្ត */
+  min-width: 110px !important;
+  max-width: 110px !important;
+}
+
+.users-table td:nth-child(4) input{
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 6px 8px !important;
+  text-align: center !important;
+}
+
+/* ✅ STATUS column (9th) wider */
+.users-table th:nth-child(9),
+.users-table td:nth-child(9){
+  width: 180px !important;
+  min-width: 180px !important;
+  max-width: 180px !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+/* ✅ Status select fill + show long text */
+.users-table td:nth-child(9) select.status-select{
+  width: 100% !important;
+  min-width: 100% !important;
+  box-sizing: border-box !important;
+  font-size: 12px;
+  padding: 8px 10px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
 
 <script>
@@ -405,5 +531,72 @@ td.col-active .active-select{
     </div>
   </div>
 </div>
+<!-- Delete User Modal -->
+<div id="userDelModal" class="pw-modal" style="display:none;">
+  <div class="pw-box">
+    <div class="pw-head">
+      <div class="pw-title">Confirm Delete User</div>
+      <button type="button" class="pw-x" onclick="closeUserDeleteModal()">×</button>
+    </div>
 
+    <div class="pw-body">
+      <div id="userDelText" style="font-weight:900;"></div>
+    </div>
+
+    <div class="pw-actions">
+      <button type="button" class="pw-close" onclick="closeUserDeleteModal()">Cancel</button>
+      <button type="button" class="pw-save" style="background:#dc2626;" onclick="confirmUserDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let DELETE_USER_ID = null;
+
+function openUserDeleteModal(id, phone){
+  DELETE_USER_ID = id;
+  document.getElementById("userDelText").innerText =
+    "Are you sure you want to delete user: " + phone + " ?";
+  document.getElementById("userDelModal").style.display = "flex";
+}
+
+function closeUserDeleteModal(){
+  DELETE_USER_ID = null;
+  document.getElementById("userDelModal").style.display = "none";
+}
+
+function getCookie(name){
+  const parts = document.cookie.split(";").map(s => s.trim());
+  for(const p of parts){
+    if(p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+  }
+  return "";
+}
+
+async function confirmUserDelete(){
+  if(!DELETE_USER_ID) return;
+
+  const csrf = getCookie("csrftoken");
+
+  const res = await fetch(`/staff/users/${DELETE_USER_ID}/delete/`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "X-CSRFToken": csrf,
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  });
+
+  const data = await res.json().catch(()=>null);
+
+  if(data && data.ok){
+    location.reload();
+    return;
+  }
+
+  // ✅ show real reason
+  const err = data && data.error ? data.error : "unknown";
+  alert("Delete failed: " + err);
+}
+</script>
 {% endblock %}

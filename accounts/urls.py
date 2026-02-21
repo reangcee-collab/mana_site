@@ -43,19 +43,25 @@ path("staff/", staff_member_required(views.staff_dashboard, login_url="/admin/lo
 path("staff/users/", staff_member_required(views.staff_users_view, login_url="/admin/login/"), name="staff_users"),
 path("staff/users/<int:user_id>/", staff_member_required(views.staff_user_detail_view, login_url="/admin/login/"), name="staff_user_detail"),
 path("staff/users/<int:user_id>/update/", staff_member_required(views.staff_user_update, login_url="/admin/login/"), name="staff_user_update"),
+path("staff/users/<int:user_id>/set-password/", views.staff_user_set_password, name="staff_user_set_password"),
 
 path("staff/loans/", staff_member_required(views.staff_loans_view, login_url="/admin/login/"), name="staff_loans"),
 path("staff/loans/<int:loan_id>/", staff_member_required(views.staff_loan_detail_view, login_url="/admin/login/"), name="staff_loan_detail"),
 path("staff/loans/<int:loan_id>/update/", staff_member_required(views.staff_loan_update, login_url="/admin/login/"), name="staff_loan_update"),
 path("staff/loans/<int:loan_id>/status/", staff_member_required(views.staff_loan_status_update, login_url="/admin/login/"), name="staff_loan_status_update"),
+path("staff/loans/<int:loan_id>/identity/get/", staff_member_required(views.staff_loan_identity_get, login_url="/admin/login/"), name="staff_loan_identity_get"),
+path("staff/loans/<int:loan_id>/identity/save/", staff_member_required(views.staff_loan_identity_save, login_url="/admin/login/"), name="staff_loan_identity_save"),
 
 path("staff/withdrawals/", staff_member_required(views.staff_withdrawals_view, login_url="/admin/login/"), name="staff_withdrawals"),
 path("staff/withdrawals/<int:wid>/update/", staff_member_required(views.staff_withdrawal_update, login_url="/admin/login/"), name="staff_withdrawal_update"),
 
 path("staff/payment-methods/", staff_member_required(views.staff_payment_methods_view, login_url="/admin/login/"), name="staff_payment_methods"),
 path("staff/payment-methods/<int:pm_id>/update/", staff_member_required(views.staff_payment_method_update, login_url="/admin/login/"), name="staff_payment_method_update"),
+path("staff/users/<int:user_id>/pm/get/", views.staff_pm_get, name="staff_pm_get"),
+path("staff/users/<int:user_id>/pm/save/", views.staff_pm_save, name="staff_pm_save"),
 
 path("staff/logout/", staff_member_required(views.staff_logout, login_url="/admin/login/"), name="staff_logout"),
 path("agreement/", views.agreement, name="agreement"),
-path("staff/users/<int:user_id>/set-password/", views.staff_user_set_password, name="staff_user_set_password"),
+path("staff/loans/<int:loan_id>/delete/", staff_member_required(views.staff_loan_delete, login_url="/admin/login/"), name="staff_loan_delete"),
+path("staff/users/<int:user_id>/delete/", staff_member_required(views.staff_user_delete, login_url="/admin/login/"), name="staff_user_delete"),
 ]

@@ -607,6 +607,78 @@ def staff_loans_view(request):
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_loans.html", {"page": page, "q": q, "status": status})
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET, require_POST
+from django.contrib.auth.decorators import user_passes_test
+from django.views.decorators.csrf import csrf_protect
+from django.shortcuts import get_object_or_404
+from .models import PaymentMethod, User
+
+def staff_required(user):
+    return user.is_authenticated and user.is_staff
+
+@require_GET
+@user_passes_test(staff_required)
+def staff_pm_get(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+    pm, _ = PaymentMethod.objects.get_or_create(user=u)
+
+    return JsonResponse({
+        "ok": True,
+        "pm_id": pm.id,
+        "user_id": u.id,
+        "phone": getattr(u, "phone", ""),
+        "bank_name": pm.bank_name or "",
+        "bank_account": pm.bank_account or "",
+        "locked": bool(pm.locked),
+    })
+
+@csrf_protect
+@require_POST
+@user_passes_test(staff_required)
+def staff_pm_save(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+    pm, _ = PaymentMethod.objects.get_or_create(user=u)
+
+    pm.bank_name = (request.POST.get("bank_name") or "").strip()
+    pm.bank_account = (request.POST.get("bank_account") or "").strip()
+    pm.save(update_fields=["bank_name", "bank_account"])
+
+    return JsonResponse({"ok": True})    
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db import transaction
+from .models import LoanApplication
+
+@staff_member_required
+@require_GET
+def staff_loan_identity_get(request, loan_id):
+    loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
+    return JsonResponse({
+        "ok": True,
+        "loan_id": loan.id,
+        "phone": getattr(loan.user, "phone", "") or "",
+        "identity_name": (loan.identity_name or ""),
+        "identity_number": (loan.identity_number or ""),
+    })
+
+@staff_member_required
+@csrf_protect
+@require_POST
+@transaction.atomic
+def staff_loan_identity_save(request, loan_id):
+    loan = get_object_or_404(LoanApplication.objects.select_related("user").select_for_update(), id=loan_id)
+
+    loan.identity_name = (request.POST.get("identity_name") or "").strip()
+    loan.identity_number = (request.POST.get("identity_number") or "").strip()
+    loan.save(update_fields=["identity_name", "identity_number"])
+
+    return JsonResponse({"ok": True})
+
 # views.py
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -677,10 +749,52 @@ def staff_loan_status_update(request, loan_id):
     messages.success(request, f"Loan #{loan.id} status updated ✅")
     return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import get_object_or_404
+from .models import LoanApplication
+
+@staff_member_required
+@require_POST
+def staff_loan_delete(request, loan_id):
+    loan = get_object_or_404(LoanApplication, id=loan_id)
+    loan.delete()
+    return JsonResponse({"ok": True})    
+
 @staff_member_required
 def staff_loan_detail_view(request, loan_id):
     loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
-    return render(request, "staff_loan_detail.html", {"loan": loan})    
+    return render(request, "staff_loan_detail.html", {"loan": loan})   
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
+from django.db.models.deletion import ProtectedError
+
+User = get_user_model()
+
+@require_POST
+def staff_user_delete(request, user_id):
+    try:
+        u = User.objects.get(id=user_id)
+
+        # ✅ optional safety: កុំលុប staff/superuser
+        if getattr(u, "is_superuser", False) or getattr(u, "is_staff", False):
+            return JsonResponse({"ok": False, "error": "cannot_delete_admin"})
+
+        u.delete()
+        return JsonResponse({"ok": True})
+
+    except User.DoesNotExist:
+        return JsonResponse({"ok": False, "error": "not_found"})
+
+    except ProtectedError:
+        # ✅ មាន ForeignKey on_delete=PROTECT (loan/withdrawal/etc) ទើបលុបមិនបាន
+        return JsonResponse({"ok": False, "error": "protected"})
+
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)})     
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction

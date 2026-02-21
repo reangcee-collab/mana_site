@@ -409,12 +409,12 @@ td.col-active .active-select{
   text-align: left !important; /* ឬ center បើបងចង់ */
 }
 
-/* ✅ BALANCE column (4th) smaller */
+/* ✅ BALANCE column: allow fit long numbers */
 .users-table th:nth-child(4),
 .users-table td:nth-child(4){
-  width: 110px !important;     /* ប្រែជា 90/100/120 តាមចិត្ត */
-  min-width: 110px !important;
-  max-width: 110px !important;
+  width: auto !important;
+  min-width: 160px !important;   /* បងអាចដាក់ 150/180 */
+  max-width: none !important;
 }
 
 /* ✅ BALANCE BIGGER FONT (same level as register IP) */
@@ -426,12 +426,16 @@ td.col-active .active-select{
 .users-table td.balance-cell input.balance-input{
   width: 100% !important;
   box-sizing: border-box !important;
-  padding: 6px 8px !important;
+  padding: 6px 6px !important;
   text-align: center !important;
 
-  font-size: 15px !important;
+  font-size: 16px !important;        /* ✅ តូចបន្តិច ដើម្បី fit */
   font-weight: 900 !important;
   color: #0b3b66 !important;
+
+  white-space: nowrap !important;     /* ✅ មិនឲ្យចុះបន្ទាត់ */
+  overflow: visible !important;       /* ✅ មិនកាត់ចុង */
+  text-overflow: clip !important;     /* ✅ មិន ... */
 }
 
 /* ✅ STATUS column (9th) wider */

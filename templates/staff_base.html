@@ -171,28 +171,25 @@ body{
   justify-content:space-between;
   margin-bottom:16px;
 
-  background: linear-gradient(120deg, #021b2f, #043c63, #021b2f);
-  background-size: 300% 300%;
-  animation: topbarFlow 8s ease infinite;
+  /* ✅ ONLY your color */
+  background: linear-gradient(
+    120deg,
+    rgba(72, 167, 245, 0.336),
+    rgba(128, 181, 219, 0.637),
+    rgba(75, 167, 241, 0.815)
+  );
+
+  /* ✅ no animation */
+  animation: none !important;
+
+  /* optional glass */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .topbar::before{
-  content:"";
-  position:absolute;
-  top:0;
-  left:-150%;
-  width:60%;
-  height:100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(0,255,255,.35),
-    rgba(0,120,255,.45),
-    transparent
-  );
-  transform: skewX(-25deg);
-  animation: lightningMove 4s linear infinite;
-  pointer-events:none;
+  display: none !important;
+  content: none !important;
 }
 
 .topbar::after{
@@ -268,21 +265,13 @@ body{
   overflow-x: hidden;
 }
 /* ===== MENU CARD (Vertical Shine) ===== */
-.card.side{
-  position: relative;
-  overflow: hidden;
-  border-radius: 22px;
-
-  background: linear-gradient(
-    160deg,
-    rgba(10,35,60,.9),
-    rgba(0,18,35,.95)
-  );
-
-  border: 1px solid rgba(0,180,255,.25);
-  box-shadow:
-    0 0 25px rgba(0,180,255,.25),
-    inset 0 0 30px rgba(0,150,255,.08);
+/* ===== MENU CARD (LEFT) -> SAME AS TOPBAR COLOR ===== */
+.card.side .menu-item{
+  background: rgba(0,0,0,.22) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+}
+.card.side .menu-item:hover{
+  background: rgba(0,0,0,.30) !important;
 }
 
 

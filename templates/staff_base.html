@@ -350,6 +350,10 @@ body{
 @media(min-width:900px){
   .grid{ grid-template-columns: 300px 1fr; }
 }
+/* ✅ IMPORTANT: allow right content to shrink correctly (prevents overlap) */
+.grid > .dashboard-card{
+  min-width: 0;
+}
 
 .dot{
   width:10px; height:10px; border-radius:999px;
@@ -417,9 +421,15 @@ body{
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overflow-x: hidden;
-  padding-bottom: 90px;   /* ✅ ចុងក្រោយមិនបាត់ */
+  overflow-x: auto;     /* ✅ changed */
+  padding-bottom: 90px;
   scroll-padding-bottom: 90px;
+
+  scrollbar-gutter: stable both-edges;
+  padding-right: 18px;
+
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 /* ✅ Staff dashboard only: space on top 15px */
 .content.staffdash{
@@ -447,18 +457,39 @@ body{
 .content::-webkit-scrollbar-thumb:hover{
   background: rgba(255,255,255,.38);
 }
-/* ===== Table baseline (works for staff pages) ===== */
-table{ width:100%; border-collapse:collapse; table-layout: fixed; }
+/* ===== Table baseline (SAFE) ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+  /* ❌ DO NOT use table-layout: fixed; (it causes overlap on resize) */
+}
+
 thead tr{ border-bottom: 1px solid rgba(255, 255, 255, 0.911); }
 tbody tr{ border-bottom: 1px solid rgba(255, 255, 255, 0.911); }
+
 th,td{
   padding:10px 10px;
   border-bottom: 0;
   font-weight: 400;
   letter-spacing: .02em;
 }
+
 td{ color: rgba(255, 255, 255, 0.96); }
-th{ text-align:left; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.90); }
+th{
+  text-align:left;
+  font-size:12px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.90);
+}
+
+/* ✅ Horizontal scroll wrapper for wide tables */
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
 input,select{
   width:100%; box-sizing:border-box;

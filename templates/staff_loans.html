@@ -434,6 +434,20 @@
   font-weight:900 !important;
   color: #004182 !important;
 }
+/* ✅ PHONE column number -> red (clickable only), no background/box */
+.dashboard-card #loanTable td.col-phone,
+.dashboard-card #loanTable td.col-phone a.u-link{
+  color:#d10f0f !important;   /* same red tone as your box */
+  font-weight: 900 !important;
+  text-shadow: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* optional: hover underline for clarity */
+.dashboard-card #loanTable td.col-phone a.u-link:hover{
+  text-decoration: underline;
+}
 </style>
   <div class="card-h">
     <div>
@@ -447,7 +461,8 @@
     </form>
   </div>
 
-  <div class="content" style="overflow:auto;">
+  <div class="content">
+  <div class="table-wrap">
     <table id="loanTable">
       <thead>
         <tr>
@@ -553,7 +568,9 @@ Delete
         <a href="?q={{ q }}&status={{ status }}&page={{ page.next_page_number }}">Next →</a>
       {% endif %}
     </div>
-  </div>
+
+</div> <!-- table-wrap -->
+</div> <!-- content -->
 
   <script>
     document.addEventListener("DOMContentLoaded", function(){

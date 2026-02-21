@@ -15,6 +15,7 @@
   </div>
 
   <div class="content">
+  <div class="table-wrap">
     <table class="users-table">
       <thead>
         <tr>
@@ -169,6 +170,7 @@
         0 10px 22px rgba(0,0,0,.35),
         0 0 18px rgba(239,68,68,.22) !important;
     }
+    
   </style>
   
   <script>
@@ -452,6 +454,28 @@ td.col-active .active-select{
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ===========================
+   USERS PAGE: PHONE = RED ONLY
+   (no background, no box)
+   =========================== */
+
+/* ===== USERS PHONE COLUMN ===== */
+
+.users-table td.phone a.u-link{
+  color: #d10f0f !important;
+  font-weight:900 !important;
+  text-decoration: underline !important;   /* ✅ keep the line */
+}
+
+/* optional hover */
+.users-table td.phone a.u-link:hover{
+  opacity:.85;
+}
+
+.dashboard-card table.users-table tbody td.phone a.u-link:hover{
+  text-decoration: underline !important;
 }
 </style>
 

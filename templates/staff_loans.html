@@ -1,6 +1,7 @@
 {% extends "staff_base.html" %}
 {% block title %}Staff - Loans{% endblock %}
 {% block content %}
+{% load humanize %}
 
 
 <style>
@@ -491,7 +492,7 @@
   </a>
 </td>
 
-<td class="col-amount">{{ loan.amount }}</td>
+<td class="col-amount">{{ loan.amount|floatformat:2|intcomma }}</td>
 
 <td class="col-term">{{ loan.term_months }}</td>
 

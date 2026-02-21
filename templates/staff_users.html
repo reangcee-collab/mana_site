@@ -1,4 +1,5 @@
 {% extends "staff_base.html" %}
+{% load humanize %}
 {% block title %}Staff - Users{% endblock %}
 
 {% block content %}
@@ -61,12 +62,12 @@
             
               <!-- 4) BALANCE -->
               <td class="balance-cell">
-                <input name="balance"
-                       value="{{ u.balance }}"
-                       form="uform-{{ u.id }}"
-                       class="balance-input"
-                       autocomplete="off">
-              </td>
+  <input name="balance"
+         value="{{ u.balance|floatformat:2|intcomma }}"
+         form="uform-{{ u.id }}"
+         class="balance-input"
+         autocomplete="off">
+</td>
 
 <!-- ✅ NEW REGISTER INFO (readonly display) -->
 <td>{{ u.register_ip|default:"-" }}</td>

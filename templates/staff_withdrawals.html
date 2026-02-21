@@ -234,7 +234,9 @@
   <td>#{{ w.id }}</td>
   <td class="user-font">{{ w.display_name|default:"—" }}</td>
   <td class="user-font">{{ w.user.phone }}</td>
-  <td>{{ w.amount }} {{ w.currency }}</td>
+  <td class="money" data-money="{{ w.amount }}" data-cur="{{ w.currency }}">
+  {{ w.amount }} {{ w.currency }}
+</td>
 
   <td class="status-cell">
     <select name="status" form="wdForm{{ w.id }}" class="status-select">
@@ -277,6 +279,25 @@
         });
       });
     </script>
+    <script>
+  // ===== Withdrawals: format amount like 1,000,000.00 =====
+  function formatMoneyWithComma(n){
+    const num = Number(n);
+    if(!Number.isFinite(num)) return n; // fallback if not number
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    document.querySelectorAll("#withdrawalsTable td.money").forEach(td => {
+      const raw = td.getAttribute("data-money");
+      const cur = td.getAttribute("data-cur") || "";
+      td.textContent = `${formatMoneyWithComma(raw)} ${cur}`.trim();
+    });
+  });
+</script>
 
     <div class="pager">
       {% if page.has_previous %}

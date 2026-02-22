@@ -1,202 +1,127 @@
 {% extends "staff_base.html" %}
 {% block content %}
-
 <style>
+/* ===============================
+   WITHDRAWALS TABLE (CLEAN + FIX NAME)
+   =============================== */
 
-  /* ✅ Center text for all columns inside the red box (Name/Phone/Amount/Status) */
+#withdrawalsTable{
+  width:100%;
+  table-layout:auto;              /* ✅ responsive */
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* vertical lines + center */
+#withdrawalsTable th,
+#withdrawalsTable td{
+  border-right: 3px solid rgba(184,184,184,.87);
+  text-align:center;
+  vertical-align:middle;
+  padding:10px;
+}
+
+#withdrawalsTable th:last-child,
+#withdrawalsTable td:last-child{
+  border-right:0;
+}
+
+/* ID column small */
+#withdrawalsTable th:nth-child(1),
+#withdrawalsTable td:nth-child(1){
+  width:60px;
+  min-width:60px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+/* ✅ FIX NAME COLUMN (no more Y a n g k o r) */
 #withdrawalsTable th:nth-child(2),
-#withdrawalsTable td:nth-child(2),
+#withdrawalsTable td:nth-child(2){
+  min-width: 140px;              /* ✅ adjust 120/140/160 */
+  white-space: nowrap;           /* ✅ keep in 1 line */
+  overflow: hidden;              /* ✅ if too long */
+  text-overflow: ellipsis;       /* ✅ show ... */
+}
+
+/* keep phone clean (1 line) */
 #withdrawalsTable th:nth-child(3),
-#withdrawalsTable td:nth-child(3),
-#withdrawalsTable th:nth-child(4),
-#withdrawalsTable td:nth-child(4),
+#withdrawalsTable td:nth-child(3){
+  min-width: 140px;
+  white-space: nowrap;
+}
+
+/* amount column (1 line) */
+#withdrawalsTable td.money{
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight:800;
+  min-width: 170px;
+}
+
+/* status column */
 #withdrawalsTable th:nth-child(5),
 #withdrawalsTable td:nth-child(5){
-  text-align: center !important;
-  vertical-align: middle !important;
+  min-width: 170px;
 }
 
-  /* ===== Withdrawals Table Column Lines (like Loans) ===== */
-  #withdrawalsTable{
-    width:100% !important;
-    table-layout: fixed !important;     /* ✅ សំខាន់: បង្ខំ width តាម column */
-    border-collapse: separate !important;
-    border-spacing: 0 !important;
-  }
-  
-  /* ✅ keep text from pushing width */
-  #withdrawalsTable th,
-  #withdrawalsTable td{
-    border-right: 3px solid rgba(184, 184, 184, 0.87) !important;
-    overflow:hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-  }
-  
-  /* remove last column line */
-  #withdrawalsTable th:last-child,
-  #withdrawalsTable td:last-child{
-    border-right: 0 !important;
-  }
-  
-  /* ✅ ID column smaller */
-  #withdrawalsTable th:nth-child(1),
-  #withdrawalsTable td:nth-child(1){
-    width: 55px !important;
-    min-width: 55px !important;
-    max-width: 55px !important;
-    text-align:center !important;
-    padding-left:6px !important;
-    padding-right:6px !important;
-    font-size:12px !important;
-    font-weight:900 !important;
-  }
-  
-  /* ✅ Save column center */
-  #withdrawalsTable td.save-cell{
-    text-align:center !important;
-    vertical-align: middle !important;
-  }
-  #withdrawalsTable td.save-cell .savebtn{
-    display:inline-block !important;
-    margin:0 auto !important;
-  }
-  
-  /* optional: make rows easier to read */
-  #withdrawalsTable tbody tr:nth-child(even){
-    background: rgba(0,65,130,.03) !important;
-  }
-  #withdrawalsTable tbody tr:hover{
-    background: rgba(0,65,130,.06) !important;
-  }
-
-
-  .content #withdrawalsTable th,
-.content #withdrawalsTable td{
-  border-right: 3px solid rgba(184, 184, 184, 0.87) !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-
-  /* ✅ CENTER ALL CELLS */
-  text-align: center !important;
-  vertical-align: middle !important;
+/* save column */
+#withdrawalsTable td.save-cell{
+  text-align:center;
+  white-space: nowrap;
 }
 
-/* ✅ STATUS: make the SELECT itself sit in center */
-.content #withdrawalsTable td:nth-child(5){
-  text-align: center !important;
-  vertical-align: middle !important;
+/* row shading */
+#withdrawalsTable tbody tr:nth-child(even){
+  background: rgba(0,65,130,.03);
+}
+#withdrawalsTable tbody tr:hover{
+  background: rgba(0,65,130,.06);
 }
 
-
-  #withdrawalsTable th:last-child,
-  #withdrawalsTable td:last-child{
-    border-right: 0 !important;
-  }
-
-  #withdrawalsTable th:nth-child(1),
-  #withdrawalsTable td:nth-child(1){
-    width: 55px !important;
-    min-width: 55px !important;
-    max-width: 55px !important;
-    text-align:center !important;
-    padding-left:6px !important;
-    padding-right:6px !important;
-    font-size:12px !important;
-    font-weight:900 !important;
-  }
-
-  #withdrawalsTable td.save-cell{
-    text-align:center !important;
-    vertical-align: middle !important;
-  }
-  #withdrawalsTable td.save-cell .savebtn{
-    display:inline-block !important;
-    margin:0 auto !important;
-  }
-
-  #withdrawalsTable tbody tr:nth-child(even){
-    background: rgba(0,65,130,.03) !important;
-  }
-  #withdrawalsTable tbody tr:hover{
-    background: rgba(0,65,130,.06) !important;
-  }
-
-  /* ✅ ADD THIS (CENTER LIKE LOANS) */
-  #withdrawalsTable th:nth-child(2),
-  #withdrawalsTable td:nth-child(2),
-  #withdrawalsTable th:nth-child(3),
-  #withdrawalsTable td:nth-child(3),
-  #withdrawalsTable th:nth-child(4),
-  #withdrawalsTable td:nth-child(4),
-  #withdrawalsTable th:nth-child(5),
-  #withdrawalsTable td:nth-child(5){
-    text-align: center !important;
-    vertical-align: middle !important;
-  }
-/* ✅ center text columns (Name/Phone/Amount/Status) */
-#withdrawalsTable td:nth-child(2),
-#withdrawalsTable td:nth-child(3),
-#withdrawalsTable td:nth-child(4),
-#withdrawalsTable td:nth-child(5){
-  text-align:center !important;
-  vertical-align:middle !important;
-}
-
-/* ✅ status select center (real fix) */
-#withdrawalsTable td.status-cell{ text-align:center !important; }
+/* ✅ STATUS badge style (restore old look like image 1) */
 #withdrawalsTable select.status-select{
-  display:block !important;
-  margin:0 auto !important;
-  width: min(230px, 100%) !important;
-  text-align-last: center !important;
+  width: 100%;
+  padding: 10px 34px 10px 12px;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+
   text-align: center !important;
-}
-/* ===== STATUS COLOR BADGE (Withdrawals) ===== */
-#withdrawalsTable td:nth-child(5) select{
-  width:100% !important;
-  padding:10px 34px 10px 12px !important;
-  border:0 !important;
-  border-bottom:0 !important;
-  border-radius:14px !important;
-  font-weight:900 !important;
-  text-align:center !important;
-  text-align-last:center !important;
-  appearance:none !important;
-  -webkit-appearance:none !important;
-}
+  text-align-last: center !important;
 
-/* Processing = Blue */
-#withdrawalsTable td:nth-child(5) select.st-processing{
-  background:#0b5ea8 !important;
-  color:#ffffff !important;
-}
+  appearance: none !important;
+  -webkit-appearance: none !important;
 
-/* Waiting = Purple */
-#withdrawalsTable td:nth-child(5) select.st-waiting{
-  background:#7c3aed !important;
-  color:#ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 10px 22px rgba(0,0,0,.18) !important;
 }
+#withdrawalsTable select.st-processing{ background:#0b5ea8 !important; color:#fff !important; }
+#withdrawalsTable select.st-waiting{ background:#7c3aed !important; color:#fff !important; }
+#withdrawalsTable select.st-reviewed{ background:#facc15 !important; color:#111827 !important; }
+#withdrawalsTable select.st-paid{ background:#22c55e !important; color:#fff !important; }
+#withdrawalsTable select.st-rejected{ background:#ef4444 !important; color:#fff !important; }
 
-/* Reviewed = Yellow */
-#withdrawalsTable td:nth-child(5) select.st-reviewed{
-  background:#facc15 !important;
-  color:#111827 !important;
-}
+/* Processing */
+#withdrawalsTable select.st-processing{ background:#0b5ea8; color:#fff; }
+/* Waiting */
+#withdrawalsTable select.st-waiting{ background:#7c3aed; color:#fff; }
+/* Reviewed */
+#withdrawalsTable select.st-reviewed{ background:#facc15; color:#111827; }
+/* Paid */
+#withdrawalsTable select.st-paid{ background:#22c55e; color:#fff; }
+/* Rejected */
+#withdrawalsTable select.st-rejected{ background:#ef4444; color:#fff; }
 
-/* Payment sent / Paid = Green */
-#withdrawalsTable td:nth-child(5) select.st-paid{
-  background:#22c55e !important;
-  color:#ffffff !important;
+/* ✅ Withdrawals: PHONE = RED like Users/Loans */
+#withdrawalsTable td:nth-child(3){
+  color: #d10f0f !important;
+  font-weight: 900 !important;
 }
-
-/* Rejected = Red */
-#withdrawalsTable td:nth-child(5) select.st-rejected{
-  background:#ef4444 !important;
-  color:#ffffff !important;
-}
-  </style>
+</style>
   <div class="card-h">
     <div>
       <div class="h1">Withdrawals</div>
@@ -209,7 +134,8 @@
     </form>
   </div>
 
-  <div class="content" style="overflow:auto;">
+  <div class="content">
+  <div class="table-wrap">
     <table id="withdrawalsTable">
       <thead>
         <tr>
@@ -233,7 +159,7 @@
   <td>#{{ w.id }}</td>
   <td class="user-font">{{ w.display_name|default:"—" }}</td>
   <td class="user-font">{{ w.user.phone }}</td>
-  <td class="money" data-money="{{ w.amount }}" data-cur="{{ w.currency }}">
+  <td class="money money-cell" data-money="{{ w.amount }}" data-cur="{{ w.currency }}">
   {{ w.amount }} {{ w.currency }}
 </td>
 
@@ -308,4 +234,5 @@
       {% endif %}
     </div>
   </div>
+</div>  <!-- ✅ end table-wrap -->
 {% endblock %}

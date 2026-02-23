@@ -171,6 +171,22 @@
         0 0 18px rgba(239,68,68,.22) !important;
     }
     
+  /* =========================================
+   GLOBAL: phone link color = balance blue
+   Works for Users / Loans / Withdrawals / Payment Methods
+   ========================================= */
+:root{ --staff-blue: #004182; }
+
+/* phone links (common class u-link) inside right dashboard tables */
+.dashboard-card table tbody td a.u-link{
+  color: var(--staff-blue) !important;
+  font-weight: 800 !important;
+  text-decoration: none;
+}
+
+.dashboard-card table tbody td a.u-link:hover{
+  text-decoration: underline;
+}  
   </style>
   
   <script>
@@ -465,12 +481,6 @@ td.col-active .active-select{
    (no background, no box)
    =========================== */
 
-/* ===== USERS PHONE COLUMN ===== */
-
-.users-table td.phone a.u-link{
-  color: #d10f0f !important;
-  font-weight:900 !important;
-}
 
 /* optional hover */
 .users-table td.phone a.u-link:hover{

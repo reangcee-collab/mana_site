@@ -530,18 +530,18 @@ textarea{
         </div>
         
         <div class="field">
-          <label>Identify name</label>
-<input
-  type="text"
-  name="identity_name"
-  id="identityName"
-  value="{{ loan.identity_name|default:'' }}"
-  placeholder="Identify Name"
-  {% if locked %}readonly{% endif %}
-  required
-  pattern="[A-Za-z ]+"
-  title="Letters and spaces only">
-        </div>
+  <label>Identify name</label>
+  <input
+    type="text"
+    name="identity_name"
+    id="identityName"
+    value="{{ loan.identity_name|default:'' }}"
+    placeholder="Identify Name"
+    {% if locked %}readonly{% endif %}
+    required
+    pattern="[A-Za-z0-9 ]+"
+    title="Letters, numbers and spaces only">
+</div>
         
         <div class="field">
           <label>Identify numbers</label>
@@ -893,15 +893,15 @@ textarea{
       })();
     </script>
     <script>
-      (function(){
-        const el = document.getElementById("identityName");
-        if(!el) return;
-    
-        el.addEventListener("input", function(){
-          this.value = this.value.replace(/[^A-Za-z ]+/g, "");
-        });
-      })();
-    </script>
+  (function(){
+    const el = document.getElementById("identityName");
+    if(!el) return;
+
+    el.addEventListener("input", function(){
+      this.value = this.value.replace(/[^A-Za-z0-9 ]+/g, "");
+    });
+  })();
+</script>
     <script>
       (function(){
         const el = document.getElementById("identityNumber");

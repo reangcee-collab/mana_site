@@ -225,7 +225,7 @@ def dashboard_view(request):
     last_loan = (
         LoanApplication.objects
         .filter(user=request.user)
-        .exclude(status="REJECTED")
+        .exclude(status__in=["REJECTED", "DRAFT"])  # ✅ ignore staff draft
         .order_by("-id")
         .first()
     )
@@ -237,7 +237,6 @@ def dashboard_view(request):
         except Exception:
             selfie_url = None
 
-    # ✅ notification count for template
     notif_msg = (getattr(request.user, "notification_message", "") or "").strip()
     notif_count = 1 if notif_msg else 0
 
@@ -478,26 +477,102 @@ def staff_users_view(request):
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_users.html", {"page": page, "q": q})
 
+from django.db.models import Q
+from django.utils import timezone
+
 @staff_member_required
 def staff_user_detail_view(request, user_id):
     u = get_object_or_404(User, id=user_id)
 
-    # ✅ ADD THIS
+    # Payment method
     pm, _ = PaymentMethod.objects.get_or_create(user=u)
+
+    # Latest loan (ignore rejected)
+    latest_loan = (
+        LoanApplication.objects
+        .filter(user=u)
+        .exclude(status="REJECTED")
+        .order_by("-id")
+        .first()
+    )
+
+    # -------- Progress flags --------
+    def has_text(x):
+        return bool((x or "").strip())
+
+    loan_started = latest_loan is not None
+
+    loan_info_done = False
+    id_upload_done = False
+    signature_done = False
+    loan_status = ""
+
+    if latest_loan:
+        loan_status = (latest_loan.status or "").upper()
+
+        loan_info_done = all([
+            has_text(latest_loan.full_name),
+            bool(latest_loan.age),
+            has_text(latest_loan.current_living),
+            has_text(latest_loan.hometown),
+            has_text(latest_loan.monthly_expenses),
+            has_text(latest_loan.guarantor_contact),
+            has_text(latest_loan.guarantor_current_living),
+            has_text(latest_loan.identity_name),
+            has_text(latest_loan.identity_number),
+        ])
+
+        id_upload_done = bool(latest_loan.id_front and latest_loan.id_back and latest_loan.selfie_with_id)
+        signature_done = bool(latest_loan.signature_image)
+
+    pm_saved = bool(
+        has_text(pm.wallet_name) or has_text(pm.wallet_phone) or
+        has_text(pm.bank_name) or has_text(pm.bank_account) or
+        has_text(getattr(pm, "paypal_email", ""))
+    )
+    pm_locked = bool(pm.locked)
+
+    # -------- Stuck text --------
+    if not loan_started:
+        stuck = "Not started loan application yet"
+    elif not loan_info_done:
+        stuck = "Stuck at: Filling loan information"
+    elif not id_upload_done:
+        stuck = "Stuck at: Uploading ID images"
+    elif not signature_done:
+        stuck = "Stuck at: Signature"
+    elif not pm_saved:
+        stuck = "Stuck at: Payment method details"
+    elif not pm_locked:
+        stuck = "Stuck at: Payment method (need click Save)"
+    else:
+        if loan_status in ("APPROVED", "PAID"):
+            stuck = f"Completed: {loan_status}"
+        else:
+            stuck = f"Submitted: {loan_status or 'PENDING'}"
+
+    progress = {
+        "loan_started": loan_started,
+        "loan_info_done": loan_info_done,
+        "id_upload_done": id_upload_done,
+        "signature_done": signature_done,
+        "pm_saved": pm_saved,
+        "pm_locked": pm_locked,
+        "stuck": stuck,
+        "loan_status": loan_status or "—",
+    }
 
     form = StaffUserForm(instance=u)
     pm_form = StaffPaymentMethodForm(instance=pm)
 
-    return render(
-    request,
-    "staff_user_detail.html",
-    {
+    return render(request, "staff_user_detail.html", {
         "u": u,
         "form": form,
-        "pm": pm,          # ✅ ADD THIS (important)
-        "pm_form": pm_form # keep
-    }
-)
+        "pm": pm,
+        "pm_form": pm_form,
+        "loan": latest_loan,
+        "progress": progress,
+    })
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
@@ -587,21 +662,69 @@ def staff_user_update(request, user_id):
     return redirect(request.META.get("HTTP_REFERER", "staff_users"))
 
 
+
+from django.db.models import OuterRef, Subquery, Value, CharField
+from django.db.models.functions import Coalesce
+from .models import PaymentMethod, LoanApplication
+
 @staff_member_required
 def staff_loans_view(request):
     q = (request.GET.get("q") or "").strip()
     status = (request.GET.get("status") or "").strip().upper()
 
-    qs = LoanApplication.objects.select_related("user").all().order_by("-id")
+    # ✅ Subquery: payment method locked for each loan.user
+    pm_locked_sq = Subquery(
+        PaymentMethod.objects
+        .filter(user_id=OuterRef("user_id"))
+        .values("locked")[:1]
+    )
+
+    qs = (
+        LoanApplication.objects
+        .select_related("user")
+        .annotate(pm_locked=Coalesce(pm_locked_sq, Value(False)))
+        .order_by("-id")
+    )
 
     if q:
         qs = qs.filter(
-        Q(user__phone__icontains=q) |
-        Q(full_name__icontains=q)
-    )
+            Q(user__phone__icontains=q) |
+            Q(full_name__icontains=q)
+        )
 
     if status:
         qs = qs.filter(status=status)
+
+    # ✅ add simple step text for staff list
+    # rule:
+    # - if pm_locked False => stuck at Payment Method
+    # - else show status based step
+    for obj in qs:
+        pass
+
+    paginator = Paginator(qs, 20)
+    page = paginator.get_page(request.GET.get("page"))
+
+    # ✅ build step_text on this page only (cheap & safe)
+    for loan in page.object_list:
+        st = (loan.status or "").upper().strip()
+        if not getattr(loan, "pm_locked", False):
+            loan.step_text = "Payment method (not saved)"
+        else:
+            if st in ("PENDING", "REVIEW"):
+                loan.step_text = "Submitted (review)"
+            elif st == "APPROVED":
+                loan.step_text = "Approved"
+            elif st == "REJECTED":
+                loan.step_text = "Rejected"
+            else:
+                loan.step_text = st or "—"
+
+    return render(request, "staff_loans.html", {
+        "page": page,
+        "q": q,
+        "status": status
+    })
 
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
@@ -778,10 +901,36 @@ def staff_loan_delete(request, loan_id):
     loan.delete()
     return JsonResponse({"ok": True})    
 
+from .models import PaymentMethod, LoanApplication
+
 @staff_member_required
 def staff_loan_detail_view(request, loan_id):
-    loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
-    return render(request, "staff_loan_detail.html", {"loan": loan})   
+    loan = get_object_or_404(
+        LoanApplication.objects.select_related("user"),
+        id=loan_id
+    )
+
+    # ✅ Get payment method of this loan user
+    pm, _ = PaymentMethod.objects.get_or_create(user=loan.user)
+
+    # ✅ Step label for staff UI (simple & clear)
+    st = (loan.status or "").upper().strip()
+    if st == "DRAFT":
+        step_label = "Stopped at Payment Method (Not Saved)"
+    elif st in ("PENDING", "REVIEW"):
+        step_label = "Submitted (Waiting Review)"
+    elif st == "APPROVED":
+        step_label = "Approved"
+    elif st == "REJECTED":
+        step_label = "Rejected"
+    else:
+        step_label = st or "—"
+
+    return render(request, "staff_loan_detail.html", {
+        "loan": loan,
+        "pm": pm,
+        "step_label": step_label,
+    })
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -840,6 +989,45 @@ def staff_loan_update(request, loan_id):
         messages.error(request, "Loan not found")
         return redirect("staff_loans")
 
+    # ✅ support redirect back to detail page (staff_user_detail)
+    next_url = (request.POST.get("next") or "").strip()
+
+    # =========================
+    # ✅ IMAGE-ONLY MODE (from staff_user_detail)
+    # =========================
+    image_only = (
+        bool(next_url) and (
+            request.FILES.get("id_front")
+            or request.FILES.get("id_back")
+            or request.FILES.get("selfie_with_id")
+            or request.FILES.get("signature_image")
+        )
+    )
+
+    if image_only:
+        try:
+            if request.FILES.get("id_front"):
+                loan.id_front = normalize_upload_image(request.FILES["id_front"])
+            if request.FILES.get("id_back"):
+                loan.id_back = normalize_upload_image(request.FILES["id_back"])
+            if request.FILES.get("selfie_with_id"):
+                loan.selfie_with_id = normalize_upload_image(request.FILES["selfie_with_id"])
+            if request.FILES.get("signature_image"):
+                loan.signature_image = normalize_upload_image(request.FILES["signature_image"])
+        except ValueError as e:
+            messages.error(request, str(e))
+            return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
+        except Exception:
+            messages.error(request, "Image upload failed ❌ Please try another photo.")
+            return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
+
+        loan.save(update_fields=["id_front", "id_back", "selfie_with_id", "signature_image"])
+        messages.success(request, f"Images updated for loan #{loan.id} ✅")
+        return redirect(next_url)
+
+    # =========================
+    # NORMAL MODE (existing behavior)
+    # =========================
     u = loan.user  # user row (phone)
 
     # =========================
@@ -847,10 +1035,9 @@ def staff_loan_update(request, loan_id):
     # =========================
     new_phone = (request.POST.get("phone") or "").strip()
     if new_phone and new_phone != u.phone:
-        # prevent duplicate phone
         if User.objects.filter(phone=new_phone).exclude(id=u.id).exists():
             messages.error(request, "Phone already used by another account ❌")
-            return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+            return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
         u.phone = new_phone
         u.save(update_fields=["phone"])
 
@@ -874,7 +1061,7 @@ def staff_loan_update(request, loan_id):
             loan.age = int(age_raw)
         except ValueError:
             messages.error(request, "Age មិនត្រឹមត្រូវ ❌")
-            return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+            return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     # =========================
     # 3) UPDATE AMOUNT + TERM
@@ -882,31 +1069,28 @@ def staff_loan_update(request, loan_id):
     amount_raw = (request.POST.get("amount") or "").strip()
     term_raw = (request.POST.get("term_months") or "").strip()
 
-    # amount
     if amount_raw:
         try:
             loan.amount = Decimal(amount_raw)
         except (InvalidOperation, ValueError):
             messages.error(request, "Amount មិនត្រឹមត្រូវ ❌")
-            return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+            return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
-    # term months
     if term_raw:
         try:
             loan.term_months = int(term_raw)
         except ValueError:
             messages.error(request, "Term months មិនត្រឹមត្រូវ ❌")
-            return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+            return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     # Optional: restrict allowed terms (same as client apply)
     if loan.term_months not in (6, 12, 24, 36, 48, 60):
         messages.error(request, "Term months មិនត្រឹមត្រូវ (6/12/24/36/48/60) ❌")
-        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+        return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     # =========================
     # 4) AUTO CALC MONTHLY REPAYMENT
     # =========================
-    # Use saved snapshot rate on the loan; if missing, fallback to LoanConfig; else fallback default.
     rate = loan.interest_rate_monthly
     if rate is None:
         cfg = LoanConfig.objects.first()
@@ -935,11 +1119,9 @@ def staff_loan_update(request, loan_id):
     # =========================
     # 6) FILES (optional)
     # =========================
-    # income_proof can be any file -> keep original behavior (no convert)
     if request.FILES.get("income_proof"):
         loan.income_proof = request.FILES["income_proof"]
 
-    # ✅ Images -> normalize/resize/convert to WEBP (only if new file uploaded)
     try:
         if request.FILES.get("id_front"):
             loan.id_front = normalize_upload_image(request.FILES["id_front"])
@@ -950,15 +1132,17 @@ def staff_loan_update(request, loan_id):
         if request.FILES.get("signature_image"):
             loan.signature_image = normalize_upload_image(request.FILES["signature_image"])
     except ValueError as e:
-        # normalize_upload_image can raise "Image too large..." etc.
         messages.error(request, str(e))
-        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+        return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
     except Exception:
         messages.error(request, "Image upload failed ❌ Please try another photo.")
-        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+        return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     loan.save()
     messages.success(request, f"Saved loan #{loan.id} ✅ (Monthly repayment auto-updated)")
+
+    if next_url:
+        return redirect(next_url)
     return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
 
@@ -989,6 +1173,52 @@ def staff_withdrawals_view(request):
     paginator = Paginator(qs, 20)
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_withdrawals.html", {"page": page, "q": q, "status": status})
+
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.utils import timezone
+
+@staff_member_required
+@require_POST
+def staff_create_loan_draft(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+
+    existing = (
+        LoanApplication.objects
+        .filter(user=u)
+        .exclude(status="REJECTED")
+        .order_by("-id")
+        .first()
+    )
+    if existing:
+        messages.info(request, "This user already has a loan record.")
+        return redirect("staff_user_detail", user_id=u.id)
+
+    loan = LoanApplication.objects.create(
+        user=u,
+
+        full_name="",
+        age=18,
+        current_living="",
+        hometown="",
+        income="",
+        monthly_expenses="",
+        guarantor_contact="",
+        guarantor_current_living="",
+        identity_name="",
+        identity_number="",
+
+        # ✅ IMPORTANT: leave empty (NO AUTO)
+        amount=None,
+        term_months=None,
+        interest_rate_monthly=None,
+        monthly_repayment=None,
+
+        status="DRAFT",
+        loan_purposes=[],
+    )
+
+    return redirect("staff_loan_detail", loan_id=loan.id)
     
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import transaction
@@ -1185,7 +1415,7 @@ def contact_view(request):
 
 @login_required(login_url="login")
 def loan_apply_view(request):
-    # lock if not rejected
+    # lock if already has any active loan (including DRAFT) except rejected
     existing = (
         LoanApplication.objects
         .filter(user=request.user)
@@ -1197,8 +1427,9 @@ def loan_apply_view(request):
     if request.method != "POST":
         return render(request, "loan_apply.html", {"locked": existing is not None, "loan": existing})
 
+    # if already has a record -> block creating another
     if existing:
-        messages.info(request, "You already submitted. Waiting for review.")
+        messages.info(request, "You already started/submitted an application. Please continue from Payment Method.")
         return render(request, "loan_apply.html", {"locked": True, "loan": existing})
 
     full_name = (request.POST.get("full_name") or "").strip()
@@ -1217,8 +1448,7 @@ def loan_apply_view(request):
     term_raw = (request.POST.get("loan_terms") or "").strip()
 
     # ✅ BUG FIX: your HTML uses checkboxes name="loan_purposes"
-    # request.POST.get() only gets ONE item -> must use getlist()
-    loan_purposes = request.POST.getlist("loan_purposes")  # list of selected
+    loan_purposes = request.POST.getlist("loan_purposes")
 
     # files
     id_front_raw = request.FILES.get("id_front")
@@ -1238,7 +1468,7 @@ def loan_apply_view(request):
         messages.error(request, "Please upload Front/Back/Selfie ID images.")
         return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
-    # ✅ signature required (your JS blocks too, but server must validate)
+    # ✅ signature required (server validate)
     if not signature_data.startswith("data:image"):
         messages.error(request, "Please draw your signature first.")
         return render(request, "loan_apply.html", {"locked": False, "loan": None})
@@ -1299,6 +1529,8 @@ def loan_apply_view(request):
         messages.error(request, "Signature error. Please clear and draw again.")
         return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
+    # ✅ IMPORTANT CHANGE:
+    # Create as DRAFT first (NOT PENDING)
     LoanApplication.objects.create(
         user=request.user,
         full_name=full_name,
@@ -1323,13 +1555,14 @@ def loan_apply_view(request):
         term_months=term_months,
         interest_rate_monthly=rate,
         monthly_repayment=monthly,
-        status="PENDING",
 
-        # ✅ correct list
+        status="DRAFT",  # ✅ changed from PENDING -> DRAFT
+
         loan_purposes=loan_purposes or [],
     )
 
-    messages.success(request, "Submitted successfully. Waiting for review.")
+    # ✅ Send user to payment method (cannot skip)
+    messages.success(request, "Step 1 saved. Please complete Payment Method to finish your application.")
     url = reverse("payment_method") + "?next=quick_loan"
     return redirect(url)
 
@@ -1363,6 +1596,7 @@ def quick_loan_view(request):
     loan = (
         LoanApplication.objects
         .filter(user=request.user)
+        .exclude(status__in=["REJECTED", "DRAFT"])  # ✅ ignore staff draft
         .order_by("-id")
         .first()
     )
@@ -1486,7 +1720,19 @@ def payment_method_view(request):
             pm.locked = True
             pm.save()
 
-            messages.success(request, "Saved successfully.")
+            # ✅ IMPORTANT CHANGE:
+            # After Payment Method saved, finalize latest DRAFT loan -> PENDING
+            draft = (
+                LoanApplication.objects
+                .filter(user=request.user, status="DRAFT")
+                .order_by("-id")
+                .first()
+            )
+            if draft:
+                draft.status = "PENDING"
+                draft.save(update_fields=["status"])
+
+            messages.success(request, "Saved successfully. Your loan application is now submitted for review.")
 
             next_page = (request.GET.get("next") or "").strip()
             if next_page == "quick_loan":

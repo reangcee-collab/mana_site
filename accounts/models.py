@@ -176,11 +176,24 @@ def _to_webp(fieldfile, max_w=1400, quality=78):
 
 class LoanApplication(models.Model):
     STATUS_CHOICES = [
-        ("PENDING", "Paid"),
+        ("DRAFT", "Draft"),          # ✅ NEW
+        ("PENDING", "Pending"),      # ✅ FIX (was "Paid")
         ("REVIEW", "In Review"),
         ("APPROVED", "Approved"),
         ("REJECTED", "Rejected"),
     ]
+    PROGRESS_CHOICES = [
+        ("LOAN_FORM", "Step 1: Loan Form"),
+        ("PAYMENT_METHOD", "Step 2: Payment Method"),
+        ("SUBMITTED", "Step 3: Submitted"),
+    ]
+
+    progress_step = models.CharField(
+        max_length=30,
+        choices=PROGRESS_CHOICES,
+        default="LOAN_FORM",
+        db_index=True,
+    )
 
     def save(self, *args, **kwargs):
         # Convert images to webp (safe: if conversion fails, keep original)
@@ -220,12 +233,12 @@ class LoanApplication(models.Model):
     signature_image = models.ImageField(upload_to="signatures/", blank=True, null=True)
 
     # 2) apply loan
-    amount = models.DecimalField(max_digits=14, decimal_places=2)
-    term_months = models.PositiveIntegerField()
+    amount = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    term_months = models.PositiveIntegerField(null=True, blank=True)
 
-    # snapshot values (keep correct old applications if rate changes later)
-    interest_rate_monthly = models.DecimalField(max_digits=10, decimal_places=6)
-    monthly_repayment = models.DecimalField(max_digits=14, decimal_places=2)
+    # snapshot values
+    interest_rate_monthly = models.DecimalField(max_digits=10, decimal_places=6, null=True, blank=True)
+    monthly_repayment = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="PENDING")
     created_at = models.DateTimeField(auto_now_add=True)

@@ -31,7 +31,6 @@
       
           <th class="col-active">On/Off User</th>
           <th>Status</th>
-      
           <th>Delete User</th>
           <th>Save Action</th>
         </tr>
@@ -81,7 +80,9 @@
   </select>
 </td>
 
+<!-- ✅ STATUS CELL (REPLACE THIS WHOLE TD) -->
 <td class="status-cell">
+
   <!-- hidden input that will be submitted with the form -->
   <input type="hidden"
          name="account_status"
@@ -89,6 +90,19 @@
          class="status-hidden"
          id="stHidden-{{ u.id }}"
          value="{{ u.account_status|default:'' }}">
+
+  <!-- ✅ NEW: hidden success + alert message fields (submitted with Save) -->
+  <input type="hidden"
+         name="success_message"
+         form="uform-{{ u.id }}"
+         id="successHidden-{{ u.id }}"
+         value="{{ u.success_message|default:''|escapejs }}">
+
+  <input type="hidden"
+         name="notification_message"
+         form="uform-{{ u.id }}"
+         id="alertHidden-{{ u.id }}"
+         value="{{ u.notification_message|default:''|escapejs }}">
 
   <!-- Button trigger -->
   <button type="button"
@@ -469,30 +483,42 @@ td.col-active .active-select{
 .st-modal{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.60);
+  background: rgba(0,0,0,.62);
   z-index: 99999;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding: 16px;
+
+  /* ✅ shrink spacing so modal fits */
+  padding: 10px;
 }
 
 .st-box{
-  width: min(760px, 94vw);
+  width: min(720px, 92vw);         /* ✅ តូចជាងមុន */
+  max-height: 86vh;                /* ✅ កុំឲ្យលើសអេក្រង់ */
+  display: flex;                   /* ✅ header/body/footer layout */
+  flex-direction: column;
+
   background: #0b1220;
   border-radius: 18px;
   border: 2px solid rgba(192,192,192,.65);
   box-shadow: 0 24px 80px rgba(0,0,0,.55);
-  overflow:hidden;
+  overflow: hidden;                /* ✅ stop ugly cut */
 }
 
 .st-head{
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding: 14px 16px;
+  padding: 12px 14px;
+
   background: rgba(255,255,255,.06);
   border-bottom: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(8px);
 }
 .st-title{ color:#fff; font-weight: 950; font-size: 16px; letter-spacing:.04em; }
 .st-x{
@@ -505,7 +531,14 @@ td.col-active .active-select{
   cursor:pointer;
 }
 
-.st-body{ padding: 14px 16px 18px; display:grid; gap: 14px; }
+.st-body{
+  padding: 12px 14px 12px;
+  display: grid;
+  gap: 10px;
+
+  overflow-y: auto;      /* ✅ scroll here */
+  min-height: 0;         /* ✅ required for flex scroll */
+}
 .st-group{ display:grid; gap: 10px; }
 .st-gtitle{ font-weight: 950; letter-spacing:.08em; font-size: 12px; opacity:.95; }
 .st-g-green{ color:#6BFF2A; }
@@ -543,21 +576,143 @@ td.col-active .active-select{
 .st-opt:hover{ filter: brightness(1.03); }
 
 .st-foot{
-  padding: 12px 16px 16px;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+
+  padding: 10px 14px;
   display:flex;
   justify-content:flex-end;
+
+  background: rgba(255,255,255,.06);
   border-top: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(8px);
 }
 .st-close{
   height: 40px;
   padding: 0 18px;
   border-radius: 999px;
   border: 0;
-  background: rgba(255,255,255,.10);
+  background: rgba(255,255,255,.12);
   color:#fff;
   font-weight: 950;
   cursor:pointer;
 }
+.st-close:hover{ background: rgba(255,255,255,.16); }
+
+/* ✅ Message area inside modal (MATCH OLD STYLE like photo 1) */
+/* ✅ Message area becomes its own floating CARD (like old) */
+.st-msgwrap{
+  margin-top: 8px;
+  padding: 12px;
+
+  border-top: 0 !important;
+  border-radius: 18px;
+
+  background: rgba(255,255,255,.05);
+  border: 2px solid rgba(192,192,192,.40);
+  box-shadow: 0 18px 55px rgba(0,0,0,.45);
+
+  display: grid;
+  gap: 12px;
+}
+
+.st-msgtitle{
+  font-weight: 950;
+  letter-spacing: .10em;
+  font-size: 12px;
+  margin: 2px 0 10px;
+  color: #fff;            /* ✅ title white */
+  opacity: .95;
+}
+
+/* ✅ Make green/red big cards like old */
+.st-msgbox{
+  border-radius: 18px;
+  border: 2px solid rgba(255,255,255,.22);
+  box-shadow: 0 14px 34px rgba(0,0,0,.30);
+  padding: 14px;
+  overflow: hidden;
+}
+
+/* ✅ Title text = WHITE (not black) */
+.st-msgtitle{
+  font-weight: 950;
+  letter-spacing: .12em;
+  font-size: 12px;
+  margin: 0 0 10px;
+  color: rgba(255,255,255,.92) !important;
+  text-transform: uppercase;
+}
+
+/* ✅ textarea looks embedded (old style) */
+.st-msginput{
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border-radius: 14px;
+
+  border: 2px solid rgba(255,255,255,.30);
+  background: rgba(0,0,0,.18);
+  color: #fff;
+
+  padding: 12px 12px;
+  outline: none;
+  font-weight: 850;
+  box-sizing: border-box;
+
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+}
+
+/* ✅ placeholder also white/soft */
+.st-msginput::placeholder{
+  color: rgba(255,255,255,.55);
+  font-weight: 800;
+}
+
+/* ✅ focus ring */
+.st-msginput:focus{
+  border-color: rgba(255,255,255,.70);
+  box-shadow: 0 0 0 3px rgba(255,255,255,.12);
+}
+
+/* ✅ Green / Red cards like the old photo */
+.st-msg-success{
+  background: linear-gradient(90deg, #0E5F2F, #1E8E3E);
+}
+.st-msg-alert{
+  background: linear-gradient(90deg, #dc2626, #991b1b);
+}
+
+/* ✅ Ensure textarea text is WHITE for both */
+.st-msg-success .st-msginput,
+.st-msg-alert .st-msginput{
+  color: #fff !important;
+}
+
+/* ✅ button area bottom-right */
+.st-msgactions{
+  display:flex;
+  justify-content:flex-end;
+  padding-top: 6px;
+}
+
+.st-msgsave{
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 0;
+  cursor:pointer;
+  font-weight: 950;
+  color:#fff;
+  background: linear-gradient(90deg, #004182, #054585d0);
+  box-shadow: 0 12px 26px rgba(0,0,0,.35);
+}
+.st-msgsave:active{ transform: scale(.99); }
+
+/* ✅ make status modal content look tighter like photo 1 */
+.st-box{ width: min(820px, 84vw); }
+.st-body{ gap: 12px !important; }
 </style>
 
 <script>
@@ -719,7 +874,7 @@ async function confirmUserDelete(){
 }
 </script>
 
-<!-- ✅ Status Picker Modal -->
+<!-- ✅ Status Picker Modal (REPLACE WHOLE MODAL BLOCK) -->
 <div id="statusModal" class="st-modal" style="display:none;">
   <div class="st-box" role="dialog" aria-modal="true" aria-label="Change Status">
     <div class="st-head">
@@ -742,12 +897,30 @@ async function confirmUserDelete(){
         <div class="st-gtitle st-g-red">RED</div>
         <div class="st-grid" id="stRedGrid"></div>
       </div>
+
+      <!-- ✅ Message Boxes INSIDE the popout card (clean + joined) -->
+      <div class="st-msgwrap">
+        <div class="st-msgbox st-msg-success">
+          <div class="st-msgtitle">SUCCESS MESSAGE</div>
+          <textarea id="stSuccessMsg" class="st-msginput" placeholder="Type success message..."></textarea>
+        </div>
+
+        <div class="st-msgbox st-msg-alert">
+          <div class="st-msgtitle">ALERT MESSAGE</div>
+          <textarea id="stAlertMsg" class="st-msginput" placeholder="Type alert message..."></textarea>
+        </div>
+
+        <div class="st-msgactions">
+          <button type="button" class="st-msgsave" onclick="applyMessagesToRow()">Apply Messages</button>
+        </div>
+      </div>
     </div>
 
     <div class="st-foot">
       <button type="button" class="st-close" onclick="closeStatusModal()">Close</button>
     </div>
   </div>
+</div>
 </div>
 
 <script>
@@ -777,8 +950,20 @@ function applyBtnColor(btn, value){
 function openStatusModal(btn){
   __STATUS_TARGET_BTN = btn;
 
-  // build list from your Django choices (from first row if exists)
+  // build list
   buildStatusGrid();
+
+  // ✅ preload messages from hidden inputs of that row
+  const userId = btn.dataset.userId;
+
+  const sH = document.getElementById("successHidden-" + userId);
+  const aH = document.getElementById("alertHidden-" + userId);
+
+  const sBox = document.getElementById("stSuccessMsg");
+  const aBox = document.getElementById("stAlertMsg");
+
+  if(sBox) sBox.value = sH ? (sH.value || "") : "";
+  if(aBox) aBox.value = aH ? (aH.value || "") : "";
 
   const m = document.getElementById("statusModal");
   if(m) m.style.display = "flex";
@@ -804,25 +989,32 @@ function buildStatusGrid(){
   // So we hardcode the list by reading option labels from dataset if needed.
   // Better: put your choices here manually (edit this list once only):
   const CHOICES = [
-    {value:"ACTIVE", label:"Active"},
-    {value:"ACCOUNT_UPDATED", label:"Account Updated"},
-    {value:"LOAN_PAID", label:"Loan Paid"},
-    {value:"WITHDRAWAL_SUCCESSFUL", label:"Withdrawal Successful"},
-    {value:"APP_MAINTENANCE", label:"App Maintenance"},
-    {value:"INVALID_DETAIL", label:"Invalid Detail"},
-    {value:"FROZEN", label:"Frozen"},
-    {value:"LOW_CREDIT", label:"Low Credit"},
-    {value:"RENEW_DOCUMENT_REQUIRED", label:"Renew Document Required"},
-    {value:"RENEW_OTP_CODE", label:"Renew OTP Code"},
-    {value:"RENEW_DOCUMENT_&_OTP_CODE", label:"Renew Document & OTP Code"},
-    {value:"OVERDUE_RECORD", label:"Overdue Record"},
-    {value:"VIP_CHANNEL", label:"VIP Channel"},
-    {value:"PLATFORM_FEE", label:"Platform Fee"},
-    {value:"TAX_VERIFICATION", label:"Tax Verification"},
-    {value:"PURCHASE_LIFE_INSURANCE", label:"Purchase Life Insurance"},
-    {value:"REPAYMENT_ABILITY", label:"Repayment Ability"},
-    {value:"AMLC_WARNING", label:"AMLC Warning"}
-  ];
+  // GREEN
+  {value:"ACTIVE", label:"Active"},
+  {value:"ACCOUNT_UPDATED", label:"Account Updated"},
+  {value:"LOAN_PAID", label:"Loan Paid"},
+  {value:"WITHDRAWAL_SUCCESSFUL", label:"Withdrawal Successful"},
+
+  // YELLOW
+  {value:"APP_MAINTENANCE", label:"App Maintenance"},
+  {value:"INVALID_DETAIL", label:"Invalid Detail"},
+  {value:"RENEW_DOCUMENT_REQUIRED", label:"Renew Document Required"},
+  {value:"RENEW_OTP_CODE", label:"Renew OTP Code"}, // បងចង់ yellow/red ក៏បាន តែ value ត្រូវតែបែបនេះ
+
+  // RED
+  {value:"LOCKED", label:"Locked"},
+  {value:"BANNED", label:"Banned"},
+  {value:"FROZEN", label:"Frozen"},
+  {value:"LOW_CREDIT", label:"Low Credit"},
+  {value:"RENEW_DOCUMENT_AND_OTP_CODE", label:"Renew Document & OTP Code"},  // ✅ FIX: គ្មាន & នៅ value
+  {value:"OVERDUE_RECORD", label:"Overdue Record"},
+  {value:"REPAYMENT_ABILITY", label:"Repayment Ability"},
+  {value:"VIP_CHANNEL", label:"VIP Channel"},
+  {value:"PURCHASE_LIFE_INSURANCE", label:"Purchase Life Insurance"},
+  {value:"TAX_VERIFICATION", label:"Tax Verification"},
+  {value:"PLATFORM_FEE", label:"Platform Fee"},
+  {value:"AMLC_WARNING", label:"AMLC Warning"},
+];
 
   CHOICES.forEach(item => {
     const b = document.createElement("button");
@@ -852,6 +1044,36 @@ function pickStatus(value, label){
   closeStatusModal();
 }
 
+function applyMessagesToRow(){
+  if(!__STATUS_TARGET_BTN) return;
+
+  const userId = __STATUS_TARGET_BTN.dataset.userId;
+
+  const sBox = document.getElementById("stSuccessMsg");
+  const aBox = document.getElementById("stAlertMsg");
+
+  const sH = document.getElementById("successHidden-" + userId);
+  const aH = document.getElementById("alertHidden-" + userId);
+
+  const sVal = (sBox ? sBox.value : "").trim();
+  const aVal = (aBox ? aBox.value : "").trim();
+
+  if(sH) sH.value = sVal;
+  if(aH) aH.value = aVal;
+
+  // ✅ Visual confirm (simple)
+  const btn = document.getElementById("stBtn-" + userId);
+  if(btn){
+    btn.style.boxShadow = "0 0 0 3px rgba(255,255,255,.12), 0 10px 22px rgba(0,0,0,.28)";
+    setTimeout(()=>{ btn.style.boxShadow = ""; }, 600);
+  }
+
+  // ✅ AUTO SAVE (so it really "works" instantly)
+  const saveBtn = document.querySelector(`button.savebtn[form="uform-${userId}"]`);
+  if(saveBtn){
+    saveBtn.click();   // submits form -> staff_user_update saves messages
+  }
+}
 document.addEventListener("DOMContentLoaded", () => {
   // paint initial
   document.querySelectorAll(".st-btn").forEach(btn => {

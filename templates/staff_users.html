@@ -911,7 +911,8 @@ async function confirmUserDelete(){
         </div>
 
         <div class="st-msgactions">
-          <button type="button" class="st-msgsave" onclick="applyMessagesToRow()">Apply Messages</button>
+          <button type="button" class="st-msgsave" onclick="applyAll()">Apply Messages</button>
+<button type="button" class="st-msgsave" style="background:rgba(255,255,255,.12)" onclick="clearMsgBoxes()">Clear</button>
         </div>
       </div>
     </div>
@@ -925,6 +926,7 @@ async function confirmUserDelete(){
 
 <script>
 let __STATUS_TARGET_BTN = null;
+let __PENDING_STATUS = null;   // ✅ ADD THIS LINE
 
 function stNormalize(v){
   return String(v || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -1031,17 +1033,30 @@ function buildStatusGrid(){
 function pickStatus(value, label){
   if(!__STATUS_TARGET_BTN) return;
 
-  const userId = __STATUS_TARGET_BTN.dataset.userId;
+  // ✅ Store selected status only (do NOT close modal)
+  __PENDING_STATUS = { value, label };
+  
 
+  // ✅ Visual highlight: mark selected option
+  document.querySelectorAll("#statusModal .st-opt").forEach(x => x.classList.remove("is-picked"));
+  // find button that matches label text
+  const opts = document.querySelectorAll("#statusModal .st-opt span:first-child");
+  opts.forEach(sp=>{
+    if((sp.textContent||"").trim() === String(label).trim()){
+      sp.closest(".st-opt")?.classList.add("is-picked");
+    }
+  });
+
+  // ✅ also update the row button label + hidden immediately (so staff sees it)
+  const userId = __STATUS_TARGET_BTN.dataset.userId;
   const hidden = document.getElementById("stHidden-" + userId);
   const labelEl = document.getElementById("stLabel-" + userId);
 
-  if(hidden) hidden.value = value;     // ✅ this will be submitted with Save
+  if(hidden) hidden.value = value;
   if(labelEl) labelEl.textContent = label;
 
   applyBtnColor(__STATUS_TARGET_BTN, label);
-
-  closeStatusModal();
+  // ❌ removed closeStatusModal();
 }
 
 function applyMessagesToRow(){
@@ -1055,24 +1070,32 @@ function applyMessagesToRow(){
   const sH = document.getElementById("successHidden-" + userId);
   const aH = document.getElementById("alertHidden-" + userId);
 
-  const sVal = (sBox ? sBox.value : "").trim();
-  const aVal = (aBox ? aBox.value : "").trim();
+  if(sH) sH.value = (sBox ? sBox.value : "").trim();
+  if(aH) aH.value = (aBox ? aBox.value : "").trim();
+}
 
-  if(sH) sH.value = sVal;
-  if(aH) aH.value = aVal;
+// ✅ Apply ALL = status + messages, then AUTO submit row form (no need to close)
+function applyAll(){
+  if(!__STATUS_TARGET_BTN) return;
 
-  // ✅ Visual confirm (simple)
-  const btn = document.getElementById("stBtn-" + userId);
-  if(btn){
-    btn.style.boxShadow = "0 0 0 3px rgba(255,255,255,.12), 0 10px 22px rgba(0,0,0,.28)";
-    setTimeout(()=>{ btn.style.boxShadow = ""; }, 600);
-  }
+  // 1) ensure messages saved to hidden
+  applyMessagesToRow();
 
-  // ✅ AUTO SAVE (so it really "works" instantly)
-  const saveBtn = document.querySelector(`button.savebtn[form="uform-${userId}"]`);
-  if(saveBtn){
-    saveBtn.click();   // submits form -> staff_user_update saves messages
-  }
+  // 2) status already set by pickStatus (hidden + label)
+  // but if staff never clicked status, keep existing status
+
+  // 3) auto submit that user's form (same as clicking Save)
+  const userId = __STATUS_TARGET_BTN.dataset.userId;
+  const form = document.getElementById("uform-" + userId);
+  if(form) form.requestSubmit ? form.requestSubmit() : form.submit();
+}
+
+// optional: clear textareas quickly
+function clearMsgBoxes(){
+  const sBox = document.getElementById("stSuccessMsg");
+  const aBox = document.getElementById("stAlertMsg");
+  if(sBox) sBox.value = "";
+  if(aBox) aBox.value = "";
 }
 document.addEventListener("DOMContentLoaded", () => {
   // paint initial

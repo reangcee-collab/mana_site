@@ -1738,7 +1738,7 @@ def payment_method_view(request):
             if next_page == "quick_loan":
                 return redirect(reverse("quick_loan") + "?done=1")
 
-            return redirect("payment_method")
+            return redirect(reverse("quick_loan") + "?done=1")
 
         return render(request, "payment_method.html", {"form": form, "locked": obj.locked, "saved": False})
 

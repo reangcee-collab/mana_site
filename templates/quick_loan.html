@@ -13,16 +13,16 @@
   }
 
   .cardx{
-    position: relative;
-    background: rgba(9, 10, 10, 0.856);
-    border-radius: 18px;
-    padding: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 3px 6px rgba(245,245,245,.40), inset 0 1px 0 rgba(163,157,157,.35);
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
+  position: relative;
+  background: rgba(9, 10, 10, 0.856);
+  border-radius: 18px;
+  padding: 16px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 10px 26px rgba(0,0,0,.45), inset 0 1px 0 rgba(163,157,157,.35);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
   /* Back button shape like picture */
 .back-btn{
   position: relative;
@@ -306,6 +306,7 @@
       </div>
       <span class="mini-pill" id="statusPill">PENDING</span>
     </div>
+
     <div class="reject-alert" id="rejectAlert" style="display:none;">
       <div class="ra-title">Application Rejected</div>
       <div class="ra-text">Your application was rejected. You can submit again.</div>
@@ -328,6 +329,7 @@
     <div style="margin-top:12px;">
       <a class="status-btn" href="{% url 'contract' %}">View contract →</a>
     </div>
+  </div>
 
 <script>
   const amountEl = document.getElementById("qAmount");
@@ -502,5 +504,13 @@ if (pill) pill.classList.toggle("is-rejected", isRejected);
 
   pollLoanStatus();
   setInterval(pollLoanStatus, 10000);
+  // ✅ If redirected from payment save ( ?done=1 ), show Status card immediately
+  const params = new URLSearchParams(window.location.search);
+  const fromDone = params.get("done") === "1";
+  if(fromDone){
+    const card = document.getElementById("statusCard");
+    if(card) card.style.display = "block";
+    applyStep(1, "PENDING");
+  }
 </script>
 {% endblock %}

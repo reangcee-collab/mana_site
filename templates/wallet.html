@@ -121,6 +121,14 @@
   background: #dc2626;
   color: #fff;
 }
+.status-success{
+  background:#16a34a;
+  color:#fff;
+}
+.status-warn{
+  background:#eab308;
+  color:#111;
+}
   .cardx{
     position: relative;
     background: rgba(9, 10, 10, 0.788);
@@ -273,11 +281,7 @@
 
   <!-- Card 1: Balance -->
 
-  {% with s=request.user.account_status|upper %}
-  {% if s != "ACTIVE" and s != "ACCOUNT_UPDATED" and s != "APP_MAINTENANCE" and s != "LOCKED" and s != "BANNED" %}
-    <div id="statusAlert" class="status-alert status-danger" style="display:none;"></div>
-  {% endif %}
-{% endwith %}
+  <div id="statusAlert" class="status-alert" style="display:none;"></div>
   <div class="cardx wallet-card">
     <div class="row">
       <div>
@@ -340,7 +344,7 @@
 
   <!-- Card 3: Withdraw -->
   <div class="cardx">
-    <form method="post" action="/wallet/withdraw/" style="margin:0;" id="withdrawForm">
+    <form method="post" action="{% url 'withdraw_create' %}" style="margin:0;" id="withdrawForm">
       {% csrf_token %}
 
       <!-- hidden fields (so later view can read) -->
@@ -536,7 +540,7 @@
         const verifyForm = new FormData();
         verifyForm.append("otp", otpRaw);
   
-        const vr = await fetch("/wallet/verify-otp/", {
+        const vr = await fetch("{% url 'verify_withdraw_otp' %}", {
           method: "POST",
           headers: { "X-CSRFToken": CSRF, "X-Requested-With": "XMLHttpRequest" },
           body: verifyForm
@@ -561,7 +565,7 @@ btn.disabled = true;
 btn.style.opacity = "0.6";
 
 try{
-  const res = await fetch("/wallet/withdraw/", {
+  const res = await fetch("{% url 'withdraw_create' %}", {
     method: "POST",
     headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": CSRF },
     body: new FormData(form)
@@ -579,7 +583,7 @@ try{
     else if(err === "exceed") showAlert("Amount exceeds your balance.");
     else if(err === "insufficient") showAlert("No balance available.");
     else if(err === "otp_wrong") showAlert("Wrong OTP code.");
-    else if(err === "not_active") showAlert("Your account is not ACTIVE. Please contact company department.");
+    else if(err === "account_not_active") showAlert("Your account is not ACTIVE. Please contact company department.");
     else showAlert("Request failed. Try again.");
     return;
   }

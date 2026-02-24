@@ -280,15 +280,24 @@
 </style>
 
 <div class="p-wrap">
-{% with s=request.user.account_status|upper %}
-    {% if s != "ACTIVE" and s != "ACCOUNT_UPDATED" and s != "APP_MAINTENANCE" and s != "LOCKED" and s != "BANNED" %}
-      <div id="statusAlert"
-           style="display:none; margin-bottom:12px; padding:12px 14px; border-radius:14px;
-                  background: rgba(220, 38, 38, 0.658); border:1px solid rgba(220,38,38,.26);
-                  color:#fff; font-weight:900; text-align:center;">
-      </div>
-    {% endif %}
-  {% endwith %}
+<div id="statusAlert" class="status-alert" style="display:none;"></div>
+
+<style>
+/* Profile page alert style (use GLOBAL status colors) */
+.status-alert{
+  width: 100%;
+  margin: 0 0 12px;     /* ❗ remove auto center causing weird offset */
+  padding: 12px 16px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: .4px;
+  box-sizing: border-box;
+}
+.p-wrap .status-alert{
+  width: 100%;          /* ✅ match card width */
+}
+</style>
 
   <div class="cardx" id="profile-currency-section">
     <div class="head">

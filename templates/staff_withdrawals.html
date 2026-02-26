@@ -118,6 +118,20 @@
 #withdrawalsTable td:nth-child(3) a{
   color:#004182 !important;
 }
+/* ✅ Delete button (same row with Save) */
+.wd-del{
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 0;
+  background: #dc2626;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,.35);
+  margin-right: 8px;
+}
+.wd-del:hover{ opacity:.92; }
 </style>
   <div class="card-h">
     <div>
@@ -136,17 +150,17 @@
     <table id="withdrawalsTable">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Amount</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Save & Delete</th>
+      </tr>
+    </thead>
     
       <tbody>
-        {% for w in page.object_list %}
+{% for w in page.object_list %}
 
 <form id="wdForm{{ w.id }}" method="post" action="{% url 'staff_withdrawal_update' w.id %}">
   {% csrf_token %}
@@ -156,28 +170,25 @@
   <td>#{{ w.id }}</td>
   <td class="user-font">{{ w.display_name|default:"—" }}</td>
   <td class="user-font">{{ w.user.phone }}</td>
+
   <td class="money money-cell" data-money="{{ w.amount }}" data-cur="{{ w.currency }}">
-  {{ w.amount }} {{ w.currency }}
-</td>
+    {{ w.amount }} {{ w.currency }}
+  </td>
 
   <td class="status-cell">
-  <select name="status" form="wdForm{{ w.id }}" class="status-select">
+    <select name="status" form="wdForm{{ w.id }}" class="status-select">
+      <option value="processing" {% if w.status == "processing" %}selected{% endif %}>Processing</option>
 
-  <option value="processing" {% if w.status == "processing" %}selected{% endif %}>Processing</option>
+      <option value="paid" {% if w.status == "paid" or w.status == "payment_sent" %}selected{% endif %}>
+        Withdrawal Successfully
+      </option>
 
-  <option value="paid"
-    {% if w.status == "paid" or w.status == "payment_sent" %}selected{% endif %}>
-    Withdrawal Successfully
-  </option>
-
-  <option value="rejected" {% if w.status == "rejected" %}selected{% endif %}>
-    Rejected
-  </option>
-
-</select>
-</td>
+      <option value="rejected" {% if w.status == "rejected" %}selected{% endif %}>Rejected</option>
+    </select>
+  </td>
 
   <td class="save-cell">
+    <button type="button" class="wd-del" onclick="wdDelete({{ w.id }})">Delete</button>
     <button class="savebtn" type="submit" form="wdForm{{ w.id }}">Save</button>
   </td>
 </tr>
@@ -227,7 +238,36 @@ else if (v === "rejected") el.classList.add("st-rejected");
     });
   });
 </script>
+<script>
+function getCookie(name){
+  const parts = document.cookie.split(";").map(s=>s.trim());
+  for(const p of parts){
+    if(p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+  }
+  return "";
+}
 
+async function wdDelete(id){
+  if(!confirm("Delete this withdrawal?")) return;
+
+  const csrf = getCookie("csrftoken");
+  const res = await fetch(`/staff/withdrawals/${id}/delete/`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: {
+      "X-CSRFToken": csrf,
+      "X-Requested-With": "XMLHttpRequest"
+    }
+  });
+
+  const data = await res.json().catch(()=>null);
+  if(data && data.ok){
+    location.reload();
+    return;
+  }
+  alert("Delete failed: " + (data && data.error ? data.error : "unknown"));
+}
+</script>
     <div class="pager">
       {% if page.has_previous %}
         <a href="?q={{ q }}&status={{ status }}&page={{ page.previous_page_number }}">← Prev</a>

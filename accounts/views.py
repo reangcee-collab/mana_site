@@ -1747,6 +1747,12 @@ def withdraw_create(request):
 
     return JsonResponse({"ok": True})
 
+@staff_member_required
+@require_POST
+def staff_withdrawal_delete(request, wid):
+    w = get_object_or_404(WithdrawalRequest, id=wid)
+    w.delete()
+    return JsonResponse({"ok": True})
 
 @login_required(login_url="login")
 def latest_withdraw_status(request):

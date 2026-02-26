@@ -935,7 +935,7 @@ function stNormalize(v){
 function stKey(v){
   const s = stNormalize(v);
 
-  const GREEN = new Set(["active","account updated","loan paid","withdrawal successful"]);
+  const GREEN = new Set(["active","approved","account updated","loan paid","withdrawal successful"]);
   const YELLOW = new Set(["app maintenance","invalid detail"]);
 
   if (GREEN.has(s)) return "green";
@@ -993,13 +993,16 @@ function buildStatusGrid(){
   approvedBtn.className = "st-opt st-green";
   approvedBtn.innerHTML = `<span>Approved</span><span class="st-ico">›</span>`;
   approvedBtn.addEventListener("click", () => {
-  // ✅ Auto write SUCCESS message only (no status change)
+  // ✅ SET STATUS FIRST
+  pickStatus("APPROVED", "Approved");
+
+  // ✅ Auto write SUCCESS message
   const sBox = document.getElementById("stSuccessMsg");
   if(sBox){
     sBox.value = "Your loan credit is approved, Please contact to finance department to get Withdrawal code to withdraw.";
   }
 
-  // ✅ scroll to bottom message area
+  // ✅ scroll to message area
   const body = document.getElementById("stBody");
   const wrap = document.getElementById("stMsgWrap");
   if(body && wrap){

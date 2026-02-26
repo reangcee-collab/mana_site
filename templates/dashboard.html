@@ -730,7 +730,8 @@
   {% with key=raw|cut:" "|cut:"_" %}
     <span id="accStatusBadge"
           class="status-badge
-            {% if key == 'ACTIVE' or key == 'ACCOUNTUPDATED' or key == 'LOANPAID' or key == 'WITHDRAWALSUCCESSFUL' %}
+            {% if key == 'ACTIVE' or key == 'APPROVED' or key == 'ACCOUNTUPDATED' or key == 'LOANPAID' or key == 'WITHDRAWALSUCCESSFUL' %}
+  status-active
               status-active
             {% elif key == 'APPMAINTENANCE' %}
               status-warn

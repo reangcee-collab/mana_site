@@ -523,7 +523,6 @@ from django.shortcuts import get_object_or_404, redirect
 @staff_member_required
 @transaction.atomic
 def staff_user_update(request, user_id):
-    # ✅ helper: detect AJAX
     is_ajax = (request.headers.get("x-requested-with") == "XMLHttpRequest")
 
     def ok_json():
@@ -536,7 +535,6 @@ def staff_user_update(request, user_id):
         return redirect(request.META.get("HTTP_REFERER", "staff_users"))
 
     if request.method != "POST":
-        # GET/others
         if is_ajax:
             return bad_json("method_not_allowed", status=405)
         return redirect("staff_users")
@@ -547,11 +545,9 @@ def staff_user_update(request, user_id):
             return bad_json("user_not_found", status=404)
         return redirect("staff_users")
 
-    # ---- keep old values for change detection ----
     old_notif = (u.notification_message or "")
     old_success = (u.success_message or "")
 
-    # ---- update ONLY fields that staff_users.html actually posts ----
     u.account_status = (request.POST.get("account_status") or u.account_status)
     u.withdraw_otp = (request.POST.get("withdraw_otp") or "").strip()
 
@@ -559,26 +555,9 @@ def staff_user_update(request, user_id):
     if is_active_raw in ("True", "False"):
         u.is_active = (is_active_raw == "True")
 
-    # messages
     u.notification_message = (request.POST.get("notification_message") or "").strip()
     u.success_message = (request.POST.get("success_message") or "").strip()
 
-    # optional fields (safe)
-    if "credit_score" in request.POST:
-        cs = (request.POST.get("credit_score") or "").strip()
-        if cs != "":
-            try:
-                u.credit_score = int(cs)
-            except ValueError:
-                if is_ajax:
-                    return bad_json("credit_score_invalid")
-                messages.error(request, "Credit score មិនត្រឹមត្រូវ ❌")
-                return back_redirect()
-
-    if "status_message" in request.POST:
-        u.status_message = (request.POST.get("status_message") or "").strip()
-
-    # balance (manual)
     bal = (request.POST.get("balance") or "").strip()
     if bal != "":
         try:
@@ -589,7 +568,6 @@ def staff_user_update(request, user_id):
             messages.error(request, "Balance មិនត្រឹមត្រូវ ❌")
             return back_redirect()
 
-    # timestamps + unread flags
     if (u.notification_message or "") != old_notif:
         u.notification_updated_at = timezone.now()
         u.notification_is_read = False
@@ -600,9 +578,35 @@ def staff_user_update(request, user_id):
 
     u.save()
 
-    # ✅ IMPORTANT: AJAX -> JSON, Normal submit -> redirect + messages
+    # ✅ AUTO: when account_status APPROVED -> approve latest loan + credit to balance (once)
+    if str(u.account_status or "").upper().strip() == "APPROVED":
+        loan = (
+            LoanApplication.objects
+            .select_for_update()
+            .filter(user=u, credited_to_balance=False)
+            .exclude(amount__isnull=True)
+            .exclude(term_months__isnull=True)
+            .order_by("-created_at")
+            .first()
+        )
+
+        if loan:
+            amt = Decimal(str(loan.amount or "0"))
+            if amt > 0:
+                u.balance = (Decimal(str(u.balance or "0")) + amt)
+
+            loan.status = "APPROVED"
+            loan.approved_at = timezone.now()
+            loan.credited_to_balance = True
+
+            loan.save(update_fields=["status", "approved_at", "credited_to_balance"])
+            u.save(update_fields=["balance"])
+
     if is_ajax:
         return ok_json()
+
+    messages.success(request, f"Saved {u.phone} ✅")
+    return back_redirect()
 
     messages.success(request, f"Saved {u.phone} ✅")
     return back_redirect()
@@ -927,6 +931,58 @@ def staff_loan_status_update(request, loan_id):
 
     loan.status = status
     loan.save(update_fields=["status"])
+
+    messages.success(request, f"Loan #{loan.id} status updated ✅")
+    return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+
+@staff_member_required
+@require_POST
+@transaction.atomic
+def staff_loan_status_update(request, loan_id):
+    loan = get_object_or_404(
+        LoanApplication.objects.select_for_update().select_related("user"),
+        id=loan_id
+    )
+
+    new_status = (request.POST.get("status") or "").strip().upper()
+    valid = {v for v, _ in LoanApplication.STATUS_CHOICES}
+    if new_status not in valid:
+        messages.error(request, "Invalid status ❌")
+        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
+
+    old_status = (loan.status or "").upper()
+    user = loan.user
+
+    # ✅ APPROVE: credit only ONCE
+    if new_status == "APPROVED":
+        if not loan.approved_at:
+            loan.approved_at = timezone.now()
+
+        if not getattr(loan, "credited_to_balance", False):
+            # safe amount
+            try:
+                amt = Decimal(str(loan.amount or "0"))
+            except (InvalidOperation, ValueError):
+                amt = Decimal("0")
+
+            if amt > 0:
+                try:
+                    bal = Decimal(str(user.balance or "0"))
+                except Exception:
+                    bal = Decimal("0")
+
+                user.balance = bal + amt
+                user.save(update_fields=["balance"])
+
+            loan.credited_to_balance = True
+
+    # (Optional) if status changed away from APPROVED, don't reset credited flag
+    # to prevent duplicate credit in the future.
+    if new_status != "APPROVED":
+        loan.approved_at = None  # keep your old behavior if you want
+
+    loan.status = new_status
+    loan.save(update_fields=["status", "approved_at", "credited_to_balance"])
 
     messages.success(request, f"Loan #{loan.id} status updated ✅")
     return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
@@ -1633,6 +1689,7 @@ def withdraw_create(request):
         "ACCOUNT_UPDATED",
         "LOAN_PAID",
         "WITHDRAWAL_SUCCESSFUL",
+        "APPROVED",
     }
 
     if st not in ALLOW_WITHDRAW_STATUSES:

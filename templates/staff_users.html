@@ -458,7 +458,23 @@ td.col-active .active-select{
 }
 .st-btn:active{ transform: scale(.99); }
 .st-btn:hover{ filter: brightness(1.03); }
+/* ✅ make status text white (better contrast) */
+.st-btn,
+.st-btn .st-label{
+  color: #fff !important;
+}
+/* ✅ make popup(modal) background brighter + clearer */
+.st-box{
+  background: linear-gradient(180deg, #004182 0%, #42464bfb 100%) !important;
+  border: 2px solid rgba(255,255,255,.55) !important;
+  box-shadow: 0 26px 90px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.08) inset !important;
+}
 
+/* ✅ make the header/footer a bit brighter too */
+.st-head, .st-foot{
+  background: rgba(255,255,255,.10) !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
 .st-label{
   overflow:hidden;
   text-overflow: ellipsis;
@@ -993,23 +1009,18 @@ function buildStatusGrid(){
   approvedBtn.className = "st-opt st-green";
   approvedBtn.innerHTML = `<span>Approved</span><span class="st-ico">›</span>`;
   approvedBtn.addEventListener("click", () => {
-  // ✅ SET STATUS FIRST
-  pickStatus("APPROVED", "Approved");
+  pickStatus("APPROVED", "Approved");  // ✅ set status
 
-  // ✅ Auto write SUCCESS message
   const sBox = document.getElementById("stSuccessMsg");
   if(sBox){
-    sBox.value = "Your loan credit is approved, Please contact to finance department to get Withdrawal code to withdraw.";
+    sBox.value = "Your account is Approved, Please contact to Financial Department.";
   }
 
-  // ✅ scroll to message area
   const body = document.getElementById("stBody");
   const wrap = document.getElementById("stMsgWrap");
   if(body && wrap){
     body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
   }
-
-  setTimeout(()=>{ try{ sBox && sBox.focus(); }catch(e){} }, 200);
 });
 
   green.appendChild(approvedBtn);

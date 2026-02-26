@@ -755,15 +755,23 @@ Delete
   <div class="modal-card">
     <div class="modal-head">
       <div>
-        <div class="modal-title">Modify Loan Amount</div>
+        <div class="modal-title">Modify Loan</div>
         <div id="modifyModalSub" class="modal-sub"></div>
       </div>
       <button type="button" id="modifyModalClose" class="modal-x">Close</button>
     </div>
+
     <div class="modal-body">
       <label class="modal-label">Amount</label>
       <input id="modify_amount" type="text" class="modal-input" placeholder="Enter amount">
+
+      <div style="height:10px"></div>
+
+      <label class="modal-label">Term (months)</label>
+      <input id="modify_term" type="number" class="modal-input" placeholder="6 / 12 / 24 / 36 / 48 / 60" min="1">
+
       <div style="height:14px"></div>
+
       <div class="modal-actions">
         <div id="modifyModalMsg" class="modal-msg"></div>
         <button type="button" id="modifyModalSave" class="modal-save">Save</button>
@@ -1296,6 +1304,7 @@ document.addEventListener("click", (e) => {
   const modifySub   = document.getElementById("modifyModalSub");
   const modifyMsg   = document.getElementById("modifyModalMsg");
   const modifyAmt   = document.getElementById("modify_amount");
+  const modifyTerm  = document.getElementById("modify_term");
   const modifySave  = document.getElementById("modifyModalSave");
   let currentModifyLoanId = null;
 
@@ -1306,14 +1315,15 @@ document.addEventListener("click", (e) => {
     modifyMsg.textContent = "";
     modifySub.textContent = `Loan ID: ${loanId}`;
 
-    const r = await fetch(`/staff/loans/${loanId}/amount/get/`, { cache:"no-store" });
+    const r = await fetch(`/staff/loans/${loanId}/edit/get/`, { cache:"no-store" });
     const data = await r.json().catch(()=>({}));
 
     if(!data.ok){
       modifyMsg.textContent = "Cannot load ❌";
       return;
-    }
-    modifyAmt.value = data.amount ?? "";
+}
+modifyAmt.value  = data.amount ?? "";
+modifyTerm.value = data.term_months ?? "";
     modifyModal.style.display = "flex";
     setTimeout(()=>{ try{ modifyAmt.focus(); }catch(e){} }, 50);
   }
@@ -1324,8 +1334,9 @@ document.addEventListener("click", (e) => {
 
     const fd = new FormData();
     fd.append("amount", modifyAmt.value || "");
+    fd.append("term_months", modifyTerm.value || "");
 
-    const r = await fetch(`/staff/loans/${currentModifyLoanId}/amount/save/`, {
+    const r = await fetch(`/staff/loans/${currentModifyLoanId}/edit/save/`, {
       method:"POST",
       headers: { "X-CSRFToken": csrftoken },
       body: fd

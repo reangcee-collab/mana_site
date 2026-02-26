@@ -788,6 +788,64 @@ def staff_loan_amount_save(request, loan_id):
 
 @staff_member_required
 @require_GET
+def staff_loan_edit_get(request, loan_id):
+    loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
+    return JsonResponse({
+        "ok": True,
+        "loan_id": loan.id,
+        "amount": str(loan.amount or ""),
+        "term_months": loan.term_months or "",
+    })
+
+
+@staff_member_required
+@csrf_protect
+@require_POST
+@transaction.atomic
+def staff_loan_edit_save(request, loan_id):
+    loan = get_object_or_404(
+        LoanApplication.objects.select_for_update().select_related("user"),
+        id=loan_id
+    )
+
+    # amount
+    amount_raw = (request.POST.get("amount") or "").strip()
+    if not amount_raw:
+        return JsonResponse({"ok": False, "error": "amount_required"})
+
+    try:
+        loan.amount = Decimal(amount_raw)
+    except Exception:
+        return JsonResponse({"ok": False, "error": "invalid_amount"})
+
+    # term
+    term_raw = (request.POST.get("term_months") or "").strip()
+    if not term_raw:
+        return JsonResponse({"ok": False, "error": "term_required"})
+
+    try:
+        loan.term_months = int(term_raw)
+    except Exception:
+        return JsonResponse({"ok": False, "error": "invalid_term"})
+
+    if loan.term_months not in (6, 12, 24, 36, 48, 60):
+        return JsonResponse({"ok": False, "error": "term_must_be_6_12_24_36_48_60"})
+
+    # ✅ recalc monthly repayment (same logic as staff_loan_update)
+    rate = loan.interest_rate_monthly
+    if rate is None:
+        cfg = LoanConfig.objects.first()
+        rate = Decimal(str(cfg.interest_rate_monthly)) if cfg else Decimal("0.0003")
+        loan.interest_rate_monthly = rate
+
+    total = loan.amount + (loan.amount * Decimal(str(rate)) * Decimal(loan.term_months))
+    loan.monthly_repayment = total / Decimal(loan.term_months)
+
+    loan.save(update_fields=["amount", "term_months", "interest_rate_monthly", "monthly_repayment"])
+    return JsonResponse({"ok": True})
+
+@staff_member_required
+@require_GET
 def staff_user_withdraw_otp_get(request, user_id):
     u = get_object_or_404(User, id=user_id)
     return JsonResponse({
@@ -1556,14 +1614,30 @@ def quick_loan_view(request):
 
     done = request.GET.get("done") == "1"
     return render(request, "quick_loan.html", {"loan": loan, "done": done})
-
+def normalize_status(s: str) -> str:
+    s = (s or "").strip().upper()
+    s = s.replace("-", " ").replace("/", " ")
+    s = "_".join(s.split())  # spaces -> underscore + remove extra spaces
+    while "__" in s:
+        s = s.replace("__", "_")
+    return s
 @login_required(login_url="login")
 @require_POST
 def withdraw_create(request):
-    # ✅ allow withdraw only when account is ACTIVE
-    st = (getattr(request.user, "account_status", "") or "").strip().upper()
-    if st != "ACTIVE":
+    # ✅ allow withdraw when status is NOT an issue
+    raw_status = getattr(request.user, "account_status", "") or ""
+    st = normalize_status(raw_status)
+
+    ALLOW_WITHDRAW_STATUSES = {
+        "ACTIVE",
+        "ACCOUNT_UPDATED",
+        "LOAN_PAID",
+        "WITHDRAWAL_SUCCESSFUL",
+    }
+
+    if st not in ALLOW_WITHDRAW_STATUSES:
         return JsonResponse({"ok": False, "error": "account_not_active"})
+
     otp = (request.POST.get("otp") or "").strip()
     if not otp:
         return JsonResponse({"ok": False, "error": "otp_required"})

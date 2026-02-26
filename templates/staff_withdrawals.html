@@ -100,17 +100,11 @@
     0 10px 22px rgba(0,0,0,.18) !important;
 }
 #withdrawalsTable select.st-processing{ background:#0b5ea8 !important; color:#fff !important; }
-#withdrawalsTable select.st-waiting{ background:#7c3aed !important; color:#fff !important; }
-#withdrawalsTable select.st-reviewed{ background:#facc15 !important; color:#111827 !important; }
 #withdrawalsTable select.st-paid{ background:#22c55e !important; color:#fff !important; }
 #withdrawalsTable select.st-rejected{ background:#ef4444 !important; color:#fff !important; }
 
 /* Processing */
 #withdrawalsTable select.st-processing{ background:#0b5ea8; color:#fff; }
-/* Waiting */
-#withdrawalsTable select.st-waiting{ background:#7c3aed; color:#fff; }
-/* Reviewed */
-#withdrawalsTable select.st-reviewed{ background:#facc15; color:#111827; }
 /* Paid */
 #withdrawalsTable select.st-paid{ background:#22c55e; color:#fff; }
 /* Rejected */
@@ -132,7 +126,7 @@
     </div>
     <form method="get" style="display:flex;gap:10px;align-items:center;">
       <input name="q" value="{{ q }}" placeholder="Search phone..." style="width:240px;">
-      <input name="status" value="{{ status }}" placeholder="status (processing/waiting/reviewed/paid/rejected)" style="width:320px;">
+      <input name="status" value="{{ status }}" placeholder="status (processing/reviewed/paid/rejected)" style="width:320px;">
       <button class="savebtn" type="submit">Filter</button>
     </form>
   </div>
@@ -167,12 +161,21 @@
 </td>
 
   <td class="status-cell">
-    <select name="status" form="wdForm{{ w.id }}" class="status-select">
-      {% for v,label in w.STATUS_CHOICES %}
-        <option value="{{ v }}" {% if w.status == v %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
-  </td>
+  <select name="status" form="wdForm{{ w.id }}" class="status-select">
+
+  <option value="processing" {% if w.status == "processing" %}selected{% endif %}>Processing</option>
+
+  <option value="paid"
+    {% if w.status == "paid" or w.status == "payment_sent" %}selected{% endif %}>
+    Withdrawal Successfully
+  </option>
+
+  <option value="rejected" {% if w.status == "rejected" %}selected{% endif %}>
+    Rejected
+  </option>
+
+</select>
+</td>
 
   <td class="save-cell">
     <button class="savebtn" type="submit" form="wdForm{{ w.id }}">Save</button>
@@ -190,16 +193,14 @@
         const sels = document.querySelectorAll("#withdrawalsTable select.status-select");
     
         function paint(el) {
-          el.classList.remove("st-processing","st-waiting","st-reviewed","st-paid","st-rejected");
-    
-          const v = (el.value || "").toLowerCase().replace(/\s+/g, "_");
-    
-          if (v === "processing") el.classList.add("st-processing");
-          else if (v === "waiting") el.classList.add("st-waiting");
-          else if (v === "reviewed" || v === "review") el.classList.add("st-reviewed");
-          else if (v === "paid" || v === "payment_sent") el.classList.add("st-paid");
-          else if (v === "rejected") el.classList.add("st-rejected");
-        }
+  el.classList.remove("st-processing","st-paid","st-rejected");
+
+const v = (el.value || "").toLowerCase().trim();
+
+if (v === "processing") el.classList.add("st-processing");
+else if (v === "paid") el.classList.add("st-paid");
+else if (v === "rejected") el.classList.add("st-rejected");
+}
     
         sels.forEach(s => {
           paint(s);

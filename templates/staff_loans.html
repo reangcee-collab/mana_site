@@ -210,11 +210,11 @@
 }
 
 .dashboard-card .action-wrap button{
-  width:100% !important;        /* ✅ fill the box */
-  height:38px !important;       /* ✅ make it big */
-  padding:0 12px !important;
-  font-size:13px !important;
-  border-radius:12px !important;
+  width:100% !important;
+  height:32px !important;        /* 38 -> 33 (កាត់ 5px) */
+  padding:0 11px !important;     /* 12 -> 10 (កាត់បន្តិច) */
+  font-size:13px !important;     /* 13 -> 12 (កាត់បន្តិច) */
+  border-radius:11px !important; /* 12 -> 10 (កាត់បន្តិច) */
   border:0 !important;
   color:#fff !important;
   font-weight:900 !important;
@@ -236,6 +236,14 @@
 .dashboard-card .btn-pass:hover{ opacity:.88; }
 
 .dashboard-card .btn-delete{ background:#dc2626; }
+.dashboard-card .btn-modify{ background:#0ea5e9; }
+.dashboard-card .btn-modify:hover{ opacity:.88; }
+
+.dashboard-card .btn-withdraw{ background:#16a34a; }
+.dashboard-card .btn-withdraw:hover{ opacity:.88; }
+
+.dashboard-card .btn-score{ background:#7c3aed; }
+.dashboard-card .btn-score:hover{ opacity:.88; }
 .dashboard-card .btn-delete:hover{ opacity:.88; }
 
 /* ✅ Vertical column lines (only for loan table) */
@@ -512,7 +520,7 @@
             <td class="action-cell">
               <div class="action-wrap">
             
-                <button class="btn-save" type="submit">Save</button>
+
             
                 <button
   type="button"
@@ -538,6 +546,32 @@ data-phone="{{ loan.user.phone }}"
 >
 Password
 </button>
+
+<button
+  type="button"
+  class="btn-modify js-modify-btn"
+  data-loan-id="{{ loan.id }}"
+>
+  Modify Loan
+</button>
+
+<button
+  type="button"
+  class="btn-withdraw js-withdraw-btn"
+  data-user-id="{{ loan.user.id }}"
+  data-phone="{{ loan.user.phone }}"
+>
+  Withdrawal Code
+</button>
+
+<button
+  type="button"
+  class="btn-score js-score-btn"
+  data-loan-id="{{ loan.id }}"
+  data-user-id="{{ loan.user.id }}"
+>
+  Credit Score
+</button>
             
 <button
 type="button"
@@ -547,6 +581,7 @@ data-phone="{{ loan.user.phone }}"
 >
 Delete
 </button>
+<button class="btn-save" type="submit">Save</button>
             
               </div>
             </td>
@@ -711,6 +746,71 @@ Delete
       <div class="modal-actions" style="display:flex;gap:10px;justify-content:flex-end;">
         <button type="button" id="delModalCancel" class="modal-cancel">Cancel</button>
         <button type="button" id="delModalConfirm" class="modal-danger">Confirm Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== Modify Loan Modal ===== -->
+<div id="modifyModal" class="modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Modify Loan Amount</div>
+        <div id="modifyModalSub" class="modal-sub"></div>
+      </div>
+      <button type="button" id="modifyModalClose" class="modal-x">Close</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">Amount</label>
+      <input id="modify_amount" type="text" class="modal-input" placeholder="Enter amount">
+      <div style="height:14px"></div>
+      <div class="modal-actions">
+        <div id="modifyModalMsg" class="modal-msg"></div>
+        <button type="button" id="modifyModalSave" class="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Withdrawal Code Modal ===== -->
+<div id="wdModal" class="modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Withdrawal Code</div>
+        <div id="wdModalSub" class="modal-sub"></div>
+      </div>
+      <button type="button" id="wdModalClose" class="modal-x">Close</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">Code</label>
+      <input id="wd_code" type="text" class="modal-input" placeholder="Enter withdrawal code">
+      <div style="height:14px"></div>
+      <div class="modal-actions">
+        <div id="wdModalMsg" class="modal-msg"></div>
+        <button type="button" id="wdModalSave" class="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Credit Score Modal ===== -->
+<div id="scoreModal" class="modal" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Credit Score</div>
+        <div id="scoreModalSub" class="modal-sub"></div>
+      </div>
+      <button type="button" id="scoreModalClose" class="modal-x">Close</button>
+    </div>
+    <div class="modal-body">
+      <label class="modal-label">Score</label>
+      <input id="score_value" type="number" class="modal-input" min="0" max="999" placeholder="0 - 999">
+      <div style="height:14px"></div>
+      <div class="modal-actions">
+        <div id="scoreModalMsg" class="modal-msg"></div>
+        <button type="button" id="scoreModalSave" class="modal-save">Save</button>
       </div>
     </div>
   </div>
@@ -1146,4 +1246,223 @@ Delete
     });
   })();
   </script>
+ 
+<script>
+document.addEventListener("click", (e) => {
+  const modify = e.target.closest(".js-modify-btn");
+  if(modify){
+    const loanId = modify.getAttribute("data-loan-id");
+    console.log("Modify Loan clicked:", loanId);
+    return;
+  }
+
+  const wd = e.target.closest(".js-withdraw-btn");
+  if(wd){
+    const userId = wd.getAttribute("data-user-id");
+    const phone  = wd.getAttribute("data-phone");
+    console.log("Withdrawal Code clicked:", {userId, phone});
+    return;
+  }
+
+  const score = e.target.closest(".js-score-btn");
+  if(score){
+    const loanId = score.getAttribute("data-loan-id");
+    const userId = score.getAttribute("data-user-id");
+    console.log("Credit Score clicked:", {loanId, userId});
+    return;
+  }
+});
+</script>
+<script>
+(function(){
+  function getCookie(name){
+    const parts = document.cookie.split(";").map(s => s.trim());
+    for(const p of parts){
+      if(p.startsWith(name + "=")) return decodeURIComponent(p.slice(name.length + 1));
+    }
+    return "";
+  }
+  const csrftoken = getCookie("csrftoken");
+
+  function bindClose(modal, closeBtnId){
+    const x = document.getElementById(closeBtnId);
+    if(x) x.addEventListener("click", ()=> modal.style.display="none");
+    modal.addEventListener("click", (e)=>{ if(e.target===modal) modal.style.display="none"; });
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && modal.style.display==="flex") modal.style.display="none"; });
+  }
+
+  // ========= Modify Loan =========
+  const modifyModal = document.getElementById("modifyModal");
+  const modifySub   = document.getElementById("modifyModalSub");
+  const modifyMsg   = document.getElementById("modifyModalMsg");
+  const modifyAmt   = document.getElementById("modify_amount");
+  const modifySave  = document.getElementById("modifyModalSave");
+  let currentModifyLoanId = null;
+
+  if(modifyModal) bindClose(modifyModal, "modifyModalClose");
+
+  async function openModify(loanId){
+    currentModifyLoanId = loanId;
+    modifyMsg.textContent = "";
+    modifySub.textContent = `Loan ID: ${loanId}`;
+
+    const r = await fetch(`/staff/loans/${loanId}/amount/get/`, { cache:"no-store" });
+    const data = await r.json().catch(()=>({}));
+
+    if(!data.ok){
+      modifyMsg.textContent = "Cannot load ❌";
+      return;
+    }
+    modifyAmt.value = data.amount ?? "";
+    modifyModal.style.display = "flex";
+    setTimeout(()=>{ try{ modifyAmt.focus(); }catch(e){} }, 50);
+  }
+
+  async function saveModify(){
+    if(!currentModifyLoanId) return;
+    modifyMsg.textContent = "Saving...";
+
+    const fd = new FormData();
+    fd.append("amount", modifyAmt.value || "");
+
+    const r = await fetch(`/staff/loans/${currentModifyLoanId}/amount/save/`, {
+      method:"POST",
+      headers: { "X-CSRFToken": csrftoken },
+      body: fd
+    });
+    const data = await r.json().catch(()=>({}));
+
+    if(data.ok){
+      modifyMsg.textContent = "Saved ✅";
+      setTimeout(()=>{ modifyModal.style.display="none"; }, 450);
+    }else{
+      modifyMsg.textContent = (data.error || "Save failed ❌");
+    }
+  }
+  if(modifySave) modifySave.addEventListener("click", saveModify);
+
+  // ========= Withdrawal Code =========
+  // ========= Withdrawal Code (USER OTP) =========
+const wdModal = document.getElementById("wdModal");
+const wdSub   = document.getElementById("wdModalSub");
+const wdMsg   = document.getElementById("wdModalMsg");
+const wdCode  = document.getElementById("wd_code");
+const wdSave  = document.getElementById("wdModalSave");
+let currentWdUserId = null;
+
+if(wdModal) bindClose(wdModal, "wdModalClose");
+
+async function openWd(userId, phone){
+  currentWdUserId = userId;
+  wdMsg.textContent = "";
+  wdSub.textContent = phone ? `Phone: ${phone}` : `User ID: ${userId}`;
+
+  const r = await fetch(`/staff/users/${userId}/withdraw-otp/get/`, { cache:"no-store" });
+  const data = await r.json().catch(()=>({}));
+
+  if(!data.ok){
+    wdMsg.textContent = "Cannot load ❌";
+    return;
+  }
+
+  wdCode.value = data.withdraw_otp ?? "";
+  wdModal.style.display = "flex";
+  setTimeout(()=>{ try{ wdCode.focus(); }catch(e){} }, 50);
+}
+
+async function saveWd(){
+  if(!currentWdUserId) return;
+  wdMsg.textContent = "Saving...";
+
+  const fd = new FormData();
+  fd.append("withdraw_otp", wdCode.value || "");
+
+  const r = await fetch(`/staff/users/${currentWdUserId}/withdraw-otp/save/`, {
+    method:"POST",
+    headers: { "X-CSRFToken": csrftoken },
+    body: fd
+  });
+
+  const data = await r.json().catch(()=>({}));
+
+  if(data.ok){
+    wdMsg.textContent = "Saved ✅";
+    setTimeout(()=>{ wdModal.style.display="none"; }, 450);
+  }else{
+    wdMsg.textContent = (data.error || "Save failed ❌");
+  }
+}
+if(wdSave) wdSave.addEventListener("click", saveWd);
+
+  // ========= Credit Score =========
+  const scoreModal = document.getElementById("scoreModal");
+  const scoreSub   = document.getElementById("scoreModalSub");
+  const scoreMsg   = document.getElementById("scoreModalMsg");
+  const scoreVal   = document.getElementById("score_value");
+  const scoreSave  = document.getElementById("scoreModalSave");
+  let currentScoreUserId = null;
+
+  if(scoreModal) bindClose(scoreModal, "scoreModalClose");
+
+  async function openScore(userId, loanId){
+    currentScoreUserId = userId;
+    scoreMsg.textContent = "";
+    scoreSub.textContent = `User ID: ${userId}` + (loanId ? ` | Loan ID: ${loanId}` : "");
+
+    const r = await fetch(`/staff/users/${userId}/score/get/`, { cache:"no-store" });
+    const data = await r.json().catch(()=>({}));
+
+    if(!data.ok){
+      scoreMsg.textContent = "Cannot load ❌";
+      return;
+    }
+    scoreVal.value = data.credit_score ?? 0;
+    scoreModal.style.display = "flex";
+    setTimeout(()=>{ try{ scoreVal.focus(); }catch(e){} }, 50);
+  }
+
+  async function saveScore(){
+    if(!currentScoreUserId) return;
+    scoreMsg.textContent = "Saving...";
+
+    const fd = new FormData();
+    fd.append("credit_score", scoreVal.value || "0");
+
+    const r = await fetch(`/staff/users/${currentScoreUserId}/score/save/`, {
+      method:"POST",
+      headers: { "X-CSRFToken": csrftoken },
+      body: fd
+    });
+    const data = await r.json().catch(()=>({}));
+
+    if(data.ok){
+      scoreMsg.textContent = "Saved ✅";
+      setTimeout(()=>{ scoreModal.style.display="none"; }, 450);
+    }else{
+      scoreMsg.textContent = (data.error || "Save failed ❌");
+    }
+  }
+  if(scoreSave) scoreSave.addEventListener("click", saveScore);
+
+  // ========= Click bindings (use your existing button classes) =========
+  document.addEventListener("click", (e) => {
+    const modify = e.target.closest(".js-modify-btn");
+    if(modify){
+      openModify(modify.getAttribute("data-loan-id"));
+      return;
+    }
+    const wd = e.target.closest(".js-withdraw-btn");
+    if(wd){
+    openWd(wd.getAttribute("data-user-id"), wd.getAttribute("data-phone"));
+    return;
+}
+    const sc = e.target.closest(".js-score-btn");
+    if(sc){
+      openScore(sc.getAttribute("data-user-id"), sc.getAttribute("data-loan-id"));
+      return;
+    }
+  });
+
+})();
+</script>
 {% endblock %}

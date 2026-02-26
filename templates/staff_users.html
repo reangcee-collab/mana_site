@@ -61,10 +61,10 @@
               <!-- 4) BALANCE -->
               <td class="balance-cell">
   <input name="balance"
-         value="{{ u.balance|floatformat:2|intcomma }}"
-         form="uform-{{ u.id }}"
-         class="balance-input"
-         autocomplete="off">
+       value="{{ u.balance|floatformat:2 }}"
+       form="uform-{{ u.id }}"
+       class="balance-input"
+       autocomplete="off">
 </td>
 
 <!-- ✅ NEW REGISTER INFO (readonly display) -->
@@ -93,16 +93,16 @@
 
   <!-- ✅ NEW: hidden success + alert message fields (submitted with Save) -->
   <input type="hidden"
-         name="success_message"
-         form="uform-{{ u.id }}"
-         id="successHidden-{{ u.id }}"
-         value="{{ u.success_message|default:''|escapejs }}">
+       name="success_message"
+       form="uform-{{ u.id }}"
+       id="successHidden-{{ u.id }}"
+       value="{{ u.success_message|default:''|escape }}">
 
-  <input type="hidden"
-         name="notification_message"
-         form="uform-{{ u.id }}"
-         id="alertHidden-{{ u.id }}"
-         value="{{ u.notification_message|default:''|escapejs }}">
+<input type="hidden"
+       name="notification_message"
+       form="uform-{{ u.id }}"
+       id="alertHidden-{{ u.id }}"
+       value="{{ u.notification_message|default:''|escape }}">
 
   <!-- Button trigger -->
   <button type="button"
@@ -875,6 +875,7 @@ async function confirmUserDelete(){
 </script>
 
 <!-- ✅ Status Picker Modal (REPLACE WHOLE MODAL BLOCK) -->
+<!-- ✅ Status Picker Modal -->
 <div id="statusModal" class="st-modal" style="display:none;">
   <div class="st-box" role="dialog" aria-modal="true" aria-label="Change Status">
     <div class="st-head">
@@ -882,7 +883,7 @@ async function confirmUserDelete(){
       <button type="button" class="st-x" onclick="closeStatusModal()">×</button>
     </div>
 
-    <div class="st-body">
+    <div class="st-body" id="stBody">
       <div class="st-group">
         <div class="st-gtitle st-g-green">GREEN</div>
         <div class="st-grid" id="stGreenGrid"></div>
@@ -898,8 +899,8 @@ async function confirmUserDelete(){
         <div class="st-grid" id="stRedGrid"></div>
       </div>
 
-      <!-- ✅ Message Boxes INSIDE the popout card (clean + joined) -->
-      <div class="st-msgwrap">
+      <!-- ✅ Message Boxes -->
+      <div class="st-msgwrap" id="stMsgWrap">
         <div class="st-msgbox st-msg-success">
           <div class="st-msgtitle">SUCCESS MESSAGE</div>
           <textarea id="stSuccessMsg" class="st-msginput" placeholder="Type success message..."></textarea>
@@ -912,7 +913,7 @@ async function confirmUserDelete(){
 
         <div class="st-msgactions">
           <button type="button" class="st-msgsave" onclick="applyAll()">Apply Messages</button>
-<button type="button" class="st-msgsave" style="background:rgba(255,255,255,.12)" onclick="clearMsgBoxes()">Clear</button>
+          <button type="button" class="st-msgsave" style="background:rgba(255,255,255,.12)" onclick="clearMsgBoxes()">Clear</button>
         </div>
       </div>
     </div>
@@ -922,8 +923,6 @@ async function confirmUserDelete(){
     </div>
   </div>
 </div>
-</div>
-
 <script>
   
 let __STATUS_TARGET_BTN = null;
@@ -988,48 +987,72 @@ function buildStatusGrid(){
   yellow.innerHTML = "";
   red.innerHTML = "";
 
-  // ✅ IMPORTANT: we cannot access Django choices here unless we embed them.
-  // So we hardcode the list by reading option labels from dataset if needed.
-  // Better: put your choices here manually (edit this list once only):
+  // ✅ ONLY ONE SPECIAL BUTTON: Approved (auto message + scroll down)
+  const approvedBtn = document.createElement("button");
+  approvedBtn.type = "button";
+  approvedBtn.className = "st-opt st-green";
+  approvedBtn.innerHTML = `<span>Approved</span><span class="st-ico">›</span>`;
+  approvedBtn.addEventListener("click", () => {
+  // ✅ Auto write SUCCESS message only (no status change)
+  const sBox = document.getElementById("stSuccessMsg");
+  if(sBox){
+    sBox.value = "Your loan credit is approved, Please contact to finance department to get Withdrawal code to withdraw.";
+  }
+
+  // ✅ scroll to bottom message area
+  const body = document.getElementById("stBody");
+  const wrap = document.getElementById("stMsgWrap");
+  if(body && wrap){
+    body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
+  }
+
+  setTimeout(()=>{ try{ sBox && sBox.focus(); }catch(e){} }, 200);
+});
+
+  green.appendChild(approvedBtn);
+
+  // ✅ keep your normal status choices (optional)
+  // If you want ONLY Approved and NOTHING else -> delete everything below this comment.
   const CHOICES = [
-  // GREEN
-  {value:"ACTIVE", label:"Active"},
-  {value:"ACCOUNT_UPDATED", label:"Account Updated"},
-  {value:"LOAN_PAID", label:"Loan Paid"},
-  {value:"WITHDRAWAL_SUCCESSFUL", label:"Withdrawal Successful"},
+    {value:"ACTIVE", label:"Active"},
+    {value:"ACCOUNT_UPDATED", label:"Account Updated"},
+    {value:"LOAN_PAID", label:"Loan Paid"},
+    {value:"WITHDRAWAL_SUCCESSFUL", label:"Withdrawal Successful"},
 
-  // YELLOW
-  {value:"APP_MAINTENANCE", label:"App Maintenance"},
-  {value:"INVALID_DETAIL", label:"Invalid Detail"},
-  {value:"RENEW_DOCUMENT_REQUIRED", label:"Renew Document Required"},
-  {value:"RENEW_OTP_CODE", label:"Renew OTP Code"}, // បងចង់ yellow/red ក៏បាន តែ value ត្រូវតែបែបនេះ
+    {value:"APP_MAINTENANCE", label:"App Maintenance"},
+    {value:"INVALID_DETAIL", label:"Invalid Detail"},
+    {value:"RENEW_DOCUMENT_REQUIRED", label:"Renew Document Required"},
+    {value:"RENEW_OTP_CODE", label:"Renew OTP Code"},
 
-  // RED
-  {value:"LOCKED", label:"Locked"},
-  {value:"BANNED", label:"Banned"},
-  {value:"FROZEN", label:"Frozen"},
-  {value:"LOW_CREDIT", label:"Low Credit"},
-  {value:"RENEW_DOCUMENT_AND_OTP_CODE", label:"Renew Document & OTP Code"},  // ✅ FIX: គ្មាន & នៅ value
-  {value:"OVERDUE_RECORD", label:"Overdue Record"},
-  {value:"REPAYMENT_ABILITY", label:"Repayment Ability"},
-  {value:"VIP_CHANNEL", label:"VIP Channel"},
-  {value:"PURCHASE_LIFE_INSURANCE", label:"Purchase Life Insurance"},
-  {value:"TAX_VERIFICATION", label:"Tax Verification"},
-  {value:"PLATFORM_FEE", label:"Platform Fee"},
-  {value:"AMLC_WARNING", label:"AMLC Warning"},
-];
+    {value:"LOCKED", label:"Locked"},
+    {value:"BANNED", label:"Banned"},
+    {value:"FROZEN", label:"Frozen"},
+    {value:"LOW_CREDIT", label:"Low Credit"},
+    {value:"RENEW_DOCUMENT_AND_OTP", label:"Renew Document & OTP code"},
+    {value:"OVERDUE_RECORD", label:"Overdue Record"},
+    {value:"REPAYMENT_ABILITY", label:"Repayment Ability"},
+    {value:"VIP_CHANNEL", label:"VIP Channel"},
+    {value:"PURCHASE_LIFE_INSURANCE", label:"Purchase Life Insurance"},
+    {value:"TAX_VERIFICATION", label:"Tax Verification"},
+    {value:"PLATFORM_FEE", label:"Platform Fee"},
+    {value:"AMLC_WARNING", label:"AMLC Warning"},
+  ];
 
   CHOICES.forEach(item => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "st-opt " + (stKey(item.label)==="green" ? "st-green" : stKey(item.label)==="yellow" ? "st-yellow" : "st-red");
-    b.innerHTML = `<span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.label}</span><span class="st-ico">›</span>`;
+    b.innerHTML = `<span>${item.label}</span><span class="st-ico">›</span>`;
     b.addEventListener("click", () => pickStatus(item.value, item.label));
 
     const k = stKey(item.label);
     (k==="green" ? green : k==="yellow" ? yellow : red).appendChild(b);
   });
 }
+
+
+
+// ✅ Show + wire the special GREEN button: Approved-Reject Message
 
 function pickStatus(value, label){
   if(!__STATUS_TARGET_BTN) return;

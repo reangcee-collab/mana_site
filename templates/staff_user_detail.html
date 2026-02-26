@@ -4,7 +4,7 @@
 
 <form method="post" action="{% url 'staff_user_update' u.id %}" enctype="multipart/form-data" autocomplete="off">
   {% csrf_token %}
-
+<input type="hidden" name="next" value="{{ request.path }}">
   <div class="card-h">
     <div>
       <div class="h1">User: {{ u.phone }}</div>
@@ -181,6 +181,17 @@
           formmethod="post">
     Make Application
   </button>
+{% if loan %}
+  <button type="submit"
+          class="make-app-btn"
+          formaction="{% url 'staff_loan_update' loan.id %}"
+          formmethod="post"
+          formenctype="multipart/form-data"
+          name="img_only"
+          value="1">
+    Save Images
+  </button>
+{% endif %}  
 {% endif %}
   </div>
 
@@ -209,13 +220,6 @@
   {% else %}
 
     <!-- ✅ Separate form (NOT nested) -->
-    <form id="loanImgForm"
-          method="post"
-          action="{% url 'staff_loan_update' loan.id %}"
-          enctype="multipart/form-data"
-          autocomplete="off">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ request.path }}">
 
       <div class="img-grid" style="margin-top:10px;">
 
@@ -268,7 +272,6 @@
         </div>
 
       </div>
-    </form>
 
   {% endif %}
 </div>

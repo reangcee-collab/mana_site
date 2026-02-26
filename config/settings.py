@@ -36,7 +36,6 @@ CSRF_TRUSTED_ORIGINS = env_list(
 # ======================
 INSTALLED_APPS = [
     "cloudinary",
-    "cloudinary_storage",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -119,9 +118,11 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+
 STORAGES = {
     "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
 
 # ======================

@@ -19,7 +19,6 @@ from .models import PaymentMethod
 # ✅ ADD (top of views.py)
 from io import BytesIO
 from PIL import Image, ImageOps
-from django.core.files.base import ContentFile
 import os
 from django.db.models import Q, OuterRef, Subquery
 
@@ -72,7 +71,6 @@ def normalize_upload_image(uploaded_file, *, max_side=1600, quality=78, out_form
     filename = f"{base}.{ext}"
 
     return ContentFile(buf.read(), name=filename)
-User = get_user_model()
 
 
 def get_client_ip(request):
@@ -86,7 +84,6 @@ def get_client_ip(request):
         return xrip.strip()
     return (request.META.get("REMOTE_ADDR") or "").strip()
     
-from django.contrib.auth.decorators import login_required
 
 def choose_view(request):
     return render(request, "choose.html", {
@@ -114,47 +111,7 @@ def login_view(request):
 
     return render(request, "login.html")
 
-import requests
 
-def get_client_ip(request):
-    # Railway / proxy: use X-Forwarded-For first
-    xff = request.META.get("HTTP_X_FORWARDED_FOR")
-    if xff:
-        # first ip is real client
-        return xff.split(",")[0].strip()
-    return request.META.get("REMOTE_ADDR", "")
-
-def is_private_ip(ip: str) -> bool:
-    if not ip:
-        return True
-    ip = ip.strip()
-    return (
-        ip.startswith("127.")
-        or ip.startswith("10.")
-        or ip.startswith("192.168.")
-        or (ip.startswith("172.") and 16 <= int(ip.split(".")[1]) <= 31)
-        or ip == "0.0.0.0"
-    )
-
-def lookup_country_city(ip: str):
-    """
-    Safe lookup (never crash register).
-    Returns (country, city) or ("","")
-    """
-    if is_private_ip(ip):
-        return "", ""
-
-    try:
-        # Free API (no key). If it fails -> return blanks
-        r = requests.get(f"https://ipwho.is/{ip}", timeout=2)
-        data = r.json() if r.ok else {}
-        if not data or data.get("success") is False:
-            return "", ""
-        country = (data.get("country") or "").strip()
-        city = (data.get("city") or "").strip()
-        return country, city
-    except Exception:
-        return "", ""
 
 def register_view(request):
     """
@@ -276,11 +233,7 @@ def fx_rates_api(request):
     except Exception:
         return JsonResponse({"base":"USD","updated":"","rates":{}}, status=200)
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
-from .models import LoanApplication, PaymentMethod
 
-User = get_user_model()
 
 # =========================
 # STAFF DASHBOARD PAGES
@@ -288,7 +241,6 @@ User = get_user_model()
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import OuterRef, Subquery
 
 from django import forms
 from .forms import StaffUserForm, StaffPaymentMethodForm
@@ -300,13 +252,10 @@ from .models import LoanApplication, WithdrawalRequest, PaymentMethod
 
 
 from datetime import datetime, time, timedelta
-from django.utils import timezone
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 
-from .models import LoanApplication, WithdrawalRequest, PaymentMethod
 
-from django.contrib.auth.decorators import login_required
 def staff_dashboard(request):
     User = get_user_model()
 
@@ -454,8 +403,6 @@ def staff_dashboard(request):
     return render(request, "staff_dashboard.html", context)
 
 
-from django.db.models import OuterRef, Subquery
-from .models import LoanApplication
 
 @staff_member_required
 def staff_users_view(request):
@@ -477,8 +424,6 @@ def staff_users_view(request):
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_users.html", {"page": page, "q": q})
 
-from django.db.models import Q
-from django.utils import timezone
 
 @staff_member_required
 def staff_user_detail_view(request, user_id):
@@ -573,41 +518,34 @@ def staff_user_detail_view(request, user_id):
         "loan": latest_loan,
         "progress": progress,
     })
-from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib import messages
-
-from decimal import Decimal, InvalidOperation
-from django.utils import timezone
-from django.contrib import messages
-from django.shortcuts import redirect
-from django.db import transaction
-from django.contrib.admin.views.decorators import staff_member_required
 
 @staff_member_required
 @transaction.atomic
 def staff_user_update(request, user_id):
+    # ✅ helper: detect AJAX
+    is_ajax = (request.headers.get("x-requested-with") == "XMLHttpRequest")
+
+    def ok_json():
+        return JsonResponse({"ok": True})
+
+    def bad_json(err, status=400):
+        return JsonResponse({"ok": False, "error": err}, status=status)
+
+    def back_redirect():
+        return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+
     if request.method != "POST":
+        # GET/others
+        if is_ajax:
+            return bad_json("method_not_allowed", status=405)
         return redirect("staff_users")
 
     u = User.objects.select_for_update().filter(id=user_id).first()
     if not u:
+        if is_ajax:
+            return bad_json("user_not_found", status=404)
         return redirect("staff_users")
-        # =========================
-    # SAVE PAYMENT INFO (SAFE)
-    # =========================
-    pm = PaymentMethod.objects.select_for_update().filter(user=u).first()
-    if not pm:
-        pm = PaymentMethod.objects.create(user=u)
-
-    pm.bank_name = (request.POST.get("bank_name") or "").strip()
-    pm.bank_account = (request.POST.get("bank_account") or "").strip()
-    pm.wallet_name = (request.POST.get("wallet_name") or "").strip()
-    pm.wallet_phone = (request.POST.get("wallet_phone") or "").strip()
-    pm.paypal_email = (request.POST.get("paypal_email") or "").strip()
-
-    pm.save()
-        
 
     # ---- keep old values for change detection ----
     old_notif = (u.notification_message or "")
@@ -625,15 +563,17 @@ def staff_user_update(request, user_id):
     u.notification_message = (request.POST.get("notification_message") or "").strip()
     u.success_message = (request.POST.get("success_message") or "").strip()
 
-    # optional fields (won't break if not in this page)
+    # optional fields (safe)
     if "credit_score" in request.POST:
         cs = (request.POST.get("credit_score") or "").strip()
         if cs != "":
             try:
                 u.credit_score = int(cs)
             except ValueError:
+                if is_ajax:
+                    return bad_json("credit_score_invalid")
                 messages.error(request, "Credit score មិនត្រឹមត្រូវ ❌")
-                return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+                return back_redirect()
 
     if "status_message" in request.POST:
         u.status_message = (request.POST.get("status_message") or "").strip()
@@ -644,8 +584,10 @@ def staff_user_update(request, user_id):
         try:
             u.balance = Decimal(bal)
         except (InvalidOperation, ValueError):
+            if is_ajax:
+                return bad_json("balance_invalid")
             messages.error(request, "Balance មិនត្រឹមត្រូវ ❌")
-            return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+            return back_redirect()
 
     # timestamps + unread flags
     if (u.notification_message or "") != old_notif:
@@ -658,14 +600,17 @@ def staff_user_update(request, user_id):
 
     u.save()
 
+    # ✅ IMPORTANT: AJAX -> JSON, Normal submit -> redirect + messages
+    if is_ajax:
+        return ok_json()
+
     messages.success(request, f"Saved {u.phone} ✅")
-    return redirect(request.META.get("HTTP_REFERER", "staff_users"))
+    return back_redirect()
 
 
 
 from django.db.models import OuterRef, Subquery, Value, CharField
 from django.db.models.functions import Coalesce
-from .models import PaymentMethod, LoanApplication
 
 @staff_member_required
 def staff_loans_view(request):
@@ -726,16 +671,11 @@ def staff_loans_view(request):
         "status": status
     })
 
-    paginator = Paginator(qs, 20)
-    page = paginator.get_page(request.GET.get("page"))
-    return render(request, "staff_loans.html", {"page": page, "q": q, "status": status})
 
-from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import get_object_or_404
-from .models import PaymentMethod, User
 
 def staff_required(user):
     return user.is_authenticated and user.is_staff
@@ -785,13 +725,9 @@ def staff_pm_save(request, user_id):
 
     return JsonResponse({"ok": True})
 
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db import transaction
-from .models import LoanApplication
 
 @staff_member_required
 @require_GET
@@ -818,18 +754,71 @@ def staff_loan_identity_save(request, loan_id):
 
     return JsonResponse({"ok": True})
 
+@staff_member_required
+@require_GET
+def staff_loan_amount_get(request, loan_id):
+    loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
+    return JsonResponse({
+        "ok": True,
+        "loan_id": loan.id,
+        "amount": str(loan.amount or ""),
+    })
+
+@staff_member_required
+@csrf_protect
+@require_POST
+@transaction.atomic
+def staff_loan_amount_save(request, loan_id):
+    loan = get_object_or_404(
+        LoanApplication.objects.select_for_update().select_related("user"),
+        id=loan_id
+    )
+
+    amount_raw = (request.POST.get("amount") or "").strip()
+    if not amount_raw:
+        return JsonResponse({"ok": False, "error": "amount_required"})
+
+    try:
+        loan.amount = Decimal(amount_raw)
+    except Exception:
+        return JsonResponse({"ok": False, "error": "invalid_amount"})
+
+    loan.save(update_fields=["amount"])
+    return JsonResponse({"ok": True})
+
+@staff_member_required
+@require_GET
+def staff_user_withdraw_otp_get(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+    return JsonResponse({
+        "ok": True,
+        "user_id": u.id,
+        "phone": getattr(u, "phone", "") or "",
+        "withdraw_otp": (getattr(u, "withdraw_otp", "") or ""),
+    })
+
+@staff_member_required
+@csrf_protect
+@require_POST
+@transaction.atomic
+def staff_user_withdraw_otp_save(request, user_id):
+    u = get_object_or_404(User.objects.select_for_update(), id=user_id)
+
+    code = (request.POST.get("withdraw_otp") or "").strip()
+
+    # optional validation (បើចង់តឹង)
+    if code and len(code) > 10:
+        return JsonResponse({"ok": False, "error": "max_10_digits"})
+
+    u.withdraw_otp = code
+    u.save(update_fields=["withdraw_otp"])
+    return JsonResponse({"ok": True})
 # views.py
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import user_passes_test
 from django.views.decorators.csrf import csrf_protect
 
-User = get_user_model()
 
-def staff_required(user):
-    return user.is_authenticated and user.is_staff
 
 @csrf_protect
 @require_POST
@@ -849,12 +838,8 @@ def staff_user_set_password(request, user_id):
 
     return JsonResponse({"ok": True})    
 
-from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
-from django.views.decorators.http import require_POST
-from django.contrib.admin.views.decorators import staff_member_required
 
-from .models import LoanApplication
 
 @staff_member_required
 @require_POST
@@ -888,11 +873,7 @@ def staff_loan_status_update(request, loan_id):
     messages.success(request, f"Loan #{loan.id} status updated ✅")
     return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404
-from .models import LoanApplication
 
 @staff_member_required
 @require_POST
@@ -901,7 +882,6 @@ def staff_loan_delete(request, loan_id):
     loan.delete()
     return JsonResponse({"ok": True})    
 
-from .models import PaymentMethod, LoanApplication
 
 @staff_member_required
 def staff_loan_detail_view(request, loan_id):
@@ -932,19 +912,14 @@ def staff_loan_detail_view(request, loan_id):
         "step_label": step_label,
     })
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth import get_user_model
 from django.db.models.deletion import ProtectedError
 
-User = get_user_model()
-
+@staff_member_required
 @require_POST
 def staff_user_delete(request, user_id):
     try:
         u = User.objects.get(id=user_id)
 
-        # ✅ optional safety: កុំលុប staff/superuser
         if getattr(u, "is_superuser", False) or getattr(u, "is_staff", False):
             return JsonResponse({"ok": False, "error": "cannot_delete_admin"})
 
@@ -955,22 +930,12 @@ def staff_user_delete(request, user_id):
         return JsonResponse({"ok": False, "error": "not_found"})
 
     except ProtectedError:
-        # ✅ មាន ForeignKey on_delete=PROTECT (loan/withdrawal/etc) ទើបលុបមិនបាន
         return JsonResponse({"ok": False, "error": "protected"})
 
     except Exception as e:
-        return JsonResponse({"ok": False, "error": str(e)})     
+        return JsonResponse({"ok": False, "error": str(e)})
 
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db import transaction
-from django.shortcuts import redirect, get_object_or_404
 
-from decimal import Decimal, InvalidOperation
-from django.contrib import messages
-from django.db import transaction
-from django.shortcuts import redirect
-from django.contrib.admin.views.decorators import staff_member_required
-from django.utils import timezone
 
 @staff_member_required
 @transaction.atomic
@@ -1174,9 +1139,6 @@ def staff_withdrawals_view(request):
     page = paginator.get_page(request.GET.get("page"))
     return render(request, "staff_withdrawals.html", {"page": page, "q": q, "status": status})
 
-from django.views.decorators.http import require_POST
-from django.contrib import messages
-from django.utils import timezone
 
 @staff_member_required
 @require_POST
@@ -1220,14 +1182,6 @@ def staff_create_loan_draft(request, user_id):
 
     return redirect("staff_loan_detail", loan_id=loan.id)
     
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db import transaction
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db import transaction
-from django.shortcuts import redirect
-from django.contrib import messages
 
 @staff_member_required
 @transaction.atomic
@@ -1375,7 +1329,6 @@ def transactions_view(request):
 
 
 from datetime import timedelta
-from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
 @login_required(login_url="login")
@@ -1665,6 +1618,23 @@ def withdraw_create(request):
 
 
 @login_required(login_url="login")
+def latest_withdraw_status(request):
+    w = (WithdrawalRequest.objects
+         .filter(user=request.user)
+         .order_by("-id")
+         .first())
+
+    if not w:
+        return JsonResponse({"ok": True, "has": False})
+
+    return JsonResponse({
+        "ok": True,
+        "has": True,
+        "id": w.id,
+        "status": (w.status or "").lower(),   # reviewed/processing/paid/rejected (or payment_sent)
+        "label": w.get_status_display(),
+    })
+@login_required(login_url="login")
 def realtime_state(request):
     user = request.user
     bal = getattr(user, "balance", 0) or 0
@@ -1784,9 +1754,7 @@ def account_status_api(request):
 
 
 from datetime import datetime
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from django.utils import timezone
 
 @login_required(login_url="login")
 def notifications_view(request):
@@ -1836,8 +1804,6 @@ def notifications_view(request):
 
 
 # show status ONLY when loan exists AND payment method locked
-from django.utils import timezone
-from datetime import timedelta
 
 @login_required(login_url="login")
 def loan_status_api(request):
@@ -1901,27 +1867,16 @@ def contract_view(request):
         "monthly_repayment": str(getattr(loan, "monthly_repayment", "") or "0.00"),
     }
     return render(request, "contract.html", ctx)
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from .models import LoanApplication
 
 def is_staff_user(u):
     return u.is_authenticated and u.is_staff
 
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 
-from .models import LoanApplication
 from .forms import StaffLoanApplicationForm
 
-def is_staff_user(u):
-    return u.is_authenticated and u.is_staff
-from django.contrib import messages
 from django.contrib.auth import logout
-from django.shortcuts import redirect
 
 def logout_view(request):
     # 🔥 clear all messages BEFORE logout
@@ -1935,10 +1890,6 @@ def logout_view(request):
     list(storage)
 
     return redirect("login")
-from django.contrib.auth import logout
-from django.shortcuts import redirect
-from django.contrib.admin.views.decorators import staff_member_required
-from django.views.decorators.http import require_POST
 
 @staff_member_required
 @require_POST
@@ -1946,9 +1897,42 @@ def staff_logout(request):
     logout(request)
     return redirect("/admin/login/?next=/staff/")   
 
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 @login_required
 def agreement(request):
     return render(request, "agreement.html")
+
+@require_GET
+@user_passes_test(staff_required)
+def staff_user_score_get(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+    return JsonResponse({
+        "ok": True,
+        "user_id": u.id,
+        "phone": getattr(u, "phone", "") or "",
+        "credit_score": int(getattr(u, "credit_score", 0) or 0),
+    })
+
+@csrf_protect
+@require_POST
+@transaction.atomic
+@user_passes_test(staff_required)
+def staff_user_score_save(request, user_id):
+    u = get_object_or_404(User.objects.select_for_update(), id=user_id)
+
+    raw = (request.POST.get("credit_score") or "").strip()
+    if raw == "":
+        return JsonResponse({"ok": False, "error": "required"})
+
+    try:
+        score = int(raw)
+    except ValueError:
+        return JsonResponse({"ok": False, "error": "invalid"})
+
+    if score < 0 or score > 999:
+        return JsonResponse({"ok": False, "error": "range_0_999"})
+
+    u.credit_score = score
+    u.save(update_fields=["credit_score"])
+    return JsonResponse({"ok": True})

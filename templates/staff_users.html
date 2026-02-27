@@ -103,6 +103,11 @@
        form="uform-{{ u.id }}"
        id="alertHidden-{{ u.id }}"
        value="{{ u.notification_message|default:''|escape }}">
+<input type="hidden"
+       name="status_message"
+       form="uform-{{ u.id }}"
+       id="statusMsgHidden-{{ u.id }}"
+       value="{{ u.status_message|default:''|escape }}">       
 
   <!-- Button trigger -->
   <button type="button"
@@ -729,6 +734,14 @@ td.col-active .active-select{
 /* ✅ make status modal content look tighter like photo 1 */
 .st-box{ width: min(820px, 84vw); }
 .st-body{ gap: 12px !important; }
+
+.st-jump:active{ transform: scale(.99); }
+.st-jump:hover{ opacity: .95; filter: brightness(1.03); }
+
+/* ✅ make STATUS MESSAGE card look neutral (optional) */
+.st-msg-status{
+  background: rgba(255,255,255,.06);
+}
 </style>
 
 <script>
@@ -895,9 +908,14 @@ async function confirmUserDelete(){
 <div id="statusModal" class="st-modal" style="display:none;">
   <div class="st-box" role="dialog" aria-modal="true" aria-label="Change Status">
     <div class="st-head">
-      <div class="st-title">Select Status</div>
-      <button type="button" class="st-x" onclick="closeStatusModal()">×</button>
-    </div>
+  <div class="st-title">Select Status</div>
+
+  <div class="st-head-actions">
+
+
+    <button type="button" class="st-x" onclick="closeStatusModal()">×</button>
+  </div>
+</div>
 
     <div class="st-body" id="stBody">
       <div class="st-group">
@@ -916,22 +934,29 @@ async function confirmUserDelete(){
       </div>
 
       <!-- ✅ Message Boxes -->
-      <div class="st-msgwrap" id="stMsgWrap">
-        <div class="st-msgbox st-msg-success">
-          <div class="st-msgtitle">SUCCESS MESSAGE</div>
-          <textarea id="stSuccessMsg" class="st-msginput" placeholder="Type success message..."></textarea>
-        </div>
+<div class="st-msgwrap" id="stMsgWrap">
 
-        <div class="st-msgbox st-msg-alert">
-          <div class="st-msgtitle">ALERT MESSAGE</div>
-          <textarea id="stAlertMsg" class="st-msginput" placeholder="Type alert message..."></textarea>
-        </div>
+  <div class="st-msgbox st-msg-success">
+    <div class="st-msgtitle">SUCCESS MESSAGE</div>
+    <textarea id="stSuccessMsg" class="st-msginput" placeholder="Type success message..."></textarea>
+  </div>
 
-        <div class="st-msgactions">
-          <button type="button" class="st-msgsave" onclick="applyAll()">Apply Messages</button>
-          <button type="button" class="st-msgsave" style="background:rgba(255,255,255,.12)" onclick="clearMsgBoxes()">Clear</button>
-        </div>
-      </div>
+  
+  <div class="st-msgbox st-msg-alert">
+    <div class="st-msgtitle">ALERT MESSAGE</div>
+    <textarea id="stAlertMsg" class="st-msginput" placeholder="Type alert message..."></textarea>
+  </div>
+  <!-- ✅ NEW: STATUS MESSAGE (this is for user banner) -->
+  <div class="st-msgbox st-msg-status">
+    <div class="st-msgtitle">STATUS MESSAGE</div>
+    <textarea id="stStatusMsg" class="st-msginput" placeholder="Auto message will appear here..."></textarea>
+  </div>
+
+  <div class="st-msgactions">
+    <button type="button" class="st-msgsave" onclick="applyAll()">Apply Messages</button>
+    <button type="button" class="st-msgsave" style="background:rgba(255,255,255,.12)" onclick="clearMsgBoxes()">Clear</button>
+  </div>
+</div>
     </div>
 
     <div class="st-foot">
@@ -971,17 +996,20 @@ function openStatusModal(btn){
   // build list
   buildStatusGrid();
 
-  // ✅ preload messages from hidden inputs of that row
+  // preload messages from hidden inputs of that row
   const userId = btn.dataset.userId;
 
   const sH = document.getElementById("successHidden-" + userId);
   const aH = document.getElementById("alertHidden-" + userId);
+  const stH = document.getElementById("statusMsgHidden-" + userId);
 
   const sBox = document.getElementById("stSuccessMsg");
   const aBox = document.getElementById("stAlertMsg");
+  const stBox = document.getElementById("stStatusMsg");
 
   if(sBox) sBox.value = sH ? (sH.value || "") : "";
   if(aBox) aBox.value = aH ? (aH.value || "") : "";
+  if(stBox) stBox.value = stH ? (stH.value || "") : "";
 
   const m = document.getElementById("statusModal");
   if(m) m.style.display = "flex";
@@ -993,6 +1021,66 @@ function closeStatusModal(){
   __STATUS_TARGET_BTN = null;
 }
 
+const STATUS_MESSAGE_MAP = {
+  "App Maintenance": "System under maintenance. Please try again later.",
+  "VIP Channel": "Transfer process required VIP Channel",
+  "Renew Document & OTP code": "Document renewal and OTP verification required.",
+  "Overdue Record": "You have an overdue record. Please repay immediately.",
+  "Repayment Ability": "Your repayment ability need to review.",
+  "Purchase Life Insurance": "Life insurance purchase required to proceed.",
+  "Platform Fee": "Platform fee payment required to continue.",
+  "AMLC Warning": "Account under AMLC review. Submit required documents."
+};
+
+function fillStatusMsgByLabel(label){
+  const box = document.getElementById("stStatusMsg");
+  if(!box) return;
+
+  const key = String(label || "").trim();
+  box.value = STATUS_MESSAGE_MAP[key] || "";
+}
+function scrollToMsgWrap(){
+  const body = document.getElementById("stBody");
+  const wrap = document.getElementById("stMsgWrap");
+  if(body && wrap){
+    body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
+  }
+}
+
+function getCurrentPickedLabel(){
+  // 1) If staff already clicked a status in this session, use pending label
+  if(__PENDING_STATUS && __PENDING_STATUS.label){
+    return String(__PENDING_STATUS.label || "").trim();
+  }
+
+  // 2) Else use current row label on the status button
+  if(__STATUS_TARGET_BTN){
+    const uid = __STATUS_TARGET_BTN.dataset.userId;
+    const labelEl = document.getElementById("stLabel-" + uid);
+    const t = labelEl ? (labelEl.textContent || "") : "";
+    return String(t).trim();
+  }
+
+  return "";
+}
+
+function jumpToStatusMessage(){
+  // ✅ Auto write message based on current picked status label
+  const label = getCurrentPickedLabel();
+
+  if(label){
+    fillStatusMsgByLabel(label);
+  }
+
+  // ✅ Scroll down to message area
+  scrollToMsgWrap();
+
+  // ✅ Focus status message box
+  const box = document.getElementById("stStatusMsg");
+  if(box){
+    setTimeout(()=>box.focus(), 250);
+  }
+}
 function buildStatusGrid(){
   const green = document.getElementById("stGreenGrid");
   const yellow = document.getElementById("stYellowGrid");
@@ -1013,7 +1101,7 @@ function buildStatusGrid(){
 
   const sBox = document.getElementById("stSuccessMsg");
   if(sBox){
-    sBox.value = "Your account is Approved, Please contact to Financial Department.";
+    sBox.value = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal";
   }
 
   const body = document.getElementById("stBody");
@@ -1071,21 +1159,9 @@ function buildStatusGrid(){
 function pickStatus(value, label){
   if(!__STATUS_TARGET_BTN) return;
 
-  // ✅ Store selected status only (do NOT close modal)
   __PENDING_STATUS = { value, label };
-  
 
-  // ✅ Visual highlight: mark selected option
-  document.querySelectorAll("#statusModal .st-opt").forEach(x => x.classList.remove("is-picked"));
-  // find button that matches label text
-  const opts = document.querySelectorAll("#statusModal .st-opt span:first-child");
-  opts.forEach(sp=>{
-    if((sp.textContent||"").trim() === String(label).trim()){
-      sp.closest(".st-opt")?.classList.add("is-picked");
-    }
-  });
-
-  // ✅ also update the row button label + hidden immediately (so staff sees it)
+  // set hidden + label
   const userId = __STATUS_TARGET_BTN.dataset.userId;
   const hidden = document.getElementById("stHidden-" + userId);
   const labelEl = document.getElementById("stLabel-" + userId);
@@ -1093,8 +1169,23 @@ function pickStatus(value, label){
   if(hidden) hidden.value = value;
   if(labelEl) labelEl.textContent = label;
 
+  // auto fill STATUS MESSAGE
+  fillStatusMsgByLabel(label);
+
+  // color button
   applyBtnColor(__STATUS_TARGET_BTN, label);
-  // ❌ removed closeStatusModal();
+
+  // ✅ AUTO SCROLL DOWN to message section (no extra button)
+  const wrap = document.getElementById("stMsgWrap");
+  if(wrap){
+    wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ✅ focus status message box
+  const box = document.getElementById("stStatusMsg");
+  if(box){
+    setTimeout(() => box.focus(), 300);
+  }
 }
 
 function applyMessagesToRow(){
@@ -1104,12 +1195,15 @@ function applyMessagesToRow(){
 
   const sBox = document.getElementById("stSuccessMsg");
   const aBox = document.getElementById("stAlertMsg");
+  const stBox = document.getElementById("stStatusMsg"); // ✅ NEW
 
   const sH = document.getElementById("successHidden-" + userId);
   const aH = document.getElementById("alertHidden-" + userId);
+  const stH = document.getElementById("statusMsgHidden-" + userId); // ✅ NEW
 
   if(sH) sH.value = (sBox ? sBox.value : "").trim();
   if(aH) aH.value = (aBox ? aBox.value : "").trim();
+  if(stH) stH.value = (stBox ? stBox.value : "").trim(); // ✅ NEW
 }
 
 // ✅ Apply ALL = status + messages, then AUTO submit row form (no need to close)
@@ -1132,8 +1226,10 @@ function applyAll(){
 function clearMsgBoxes(){
   const sBox = document.getElementById("stSuccessMsg");
   const aBox = document.getElementById("stAlertMsg");
+  const stBox = document.getElementById("stStatusMsg");
   if(sBox) sBox.value = "";
   if(aBox) aBox.value = "";
+  if(stBox) stBox.value = "";
 }
 document.addEventListener("DOMContentLoaded", () => {
   // paint initial

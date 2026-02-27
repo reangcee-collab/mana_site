@@ -529,9 +529,9 @@ textarea{
                  required>
         </div>
         
-        <div class="field">
-  <label>Identify name</label>
-  <input
+  <div class="field">
+    <label>Identify name</label>
+    <input
     type="text"
     name="identity_name"
     id="identityName"
@@ -539,23 +539,23 @@ textarea{
     placeholder="Identify Name"
     {% if locked %}readonly{% endif %}
     required
-    pattern="[A-Za-z0-9 ]+"
-    title="Letters, numbers and spaces only">
+    pattern="[A-Za-z ]+"
+    title="Letters only, no numbers allowed">
 </div>
         
-        <div class="field">
-          <label>Identify numbers</label>
-<input
+  <div class="field">
+    <label>Identify numbers</label>
+    <input
   type="text"
   name="identity_number"
   id="identityNumber"
   value="{{ loan.identity_number|default:'' }}"
   placeholder="Identify Number"
-  inputmode="numeric"
-  pattern="[0-9]*"
   {% if locked %}readonly{% endif %}
-  required>
-        </div>
+  required
+  pattern="[A-Za-z0-9 ]+"
+  title="Letters, numbers and spaces only">
+</div>
         
         <div class="field" style="grid-column: 1 / -1;">
           <label>Loan purposes (optional)</label>
@@ -898,20 +898,20 @@ textarea{
     if(!el) return;
 
     el.addEventListener("input", function(){
-      this.value = this.value.replace(/[^A-Za-z0-9 ]+/g, "");
+      this.value = this.value.replace(/[^A-Za-z ]+/g, "");
     });
   })();
 </script>
     <script>
-      (function(){
-        const el = document.getElementById("identityNumber");
-        if(!el) return;
-    
-        el.addEventListener("input", function(){
-          this.value = this.value.replace(/[^0-9]/g, "");
-        });
-      })();
-    </script>
+  (function(){
+    const el = document.getElementById("identityNumber");
+    if(!el) return;
+
+    el.addEventListener("input", function(){
+      this.value = this.value.replace(/[^A-Za-z0-9 ]+/g, "");
+    });
+  })();
+</script>
     <script>
       (function(){
         const living = document.getElementById("currentLiving");

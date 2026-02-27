@@ -547,6 +547,7 @@ def staff_user_update(request, user_id):
 
     old_notif = (u.notification_message or "")
     old_success = (u.success_message or "")
+    old_status_msg = (getattr(u, "status_message", "") or "")
 
     u.account_status = (request.POST.get("account_status") or u.account_status)
     u.withdraw_otp = (request.POST.get("withdraw_otp") or "").strip()
@@ -557,6 +558,7 @@ def staff_user_update(request, user_id):
 
     u.notification_message = (request.POST.get("notification_message") or "").strip()
     u.success_message = (request.POST.get("success_message") or "").strip()
+    u.status_message = (request.POST.get("status_message") or "").strip()
 
     bal = (request.POST.get("balance") or "").strip()
     if bal != "":
@@ -575,6 +577,9 @@ def staff_user_update(request, user_id):
     if (u.success_message or "") != old_success:
         u.success_message_updated_at = timezone.now()
         u.success_is_read = False
+
+    # NOTE: We do NOT touch status_message timestamps here
+    # because your model may not have status_message_updated_at fields.
 
     u.save()
 
@@ -604,9 +609,6 @@ def staff_user_update(request, user_id):
 
     if is_ajax:
         return ok_json()
-
-    messages.success(request, f"Saved {u.phone} ✅")
-    return back_redirect()
 
     messages.success(request, f"Saved {u.phone} ✅")
     return back_redirect()

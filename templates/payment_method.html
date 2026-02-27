@@ -121,7 +121,7 @@
 
 .nav-inner{
   display:flex;
-  gap: 12px;
+  justify-content:center;   /* ✅ center */
 }
 
 /* buttons */
@@ -151,6 +151,19 @@
   filter: grayscale(.15);
 }
 
+/* ✅ make single Save button centered & not full width */
+.nav-inner .nav-btn{
+  flex: 0 0 auto;      /* no stretch */
+  min-width: 220px;    /* adjust if you want bigger */
+  max-width: 280px;
+  width: 60%;
+}
+@media (max-width:520px){
+  .nav-inner .nav-btn{
+    width: 70%;
+    min-width: 200px;
+  }
+}
 /* ===== POPOUT ALERT (Toast) - INSIDE CARD (NO OVERLAP) ===== */
 .pm-toast{
   display:none;              /* hidden by default */
@@ -299,16 +312,14 @@
       {% endif %}
 
       <div class="bottom-nav">
-        <div class="nav-inner">
-          <a class="nav-btn" href="{% url 'dashboard' %}">Back</a>
-
-          {% if locked %}
-            <button class="nav-btn primary" type="button" disabled>Saved</button>
-          {% else %}
-            <button class="nav-btn primary" type="submit">Save</button>
-          {% endif %}
-        </div>
-      </div>
+  <div class="nav-inner">
+    {% if locked %}
+      <button class="nav-btn primary" type="button" disabled>Saved</button>
+    {% else %}
+      <button class="nav-btn primary" type="submit">Save</button>
+    {% endif %}
+  </div>
+</div>
 
     </form>
   </div>

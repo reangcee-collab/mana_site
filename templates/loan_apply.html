@@ -787,7 +787,7 @@ textarea{
   bindPreview('boxBack', 'id_back', 'prevBack');
   bindPreview('boxSelfie', 'selfie_with_id', 'prevSelfie');
 
-  // Simple live calc (0.03% monthly) — UI only
+  // Simple live calc (0.05% monthly) — UI only
   const amountEl = document.getElementById('loanAmount');
   const termEl = document.getElementById('loanTerms');
   const sumAmount = document.getElementById('sumAmount');
@@ -835,7 +835,7 @@ textarea{
       outTerm.textContent   = term ? (term + " months") : "—";
     
       // monthly repayment (simple)
-      const rate = 0.0005; // 0.03%  (you can change later)
+      const rate = 0.0005; // 0.05%  (you can change later)
       if(amount > 0 && term > 0){
         const total = amount + (amount * rate * term);
         const monthly = total / term;

@@ -2002,7 +2002,7 @@ def contract_view(request):
         "current_living": getattr(loan, "current_living", "") or "",
         "amount": str(getattr(loan, "amount", "") or "0.00"),
         "term_months": getattr(loan, "term_months", "") or "",
-        "interest_rate": "0.03",  # ✅ change later easily
+        "interest_rate": "0.05",  # ✅ change later easily
         "monthly_repayment": str(getattr(loan, "monthly_repayment", "") or "0.00"),
     }
     return render(request, "contract.html", ctx)

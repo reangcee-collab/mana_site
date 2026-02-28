@@ -797,7 +797,7 @@ input,select{
   background: rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.10);
 
-  overflow: hidden;          /* ✅ កុំឲ្យអ្វីលានក្រៅ card */
+  overflow: hidden;          /*កុំឲ្យអ្វីលានក្រៅ card */
 }
 
 .bar{
@@ -839,6 +839,58 @@ input,select{
 .bar.teal{ background: linear-gradient(180deg, rgba(0,255,204,.95), rgba(0,110,120,.75)); }
 .bar.orange{ background: linear-gradient(180deg, rgba(255,140,60,.95), rgba(160,70,10,.75)); }
 .bar.purple{ background: linear-gradient(180deg, rgba(255,60,200,.95), rgba(120,40,140,.75)); }
+/* ================================
+   OVERRIDE: Performance 6 bars colors ONLY
+   ================================ */
+
+.perf-bars .bar.b-today{
+  background: #FFCC98 !important;
+}
+
+.perf-bars .bar.b-yesterday{
+  background: #FFE6B6 !important;
+}
+
+.perf-bars .bar.b-this-week{
+  background: #FFF7D9 !important;
+}
+
+.perf-bars .bar.b-last-week{
+  background: #53CCEC !important;
+}
+
+.perf-bars .bar.b-this-month{
+  background: #1974D3 !important;
+}
+
+.perf-bars .bar.b-last-month{
+  background: #000181 !important;
+}
+
+/* ===== FIX TEXT VISIBILITY INSIDE BARS ===== */
+
+/* Light bars → dark text */
+.perf-bars .bar.b-today i,
+.perf-bars .bar.b-yesterday i,
+.perf-bars .bar.b-this-week i{
+  color: #1a1a1a !important;
+  text-shadow: none !important;
+}
+
+/* Dark bars → white text */
+.perf-bars .bar.b-last-week i,
+.perf-bars .bar.b-this-month i,
+.perf-bars .bar.b-last-month i{
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+/* Bottom labels (Today / Yesterday / etc) */
+.perf-bars .bar span{
+  color: #1a1a1a !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
 
 @media (max-width: 980px){
   .perf-bars{ grid-template-columns: repeat(3, 1fr); height: 220px; }
@@ -1266,7 +1318,7 @@ th{ text-align:left; font-size:12px; letter-spacing:.06em; text-transform:upperc
    RIGHT BIG CARD -> CLEAN WHITE BACKGROUND
    (ALL STAFF PAGES)
    ========================================= */
-   .dashboard-card{
+.dashboard-card{
   background: #ffffffe8 !important;
   border: 1px solid #e5e7eb !important;
   box-shadow: 0 10px 30px rgba(0,0,0,.08) !important;
@@ -1357,7 +1409,39 @@ th{ text-align:left; font-size:12px; letter-spacing:.06em; text-transform:upperc
 .dashboard-card table tbody td a:hover{
   text-decoration: underline;
 }
+/* ============================
+   FORCE: Performance Card DARK + Text Visible
+   (Paste at VERY BOTTOM of staff_base.html <style>)
+   ============================ */
 
+/* card background = black 조금 (nice dark) */
+.dashboard-card .perf-card{
+  background: #95a0acf5 !important;
+  border: 1px solid rgba(0,0,0,.18) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.20) !important;
+}
+
+/* title + subtitle readable on dark */
+.dashboard-card .perf-card .perf-title{
+  color: #004182 !important;
+  text-shadow: none !important;
+  font-weight: 950 !important;
+}
+
+.dashboard-card .perf-card .perf-sub{
+  color: #004182 !important;
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+/* ================================
+   FORCE: Performance bottom labels = #004182
+   ================================ */
+
+.dashboard-card .perf-bars .bar span{
+  color: #004182 !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
   </style>
 </head>
 

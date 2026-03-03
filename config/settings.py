@@ -23,12 +23,12 @@ SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
 
 ALLOWED_HOSTS = env_list(
     "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,sitemana-production.up.railway.app,philippinesloanservices.services,www.philippinesloanservices.services"
+    "localhost,127.0.0.1,supportloanserviceph.online,www.supportloanserviceph.online,sitemana-copy-production.up.railway.app"
 )
 
 CSRF_TRUSTED_ORIGINS = env_list(
     "CSRF_TRUSTED_ORIGINS",
-    "https://sitemana-production.up.railway.app,https://philippinesloanservices.services,https://www.philippinesloanservices.services"
+    "https://supportloanserviceph.online,https://www.supportloanserviceph.online,https://sitemana-copy-production.up.railway.app"
 )
 
 # ======================

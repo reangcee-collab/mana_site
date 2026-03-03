@@ -285,7 +285,7 @@
 
     <div class="summary" aria-live="polite">
       <div class="row"><div class="k">Amount of loan</div><div class="v" id="qSumAmount">—</div></div>
-      <div class="row"><div class="k">Interest rate</div><div class="v">0.05%</div></div>
+      <div class="row"><div class="k">Interest rate</div><div class="v">0.5%</div></div>
       <div class="row"><div class="k">Loan period</div><div class="v" id="qSumTerm">—</div></div>
       <div class="row"><div class="k">Monthly repayment</div><div class="v" id="qSumMonthly">—</div></div>
     </div>
@@ -354,7 +354,7 @@
     if (outAmount) outAmount.textContent = amount > 0 ? ("PHP " + fmt(amount)) : "—";
     if (outTerm) outTerm.textContent = term > 0 ? (term + " months") : "—";
 
-    const rate = 0.0005;
+    const rate = 0.005; // 0.5%
     if(amount > 0 && term > 0){
       const total = amount + (amount * rate * term);
       const monthly = total / term;

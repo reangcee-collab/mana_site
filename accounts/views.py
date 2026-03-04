@@ -1427,7 +1427,9 @@ def profile_view(request):
 
 @login_required(login_url="login")
 def credit_score_view(request):
-    return render(request, "credit_score.html")
+    return render(request, "credit_score.html", {
+        "credit_score": int(getattr(request.user, "credit_score", 500) or 500)
+    })
 
 
 @login_required(login_url="login")

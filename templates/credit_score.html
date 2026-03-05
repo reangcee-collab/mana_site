@@ -353,7 +353,7 @@
 
                     <!-- Center Score -->
                     <div class="score-center">
-                        <div class="score-value" id="scoreValue">{{ credit_score|default:"0" }}</div>
+                        <div class="score-value" id="scoreValue">{{ credit_score|default:"500" }}</div>
                         <div class="score-label">Credit Score</div>
                         <div class="score-status" id="scoreStatus">Loading...</div>
                     </div>
@@ -410,14 +410,20 @@
             <h3>Understanding Your Credit Score</h3>
             <p>Your credit score ranges from 0 to 500. Colors disappear as your score decreases.</p>
             <p><strong>Score Ranges:</strong></p>
-            <p>• <span style="color: #ffd700;">451-500:</span> Excellent - All colors visible</p>
-            <p>• <span style="color: #ff4444;">0-450:</span> Low Score - Yellow disappears first</p>
+            <p>• <span style="color: #ffd700;">451-500:</span> Excellent Score -</p>
+<p>• <span style="color: #00ff64;">381-450:</span> Good Score - </p>
+<p>• <span style="color: #ff4444;">301-380:</span> Fair Score - <strong></strong></p>
+<p>• <span style="color: #ff4444;">201-300:</span> Poor Score - <strong></strong></p>
+<p>• <span style="color: #ff4444;">0-200:</span> Very Poor Score - <strong></strong></p>
         </div>
     </div>
 
     <script>
         // Get credit score from Django template
-        const creditScore = parseInt("{{ credit_score|default:'0' }}") || 0;
+        // កំណត់ max score គឺ 500, ប្រសិនបើខ្ពស់ជាង 500 កំណត់ជា 500
+        let creditScore = parseInt("{{ credit_score|default:'500' }}") || 500;
+        if (creditScore > 500) creditScore = 500;
+        if (creditScore < 0) creditScore = 0;
         
         // Update donut based on score
         function updateDonut(score) {
@@ -454,18 +460,31 @@
             
             // Update status and color
             if (score >= 451 && score <= 500) {
-                scoreStatus.textContent = 'Excellent';
-                scoreStatus.className = 'score-status excellent';
-                scoreValue.className = 'score-value excellent';
-            } else if (score >= 0 && score <= 450) {
-                scoreStatus.textContent = 'Low Score';
-                scoreStatus.className = 'score-status low';
-                scoreValue.className = 'score-value low';  // RED color
-            } else {
-                scoreStatus.textContent = 'Invalid Score';
-                scoreStatus.className = 'score-status low';
-                scoreValue.className = 'score-value low';
-            }
+    scoreStatus.textContent = 'Excellent Score';
+    scoreStatus.className = 'score-status excellent';
+    scoreValue.className = 'score-value excellent';
+    scoreValue.style.color = '#ffd700'; // ពណ៌លឿង
+} else if (score >= 381 && score <= 450) {
+    scoreStatus.textContent = 'Low Score';
+    scoreStatus.className = 'score-status low';
+    scoreValue.className = 'score-value low';
+    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
+} else if (score >= 301 && score <= 380) {
+    scoreStatus.textContent = 'Fair Score';
+    scoreStatus.className = 'score-status low';
+    scoreValue.className = 'score-value low';
+    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
+} else if (score >= 201 && score <= 300) {
+    scoreStatus.textContent = 'Poor Score';
+    scoreStatus.className = 'score-status low';
+    scoreValue.className = 'score-value low';
+    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
+} else if (score >= 0 && score <= 200) {
+    scoreStatus.textContent = 'Very Poor Score';
+    scoreStatus.className = 'score-status low';
+    scoreValue.className = 'score-value low';
+    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
+}
         }
 
         // Initialize on page load

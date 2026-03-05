@@ -814,7 +814,7 @@ Delete
     </div>
     <div class="modal-body">
       <label class="modal-label">Score</label>
-      <input id="score_value" type="number" class="modal-input" min="0" max="999" placeholder="0 - 999">
+      <input id="score_value" type="number" class="modal-input" min="0" max="500" placeholder="500" value="500">
       <div style="height:14px"></div>
       <div class="modal-actions">
         <div id="scoreModalMsg" class="modal-msg"></div>
@@ -1427,7 +1427,11 @@ if(wdSave) wdSave.addEventListener("click", saveWd);
       scoreMsg.textContent = "Cannot load ❌";
       return;
     }
-    scoreVal.value = data.credit_score ?? 0;
+    // ប្រសិនបើមិនមាន data ឬ លើស 500 កំណត់ជា 500
+let score = data.credit_score ?? 500;
+if (score > 500) score = 500;
+if (score < 0) score = 0;
+scoreVal.value = score;
     scoreModal.style.display = "flex";
     setTimeout(()=>{ try{ scoreVal.focus(); }catch(e){} }, 50);
   }

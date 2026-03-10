@@ -1,77 +1,130 @@
-Update profile.html and loan_info.html for Information viewing feature:
+Update loan_info.html to show signature and ID photos in view-only mode:
 
-CHANGES TO MAKE:
+CRITICAL ISSUE:
+When user views their submitted application (Information page), signature and ID photos are NOT showing. This MUST be fixed.
 
-1. PROFILE.HTML - Change Button Text and Link:
-   Find the "Loan Application" menu button
-   
-   Current:
-   - Title: "Loan Application"
-   - Subtitle: "Apply & track your status"
-   - Link: {% url 'quick_loan' %}
-   
-   Change to:
-   - Title: "Information"
-   - Subtitle: "View your application details"
-   - Link: {% url 'loan_info' %}
-   
-   Keep same icon and styling
+REQUIRED CHANGES:
 
-2. LOAN_INFO.HTML - Add View-Only Mode:
+1. REDUCE GREEN CARD OPACITY:
+   The completed step cards (green background) are TOO bright/opaque
+   They need MORE opacity (more transparent) to match the loan summary card style
    
-   A. Check if user already confirmed application:
-      - If application status is APPROVED or REJECTED or PENDING
-      - OR if user has already submitted loan application
-      - Then activate VIEW-ONLY mode
+   Current (too bright):
+   background: rgba(34, 197, 94, 0.X)  /* too low opacity number */
    
-   B. In VIEW-ONLY mode:
-      - All input fields become DISABLED (cannot edit)
-      - Show GREEN checkmark on completed steps
-      - Hide "Confirm Application" button OR show as disabled
-      - Add message: "Application submitted - View only"
-      - Keep all data visible but not editable
+   Change to (more transparent like loan summary):
+   background: rgba(34, 197, 94, 0.15)  /* higher opacity = more transparent */
+   OR
+   background: rgba(34, 197, 94, 0.12)
    
-   C. Green checkmark for completed steps:
-      CSS for completed step icon:
-      - Background: #22c55e (green)
-      - White checkmark icon
-      - Or add "✓" symbol next to step title
+   The green should be subtle, not overpowering
+   Match the opacity level of the loan summary card above
+
+2. SHOW SIGNATURE in View-Only Mode:
+   - Display the saved signature image
+   - Show it in the signature canvas area OR as an image
+   - Add "Signature on file" label
+   - Disable drawing (canvas should be locked)
+   - Do NOT allow re-signing
    
-   D. Disable all inputs in view-only mode:
-      Add disabled attribute to:
-      - All <input> fields
-      - All <select> dropdowns
-      - All <textarea> fields
-      - File upload buttons
-      - Bank selection
+   Example:
+   <div class="signature-display">
+     <img src="{{ user.signature_url }}" alt="Your signature">
+     <p class="signature-label">✓ Signature on file</p>
+   </div>
+
+3. SHOW ID PHOTOS in View-Only Mode:
+   A. Front of ID:
+      - Display uploaded ID front photo
+      - Show in the ID front upload area
+      - Add "Uploaded" checkmark
+      - Disable upload button
    
-   E. Visual indicator:
-      Add banner at top of page in view-only mode:
-      "Your application has been submitted. Information shown below is for reference only."
+   B. Back of ID:
+      - Display uploaded ID back photo
+      - Show in the ID back upload area
+      - Add "Uploaded" checkmark
+      - Disable upload button
+   
+   C. Selfie + ID:
+      - Display uploaded selfie with ID photo
+      - Show in the selfie upload area
+      - Add "Uploaded" checkmark
+      - Disable upload button
 
-3. WHAT TO KEEP UNCHANGED:
-   - Django template structure
-   - URL routing (backend handles this)
-   - Form field names
-   - Validation logic
-   - Other profile menu items
-   - Page styling and colors
+4. DISABLE RE-UPLOAD in View-Only Mode:
+   - Hide "Click to upload" buttons
+   - Show uploaded images instead
+   - Add visual indicator: "✓ Uploaded"
+   - Make upload areas non-clickable
+   
+   CSS for uploaded state:
+   .upload-area.uploaded {
+     pointer-events: none;
+     opacity: 0.9;
+   }
+   .upload-area.uploaded::after {
+     content: "✓ Uploaded";
+     color: #22c55e;
+   }
 
-IMPLEMENTATION NOTES:
-- Use Django template conditional: {% if user.has_submitted_application %}
-- Or check loan status: {% if loan_status in "APPROVED,REJECTED,PENDING" %}
-- Add CSS class "view-only" to form when in view mode
-- Use :disabled pseudo-class for styling disabled inputs
+5. DISPLAY LOGIC:
+   If view-only mode (application submitted):
+   - Check if signature exists: show signature image
+   - Check if ID front exists: show ID front image
+   - Check if ID back exists: show ID back image  
+   - Check if selfie exists: show selfie image
+   - Hide all upload buttons
+   - Disable all file input fields
 
-Example disabled input:
-<input type="text" name="full_name" value="{{ user.full_name }}" disabled readonly>
+6. EXAMPLE STRUCTURE:
+   
+   <!-- Signature Display -->
+   {% if view_only_mode and user.signature %}
+     <div class="signature-display">
+       <img src="{{ user.signature }}" alt="Signature">
+       <span class="verified">✓ Signature verified</span>
+     </div>
+   {% else %}
+     <!-- Normal signature canvas for new applications -->
+   {% endif %}
+   
+   <!-- ID Photo Display -->
+   {% if view_only_mode and user.id_front %}
+     <div class="photo-display">
+       <img src="{{ user.id_front }}" alt="ID Front">
+       <span class="verified">✓ ID Front uploaded</span>
+     </div>
+   {% else %}
+     <!-- Normal upload button for new applications -->
+   {% endif %}
 
-Example completed step indicator:
-<div class="step-icon completed">
-  <svg><!-- checkmark icon --></svg>
-</div>
+7. STYLING:
+   /* Completed step cards - subtle green like loan summary */
+   .step-card.completed {
+     background: rgba(34, 197, 94, 0.15) !important;  /* more transparent */
+     border-color: rgba(34, 197, 94, 0.35) !important;
+   }
+   
+   .photo-display img,
+   .signature-display img {
+     max-width: 100%;
+     border-radius: 12px;
+     border: 2px solid #22c55e;
+   }
+   
+   .verified {
+     color: #22c55e;
+     font-weight: 800;
+     display: block;
+     margin-top: 8px;
+   }
 
-.step-icon.completed {
-  background: #22c55e !important;
-  border-color: #22c55e !important;
-}
+IMPORTANT:
+- Green cards should have MORE opacity (lower alpha value)
+- Match the subtle transparency of loan summary card
+- Do NOT allow re-upload in view-only mode
+- Always show existing photos/signature
+- Use Django template variables for image URLs
+- Add proper null/empty checks
+- Keep styling consistent with rest of page

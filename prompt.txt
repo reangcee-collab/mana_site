@@ -1,45 +1,54 @@
-Fix choose.html - remove dark overlays and make cards equal width:
+Remove dark background overlays from ALL pages to match choose.html brightness:
 
-IMPORTANT: Only change what I specify below. Do NOT modify:
-- Django template tags ({% %})
-- Existing animations
-- Button functionality
-- Color schemes
-- Any code not mentioned
+PROBLEM: 
+- choose.html has bright, visible background (GOOD - keep this)
+- login.html has dark/black overlay making background too dark (BAD - fix this)
+- Other pages may also have dark overlays
 
-CHANGES NEEDED:
+GOAL:
+Make ALL pages have the same bright background as choose.html
 
-1. REMOVE ALL DARK OVERLAYS:
-   Find ALL elements with dark/black backgrounds that cover the page background
-   Common patterns to remove:
-   - background: rgba(0,0,0,0.X)
+FILES TO CHECK AND FIX:
+1. login.html
+2. register.html  
+3. Any other template files with dark overlays
+
+WHAT TO REMOVE:
+Find and remove ALL of these dark overlay patterns:
+
+1. Body/HTML dark overlays:
+   body { background: linear-gradient(rgba(0,0,0,0.X), ...) }
+   Remove the rgba(0,0,0,...) gradient layer
+   Keep only the background image
+
+2. Dark wrapper divs:
+   Any div with:
+   - background: rgba(0,0,0,...)
    - background: linear-gradient with rgba(0,0,0,...)
-   - Any overlay divs with dark backgrounds
-   - backdrop-filter or -webkit-backdrop-filter causing darkness
-   
-   Keep the beautiful background image visible
-   Only keep card backgrounds (the blue gradient cards should stay)
-   Remove darkness between cards and page background
+   That covers the whole page
 
-2. MAKE CARDS EQUAL WIDTH ON DESKTOP:
-   On desktop/PC view (min-width: 768px):
-   - Welcome card (top)
-   - Info slider card (bottom)
-   Both should have EXACTLY same width
-   Both should be centered
-   Suggested: max-width: 520px for both
-   
-   Mobile stays as-is (stacked vertically, full width)
+3. Backdrop filters causing darkness:
+   - backdrop-filter: brightness(...) if < 1
+   - Any filter making things darker
 
-3. WHAT TO KEEP UNCHANGED:
-   - Card blue gradients (the actual card backgrounds)
-   - All text content
-   - All buttons and links
-   - Django template structure
-   - Icon SVGs
-   - Slider dots functionality
-   - Auto-slider JavaScript
-   - Spacing between cards
+WHAT TO KEEP:
+- Card backgrounds (the form cards with blue/dark styling)
+- Button backgrounds
+- Input field backgrounds
+- All functionality and structure
+- Django template tags {% %}
 
-File: templates/choose.html
-Only modify CSS, do not change HTML structure or Django tags.
+REFERENCE (GOOD):
+choose.html body background - bright and visible
+Copy this background style to other pages
+
+REFERENCE (BAD):  
+login.html - has dark overlay, background too dark
+Remove the dark overlay layer
+
+IMPORTANT:
+- Only modify CSS background/overlay properties
+- Do NOT change card styling
+- Do NOT change Django template structure
+- Do NOT change form functionality
+- Make background consistent across ALL pages

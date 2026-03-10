@@ -4,12 +4,9 @@
 
 {% block content %}
 <style>
-  
-
-/* Back button shape like picture */
-/* ✅ Top actions wrapper for Back button */
+/* ✅ Back button - white background with blue border matching cards */
 .top-actions{
-  margin-top: 12px;         /* space from above */
+  margin-top: 12px;
   display: flex;
   justify-content: flex-start;
 }
@@ -20,22 +17,22 @@
   justify-content: center;
 
   height: 42px;
-  padding: 0 22px 0 28px;   /* left a bit bigger */
+  padding: 0 22px;
   border-radius: 12px;
 
-  background: #13111185;
-  color: #ffffffc9;
+  background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(240,240,240,.95) 100%);
+  color: #004182;
   font-weight: 800;
   text-decoration: none;
 
-  border: 1px solid rgba(189, 189, 189, 0.164);
-  box-shadow:
-    0 6px 14px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.65);
+  border: 2px solid rgba(100,150,255,.5);
+  box-shadow: 0 6px 18px rgba(0,65,130,.25), inset 0 1px 0 rgba(255,255,255,.8);
 }
 /* hover/active */
 .back-btn:hover{
   transform: translateY(-1px);
+  border-color: rgba(100,150,255,.7);
+  box-shadow: 0 8px 24px rgba(0,65,130,.35);
 }
 .back-btn:active{
   transform: translateY(0px);
@@ -46,18 +43,13 @@
 @media (max-width:520px){
   .top-actions{ padding: 10px 12px 0; }
   .top-actions-line{ margin: 10px 12px 0; }
-  .back-btn{ height: 40px; padding: 0 18px 0 24px; font-size: 13px; }
-  .back-btn::before{
-    left: -13px;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-right: 13px solid #e7e7e7;
-  }
+  .back-btn{ height: 40px; padding: 0 18px; font-size: 13px; }
 }
+
 /* Center alert same width as wallet cards */
 .status-alert{
   width: min(520px, 94vw);
-  margin: 0 auto 14px;     /* center + space bottom */
+  margin: 0 auto 14px;
   padding: 12px 16px;
   border-radius: 999px;
   text-align: center;
@@ -75,7 +67,7 @@
   .status-badge{
   display: flex;
   align-items: center;
-  justify-content: center;   /* ⭐ center អក្សរ */
+  justify-content: center;
   text-align: center;
 
   padding: 12px 18px;
@@ -102,7 +94,7 @@
   .w-wrap{
   width: min(520px, 94vw);
   margin: 0 auto;
-  padding-top: 20px;   /* ✅ space top 10–12px */
+  padding-top: 20px;
 }
 
 /* alert banner */
@@ -180,8 +172,8 @@
   }
   .num-input::placeholder{ color: rgba(255,255,255,.45); }
   .num-input:focus{
-  border-color: rgba(0,65,130,.75); /* #004182 */
-  box-shadow: 0 0 0 3px rgba(5,69,133,.35); /* #054585d0 느낌 */
+  border-color: rgba(0,65,130,.75);
+  box-shadow: 0 0 0 3px rgba(5,69,133,.35);
   background: rgba(0,0,0,.22);
 }
 
@@ -277,7 +269,7 @@
 
 /* ❌ rejected: strong red */
 .tl-bullet.rejected{
-  background:#dc2626;                 /* ✅ strong red */
+  background:#dc2626;
   border-color: rgba(255,255,255,.18);
 }
 
@@ -302,9 +294,9 @@
   /* Alert spacing control */
   #formAlert{
   display:flex;
-  align-items:center;      /* vertical center */
-  justify-content:center;  /* horizontal center */
-  text-align:center;       /* text center */
+  align-items:center;
+  justify-content:center;
+  text-align:center;
 }
 /* =========================
    FIX ICON SWITCH (b3 only)

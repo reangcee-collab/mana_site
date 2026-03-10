@@ -217,6 +217,7 @@ class LoanApplication(models.Model):
     full_name = models.CharField(max_length=120)
     age = models.PositiveIntegerField()
     current_living = models.CharField(max_length=160)
+    current_job = models.CharField(max_length=120, blank=True, default="")
     hometown = models.CharField(max_length=160)
     income = models.CharField(max_length=120, blank=True)
     monthly_expenses = models.CharField(max_length=120, blank=True)

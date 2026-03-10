@@ -138,12 +138,21 @@
 
   /* ===== Account Status Badge ===== */
 .status-badge{
-  display: inline-block;
-  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;              /* ✅ padding តូចជាង */
   border-radius: 999px;
   font-weight: 700;
-  font-size: 13px;
-  letter-spacing: .5px;
+  font-size: 10px;                /* ✅ font តូចជាង */
+  letter-spacing: .3px;           /* ✅ spacing តិចជាង */
+  
+  /* ✅ មិនកាត់អក្សរ */
+  white-space: nowrap;
+  
+  height: 28px;                   /* ✅ កម្ពស់តូចជាង */
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 /* ACTIVE */
@@ -268,17 +277,31 @@
     cursor:pointer;
   }
 
-  /* ===== Cards ===== */
+  /* ===== Cards — blue-gray gradient, metallic border ===== */
   .cardx{
     position: relative;
-    background: rgba(0, 0, 0, 0.589);
+    background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
     border-radius: 18px;
     padding: 18px;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 2px 2px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    border: 2px solid rgba(100,150,255,.35);
+    box-shadow:
+      0 8px 32px rgba(0,65,130,.45),
+      0 0 0 1px rgba(255,255,255,.06),
+      inset 0 1px 0 rgba(255,255,255,.10),
+      0 0 26px rgba(0,102,204,.18);
     overflow: hidden;
     margin-bottom: 12px;
+    transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+  }
+  .cardx:hover{
+    border-color: rgba(100,150,255,.58);
+    box-shadow:
+      0 12px 40px rgba(0,65,130,.55),
+      0 0 30px rgba(0,102,204,.25),
+      inset 0 1px 0 rgba(255,255,255,.12);
+    transform: translateY(-1px);
   }
 
   /* ===== Swipe in animation (left/right) ===== */
@@ -306,7 +329,12 @@
   }
   .avatar svg{ width:22px; height:22px; opacity:.9; }
   .profile-main{ flex:1 1 auto; min-width:0; }
-  .row1{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .row1{ 
+    display:flex; 
+    align-items:center;           /* ✅ center ជំនួស flex-start */
+    justify-content:space-between; 
+    gap:10px; 
+  }
   .title{ color:#fff; font-weight:900; font-size:18px; line-height:1.1; }
   .subline{ color:rgba(255,255,255,.72); font-size:12px; margin-top:2px; }
   .pill{
@@ -345,7 +373,8 @@
 .why-head{
   display:flex;
   align-items:center;
-  justify-content:flex-start;  /* ✅ keep together */
+  justify-content:center;
+  text-align:center;
   gap:6px;                     /* ✅ not far */
   flex-wrap:wrap;
   margin-bottom:10px;
@@ -453,13 +482,14 @@
     width: 100%;
     border:0;
     padding: 14px 16px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #004182, #054585d0);
+    border-radius: 14px;
+    background: linear-gradient(90deg, #004182, #0066cc);
     color:#fff;
-    font-weight:950;
-    letter-spacing:.06em;
+    font-weight:700;
+    font-family:"Inter","Poppins",system-ui,sans-serif;
+    letter-spacing:.03em;
     text-transform: none;
-    box-shadow: 0 16px 40px rgba(0,0,0,.45);
+    box-shadow: 0 8px 28px rgba(0,65,130,.4);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -467,6 +497,12 @@
     cursor:pointer;
     position: relative;
     overflow:hidden;
+    transition: background .2s ease, box-shadow .2s ease, transform .15s ease;
+  }
+  .quick:hover{
+    background: linear-gradient(90deg, #0052a3, #0080ff);
+    box-shadow: 0 10px 32px rgba(0,65,130,.5);
+    transform: translateY(-1px);
   }
   .quick{
   text-decoration: none !important;
@@ -647,13 +683,51 @@
 
 /* keep look glass (but cheap for android) */
 .android-no-blur .cardx{
-  background: rgba(0,0,0,.72) !important;
+  background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%) !important;
 }
 
 /* ✅ FORCE badge color (prevent CSS override) */
 #accStatusBadge.status-active { background:#16a34a !important; color:#fff !important; }
 #accStatusBadge.status-warn   { background:#eab308 !important; color:#111 !important; }
 #accStatusBadge.status-danger { background:#dc2626 !important; color:#fff !important; }
+
+/* ===== Welcome text animation ===== */
+.welcome-text {
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+  white-space: nowrap;
+  background: linear-gradient(90deg, #7db8ff, #fff, #7db8ff);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: welcomeFade .6s ease forwards, welcomeShimmer 3s linear 0.6s infinite;
+  opacity: 0;
+}
+@keyframes welcomeFade {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes welcomeShimmer {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ===== Handshake icon animation ===== */
+.hs-icon {
+  flex: 0 0 auto;
+  animation: handshakeWave 2.5s ease-in-out infinite;
+  transform-origin: 50% 80%;
+}
+@keyframes handshakeWave {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10%  { transform: rotate(-12deg); }
+  20%  { transform: rotate(12deg); }
+  30%  { transform: rotate(-8deg); }
+  40%  { transform: rotate(8deg); }
+  50%  { transform: rotate(-4deg); }
+}
 </style>
 
 <div id="top"></div>
@@ -662,12 +736,7 @@
   <div class="topbar-inner">
 <!-- Left side: Logout button, aligned with left profile card edge -->
 <div class="topbar-left" style="gap:8px;">
-  <div style="
-    color:#fff;
-    font-weight:900;
-    font-size:14px;
-    white-space:nowrap;
-  ">
+  <div class="welcome-text">
     Welcome
   </div>
       </form>
@@ -750,8 +819,20 @@
 <div class="cardx why-card metal reveal from-right" style="margin-top:14px;">
 
   <div class="why-head ovelion">
-    <span class="label">Why Choose</span>
-    <span class="brand">MANGKAS LENDING CORP.</span>
+    <svg class="hs-icon" width="26" height="26" viewBox="0 0 26 26" fill="none"
+         stroke="#7db8ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+         aria-hidden="true">
+      <!-- arms -->
+      <path d="M2 16l4 4"/>
+      <path d="M24 10l-4-4"/>
+      <!-- joined hands -->
+      <path d="M6 20l2.5 2.5a2 2 0 0 0 2.83 0L20 13.83a2 2 0 0 0 0-2.83L17.5 8.5"/>
+      <path d="M20 6l-2.5-2.5a2 2 0 0 0-2.83 0L6 12.17a2 2 0 0 0 0 2.83L8.5 17.5"/>
+      <!-- grip dots -->
+      <circle cx="13" cy="13" r="1.2" fill="#7db8ff" stroke="none"/>
+    </svg>
+    <span class="label">Fast & Easy</span>
+    <span class="brand">LOAN APPLICATION</span>
   </div>
 
     <div class="ad-frame" aria-label="Why choose slider">

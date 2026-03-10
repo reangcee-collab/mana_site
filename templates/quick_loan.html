@@ -12,17 +12,72 @@
     box-sizing: border-box;
   }
 
-  .cardx{
+  /* Default card style — blue-gray gradient + blue metallic border */
+.cardx{
   position: relative;
-  background: rgba(9, 10, 10, 0.856);
-  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
+  border-radius: 16px;
   padding: 16px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 10px 26px rgba(0,0,0,.45), inset 0 1px 0 rgba(163,157,157,.35);
+  border: 2px solid rgba(100,150,255,.35);
+  box-shadow:
+    0 8px 32px rgba(0,65,130,.4),
+    0 0 0 1px rgba(255,255,255,.06),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 0 22px rgba(0,102,204,.14);
   overflow: hidden;
   margin-bottom: 14px;
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
+.cardx:hover{
+  border-color: rgba(100,150,255,.58);
+  box-shadow:
+    0 12px 40px rgba(0,65,130,.5),
+    0 0 28px rgba(0,102,204,.22),
+    inset 0 1px 0 rgba(255,255,255,.1);
+  transform: translateY(-1px);
+}
+
+/* Application Status card — WHITE background */
+#statusCard{
+  background: #ffffff !important;
+  border: 2px solid rgba(192,192,192,.55) !important;
+  box-shadow:
+    0 6px 28px rgba(0,0,0,.14),
+    0 0 0 1px rgba(0,0,0,.04) !important;
+}
+#statusCard:hover{
+  border-color: rgba(150,150,150,.65) !important;
+  box-shadow:
+    0 10px 36px rgba(0,0,0,.18) !important;
+}
+/* White card — override text colors */
+#statusCard .status-title{ color: #111827 !important; }
+#statusCard .status-sub{ color: rgba(0,0,0,.58) !important; }
+#statusCard .mini-pill{
+  background: rgba(0,0,0,.07) !important;
+  border-color: rgba(0,0,0,.15) !important;
+  color: #374151 !important;
+}
+#statusCard .mini-pill.is-rejected{
+  background: rgba(220,38,38,.1) !important;
+  border-color: rgba(220,38,38,.55) !important;
+  color: #dc2626 !important;
+}
+#statusCard .status-btn{
+  background: rgba(0,0,0,.07) !important;
+  border-color: rgba(0,0,0,.14) !important;
+  color: #1a2942 !important;
+}
+#statusCard .line{
+  background: rgba(0,0,0,.1) !important;
+}
+#statusCard .reject-alert{
+  border-color: rgba(220,38,38,.4) !important;
+  background: rgba(220,38,38,.07) !important;
+  color: #7f1d1d !important;
+}
+#statusCard .reject-alert .ra-title{ color: #dc2626 !important; }
+#statusCard .reject-alert .ra-text{ color: #7f1d1d !important; }
   /* Back button shape like picture */
 .back-btn{
   position: relative;
@@ -189,25 +244,55 @@
     cursor:pointer;
   }
 
-  .step-row{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  /* ===== Step indicators — colorful (Task 2) ===== */
+  .step-row{ display:flex; align-items:center; gap:10px; margin-top:14px; }
+
+  /* Base dot — inactive / dimmed */
   .dot{
-    width:34px; height:34px; border-radius:999px;
+    width:36px; height:36px; border-radius:999px;
     display:flex; align-items:center; justify-content:center;
-    font-weight:950;
-    border:1px solid rgba(255,255,255,.18);
-    background:rgba(0,0,0,.18);
-    color:rgba(255,255,255,.75);
+    font-weight:900; font-size:14px; flex:0 0 auto;
+    transition: all .3s ease;
   }
-  .dot.active{
-  background: rgba(0,65,130,.22);
-  border-color: rgba(0,65,130,.60);
-  color:#fff;
+  /* Per-step colors (inactive = dimmed) */
+  #s1{ background:rgba(255,215,0,.12); border:2px solid rgba(255,215,0,.3); color:rgba(255,215,0,.55); }
+  #s2{ background:rgba(147,51,234,.12); border:2px solid rgba(147,51,234,.3); color:rgba(167,139,250,.55); }
+  #s3{ background:rgba(34,197,94,.12);  border:2px solid rgba(34,197,94,.3);  color:rgba(74,222,128,.55); }
+
+  /* Active dot — bright color + glow */
+  #s1.active{
+    background:rgba(255,215,0,.22); border-color:rgba(255,215,0,.85);
+    color:#FFD700;
+    box-shadow: 0 0 14px rgba(255,215,0,.45), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  #s2.active{
+    background:rgba(147,51,234,.28); border-color:rgba(167,139,250,.85);
+    color:#c084fc;
+    box-shadow: 0 0 14px rgba(147,51,234,.5), inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  #s3.active{
+  background:rgba(34,197,94,.22); border-color:rgba(74,222,128,.9);
+  color:#4ade80;
+  box-shadow: 0 0 14px rgba(34,197,94,.45), inset 0 1px 0 rgba(255,255,255,.12);
 }
+  /* Rejected state — red X on all dots */
+  .dot.rejected{
+    background: rgba(239,68,68,.18) !important;
+    border: 2px solid rgba(239,68,68,.75) !important;
+    color: #ef4444 !important;
+    box-shadow: 0 0 12px rgba(239,68,68,.38) !important;
+  }
+
+  /* Lines */
   .line{
     flex:1; height:3px; border-radius:999px;
-    background:rgba(255,255,255,.18);
+    background:rgba(255,255,255,.12);
+    transition: background .3s ease;
   }
-  .line.active{ background: rgba(0,65,130,.75); }
+  #l1.active{ background: linear-gradient(90deg, #FFD700, #9333EA); }
+  #l2.active{ background: linear-gradient(90deg, #9333EA, #22c55e); }
+  .line.rejected{ background: #ef4444 !important; }
+
   .step-labels{
     display:grid;
     grid-template-columns:repeat(4,1fr);
@@ -217,13 +302,18 @@
     color:rgba(255,255,255,.78);
   }
   .step-labels.three{
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  text-align:center;
-  margin-top:8px;
-  font-size:12px;
-  opacity:.85;
-}
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    text-align:center;
+    margin-top:10px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.03em;
+  }
+  /* Label colors match step colors */
+  .step-labels.three div:nth-child(1){ color:rgba(255,215,0,.8); }
+  .step-labels.three div:nth-child(2){ color:rgba(167,139,250,.8); }
+  .step-labels.three div:nth-child(3){ color:rgba(74,222,128,.8); }
 .reject-alert{
   margin-top:12px;
   border-radius:16px;
@@ -288,6 +378,15 @@
       <div class="row"><div class="k">Interest rate</div><div class="v">0.5%</div></div>
       <div class="row"><div class="k">Loan period</div><div class="v" id="qSumTerm">—</div></div>
       <div class="row"><div class="k">Monthly repayment</div><div class="v" id="qSumMonthly">—</div></div>
+      {% if loan %}
+      <div class="row" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12);">
+        <div class="k">Status</div>
+        <span style="padding:5px 14px;border-radius:999px;font-size:12px;font-weight:900;
+                     background:rgba(0,65,130,.25);border:1px solid rgba(0,102,204,.5);color:#93c5fd;">
+          SUBMITTED
+        </span>
+      </div>
+      {% endif %}
     </div>
 
     <button class="btn btn-primary cta" type="button" id="goApply" style="opacity:.65" disabled>
@@ -413,7 +512,7 @@
       const amount = amountEl?.value || "";
       const term = termEl?.value || "";
       if(!amount || !term) return;
-      window.location.href = "{% url 'loan_apply' %}?amount=" + encodeURIComponent(amount) + "&term=" + encodeURIComponent(term);
+      window.location.href = "{% url 'loan_info' %}?amount=" + encodeURIComponent(amount) + "&term=" + encodeURIComponent(term);
     });
   {% endif %}
 
@@ -432,36 +531,55 @@
 function applyStep(n, label){
   const dots = [null, "s1", "s2", "s3"];
   const lines = [null, "l1", "l2"];
+  const isRejected = String(label || "").toUpperCase().trim() === "REJECTED";
 
   for(let i=1;i<=3;i++){
     const d = document.getElementById(dots[i]);
     if(d){
-      const isDone = i < n;
-      const isActive = i <= n;
-
-      d.classList.toggle("active", isActive);
-
-      // ✅ Completed = ✓, and FINAL (step 3) when active also = ✓
-      if(isDone || (i === 3 && n === 3)){
-        d.textContent = "✓";
-      }else{
-        d.textContent = String(i);
+      if(isRejected){
+        d.classList.remove("active");
+        d.classList.add("rejected");
+        d.textContent = "✕";
+      } else {
+        d.classList.remove("rejected");
+        const isDone = i < n;
+        const isActive = i <= n;
+        d.classList.toggle("active", isActive);
+        if(isDone || (i === 3 && n === 3)){ d.textContent = "✓"; }
+        else { d.textContent = String(i); }
       }
     }
-
     if(i<=2){
       const ln = document.getElementById(lines[i]);
-      if(ln) ln.classList.toggle("active", i < n);
+      if(ln){
+        ln.classList.toggle("rejected", isRejected);
+        ln.classList.toggle("active", !isRejected && i < n);
+      }
     }
   }
 
+  /* Update "Approved" label → "Rejected" in red when rejected */
+  const labels3 = document.querySelector(".step-labels.three");
+  if(labels3){
+    const divs = labels3.querySelectorAll("div");
+    if(divs[2]){
+      divs[2].textContent = isRejected ? "Rejected" : "Approved";
+      divs[2].style.color = isRejected ? "#ef4444" : "";
+    }
+  }
+
+  /* Reject alert banner */
+  const rejectAlert = document.getElementById("rejectAlert");
+  if(rejectAlert) rejectAlert.style.display = isRejected ? "block" : "none";
+
   const pill = document.getElementById("statusPill");
-  if (pill) pill.textContent = String(label || "PENDING").toUpperCase();
+  if(pill) pill.textContent = String(label || "PENDING").toUpperCase();
 
   const text = document.getElementById("statusText");
   const s = String(label || "").toUpperCase().trim();
   if(text){
-    if(s === "REVIEW") text.textContent = "Initial approval in progress. Please wait.";
+    if(s === "REJECTED") text.textContent = "Rejected. Please contact company department.";
+    else if(s === "REVIEW") text.textContent = "Initial approval in progress. Please wait.";
     else if(s === "APPROVED") text.textContent = "Final approval. Almost done.";
     else if(s === "PAID") text.textContent = "Success Paid. Your loan has been completed.";
     else text.textContent = "Our team is reviewing your documents. Please wait.";
@@ -489,9 +607,7 @@ const isRejected = String(j.status || "").toUpperCase() === "REJECTED";
 if (pill) pill.classList.toggle("is-rejected", isRejected);
 
       if(String(j.status || "").toUpperCase() === "REJECTED"){
-        applyStep(1, "REJECTED");
-        const t = document.getElementById("statusText");
-        if (t) t.textContent = "Rejected. Please contact company department.";
+        applyStep(0, "REJECTED");
         return;
       }
 

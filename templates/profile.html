@@ -9,7 +9,13 @@
   font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
 }
 
-  /* Back button shape like picture */
+  /* ✅ Back button - white background with blue border matching cards */
+  .top-actions{
+    margin: 6px 0 12px 0;  /* ✅ smaller top margin = closer to Logout */
+    display: flex;
+    justify-content: flex-start;
+  }
+  
   .back-btn{
     position: relative;
     display: inline-flex;
@@ -17,32 +23,33 @@
     justify-content: center;
 
     height: 42px;
-    padding: 0 22px 0 28px;   /* left a bit bigger */
+    padding: 0 22px;
     border-radius: 12px;
 
-    background: #13111185;
-    color: #ffffffc9;
+    background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(240,240,240,.95) 100%);
+    color: #004182;
     font-weight: 800;
     text-decoration: none;
 
-    border: 1px solid rgba(189, 189, 189, 0.164);
-    box-shadow:
-      0 6px 14px rgba(0,0,0,.18),
-      inset 0 1px 0 rgba(255,255,255,.65);
+    border: 2px solid rgba(100,150,255,.5);
+    box-shadow: 0 6px 18px rgba(0,65,130,.25), inset 0 1px 0 rgba(255,255,255,.8);
   }
-  .back-btn:hover{ transform: translateY(-1px); }
-  .back-btn:active{ transform: translateY(0px); opacity: .92; }
+  
+  .back-btn:hover{ 
+    transform: translateY(-1px); 
+    border-color: rgba(100,150,255,.7);
+    box-shadow: 0 8px 24px rgba(0,65,130,.35);
+  }
+  
+  .back-btn:active{ 
+    transform: translateY(0px); 
+    opacity: .92; 
+  }
 
   @media (max-width:520px){
     .top-actions{ padding: 10px 12px 0; }
     .top-actions-line{ margin: 10px 12px 0; }
-    .back-btn{ height: 40px; padding: 0 18px 0 24px; font-size: 13px; }
-    .back-btn::before{
-      left: -13px;
-      border-top: 20px solid transparent;
-      border-bottom: 20px solid transparent;
-      border-right: 13px solid #e7e7e7;
-    }
+    .back-btn{ height: 40px; padding: 0 18px; font-size: 13px; }
   }
 
   body{
@@ -65,18 +72,20 @@
     box-sizing: border-box;
   }
 
-  /* ===== cards ===== */
+  /* ===== Profile card (same as Wallet top card) ===== */
   .cardx{
     position: relative;
-    background: rgba(9, 10, 10, 0.76);
+    background: linear-gradient(90deg, #004182, #054585d0);
     border-radius: 18px;
     padding: 18px;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 3px 4px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    box-shadow: 0 18px 45px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.10);
+    border: 1px solid rgba(255,255,255,.14);
     overflow: hidden;
     margin-bottom: 12px;
   }
+
   .head{
     display:flex;
     align-items:center;
@@ -98,7 +107,7 @@
     padding:6px 12px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.10);
-    background: #1e2222a1;
+    background: rgba(0,0,0,.22);
     color:#fafafa;
     font-weight:850;
     font-size:12px;
@@ -109,6 +118,8 @@
     display:grid;
     gap:12px;
   }
+
+  /* ✅ Button cards - soft blue like Withdrawal amount card */
   .p-btn{
     display:flex;
     align-items:center;
@@ -119,47 +130,36 @@
     color:#fff;
 
     position: relative;
-    background: rgb(9, 10, 10);
+    background: linear-gradient(135deg, rgba(30,58,95,.96) 0%, rgba(20,40,75,.96) 100%);
     border-radius: 18px;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 2px 2px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+    box-shadow: 0 6px 28px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.07);
+    border: 2px solid rgba(100,150,255,.35);
     overflow: hidden;
 
-    border:0;
     opacity:1;
     transform:none;
-    transition:none;
-    margin-bottom:12px;
+    transition: all .2s ease;
+    margin-bottom:6px;  /* ✅ reduced from 12px to 6px = closer to Back button */
   }
-  .p-btn::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    padding:3px;
-    border-radius:16px;
-    background: linear-gradient(
-      135deg,
-      rgba(10, 10, 10, 0.788),
-      rgba(44, 38, 38, 0.26),
-      rgba(67, 68, 68, 0.288),
-      rgb(46, 46, 46)
-    );
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events:none;
+
+  .p-btn:hover{
+    border-color:rgba(211,211,211,.72);
+    box-shadow:0 10px 36px rgba(0,0,0,.55), 0 0 22px rgba(192,192,192,.12), inset 0 1px 0 rgba(255,255,255,.08);
+    transform:translateY(-1px);
   }
+
+  .p-btn:active{ 
+    transform: scale(.99) translateY(0); 
+  }
+
+  /* Remove old pseudo-elements */
+  .p-btn::before,
   .p-btn::after{
-    content:"";
-    position:absolute;
-    inset:-50% -50%;
-    background: radial-gradient(circle at 25% 25%,
-      rgba(49, 44, 44, 0.329),
-      rgba(255,255,255,0) 55%);
-    pointer-events:none;
+    content: none;
+    display: none;
   }
-  .p-btn:active{ transform: none; }
 
   .left{
     display:flex;
@@ -171,14 +171,15 @@
     width:42px;
     height:42px;
     border-radius:14px;
-    background: rgba(255,255,255,.10);
-    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,65,130,.3);
+    border: 2px solid rgba(100,150,255,.5);
     display:flex;
     align-items:center;
     justify-content:center;
     flex: 0 0 auto;
+    box-shadow: 0 0 10px rgba(0,102,204,.15);
   }
-  .ico svg{ width:20px; height:20px; fill:#fff; opacity:.95; }
+  .ico svg{ width:20px; height:20px; fill:none; stroke:#7db8ff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
   .txt{ min-width:0; }
   .t1{
@@ -263,41 +264,39 @@
     cursor:pointer;
   }
   .btn-confirm{
-  height:40px;
-  padding:0 16px;
-  border-radius:999px;
-  border:0;
-  font-weight: 900;
-  cursor:pointer;
-  background: linear-gradient(90deg, #004182, #054585d0);
-  color:#e6f1ff;
-  box-shadow: 0 12px 30px rgba(0,0,0,.35);
-}
+    height:40px;
+    padding:0 16px;
+    border-radius:999px;
+    border:0;
+    font-weight: 900;
+    cursor:pointer;
+    background: linear-gradient(90deg, #004182, #054585d0);
+    color:#e6f1ff;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  }
 
-.btn-confirm:active{
-  transform: scale(.98);
-}
+  .btn-confirm:active{
+    transform: scale(.98);
+  }
+
+  /* Profile page alert style (use GLOBAL status colors) */
+  .status-alert{
+    width: 100%;
+    margin: 0 0 12px;     
+    padding: 12px 16px;
+    border-radius: 999px;
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: .4px;
+    box-sizing: border-box;
+  }
+  .p-wrap .status-alert{
+    width: 100%;          
+  }
 </style>
 
 <div class="p-wrap">
 <div id="statusAlert" class="status-alert" style="display:none;"></div>
-
-<style>
-/* Profile page alert style (use GLOBAL status colors) */
-.status-alert{
-  width: 100%;
-  margin: 0 0 12px;     /* ❗ remove auto center causing weird offset */
-  padding: 12px 16px;
-  border-radius: 999px;
-  text-align: center;
-  font-weight: 900;
-  letter-spacing: .4px;
-  box-sizing: border-box;
-}
-.p-wrap .status-alert{
-  width: 100%;          /* ✅ match card width */
-}
-</style>
 
   <div class="cardx" id="profile-currency-section">
     <div class="head">
@@ -315,7 +314,7 @@
     </div>
 
     <div style="font-size:12px; opacity:.85;">
-      <div class="amount">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
+      <div class="amount" style="font-size:28px; font-weight:950; margin-top:12px;">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
     </div>
   </div>
 
@@ -335,7 +334,7 @@
       </div>
     </a>
 
-    <a class="p-btn" href="/loan-apply/">
+    <a class="p-btn" href="{% url 'quick_loan' %}">
       <div class="left">
         <div class="ico" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6V2zm9 1.5V6h2.5L15 3.5zM8 9h8v2H8V9zm0 4h8v2H8v-2zm0 4h6v2H8v-2z"/></svg>
@@ -429,11 +428,10 @@
     </a>
   </div>
 
-  <!-- TOP ACTIONS -->
+  <!-- ✅ TOP ACTIONS - closer to Logout button -->
   <div class="top-actions">
     <a class="back-btn" href="{% url 'dashboard' %}">Back</a>
   </div>
-  <div class="top-actions-line"></div>
 
   <!-- ✅ Logout Confirm Modal -->
   <div id="logoutModal" class="logout-modal" aria-hidden="true">

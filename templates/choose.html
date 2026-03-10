@@ -12,44 +12,396 @@
   body, body * {
     font-family: 'Ovelion', sans-serif !important;
   }
-  </style>
-<div class="card">
 
-  <h1 style="margin:0 0 10px;font-size:36px;font-weight:900;letter-spacing:.6px;">
-    <span class="silver-run">WELCOME</span>
-    <span class="silver-run wave-bang">!</span>
-  </h1>
+  /* ===== Main Container ===== */
+  .welcome-container{
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
 
-  <p style="opacity:.9;margin-bottom:22px">
-    Come to your trusted bank,<br>
-    we are waiting to serve you 24 hours
-  </p>
+  /* ===== Welcome Card (Top) ===== */
+  .card{
+    background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
+    border: 2px solid rgba(100,150,255,.35);
+    box-shadow: 0 8px 32px rgba(0,65,130,.4), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.08);
+    animation: zoomIn .45s ease;
+    padding: 32px 28px;
+    border-radius: 20px;
+  }
 
-  <a href="/login/" style="
-    display:block;
-    padding:14px;
-    border-radius:999px;
-    background:linear-gradient(90deg,#004182,#054585ab);
-    color:#fff;
-    font-weight:800;
-    text-decoration:none;
-    margin-bottom:12px;">
-    START →
-  </a>
+  .card h1{
+    margin: 0 0 12px;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: .6px;
+    color: #fff;
+  }
 
-  <a href="/register/" style="
-    display:block;
-    padding:12px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.45);
-    color:#fff;
-    text-decoration:none;">
-    REGISTER +
-  </a>
+  .card p{
+    opacity: .92;
+    margin-bottom: 22px;
+    color: rgba(255,255,255,.92);
+    line-height: 1.5;
+  }
 
-  <small style="display:block;margin-top:12px;opacity:.8">
-    Trusted • 24/7 support
-  </small>
+  .btn-start{
+    display: block;
+    padding: 14px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #004182, #054585d0);
+    color: #fff;
+    font-weight: 800;
+    text-decoration: none;
+    margin-bottom: 12px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,65,130,.3);
+    transition: all 0.2s ease;
+  }
 
+  .btn-start:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,65,130,.4);
+  }
+
+  .btn-register{
+    display: block;
+    padding: 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.45);
+    background: transparent;
+    color: #fff;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.2s ease;
+  }
+
+  .btn-register:hover{
+    background: rgba(255,255,255,.08);
+    border-color: rgba(255,255,255,.65);
+  }
+
+  .card small{
+    display: block;
+    margin-top: 12px;
+    opacity: .85;
+    color: rgba(255,255,255,.85);
+    text-align: center;
+  }
+
+  /* ===== Info Slider (Bottom) ===== */
+  .info-slider{
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .info-slide{
+    display: none;
+    background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
+    border: 2px solid rgba(100,150,255,.35);
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: 0 8px 32px rgba(0,65,130,.4), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.08);
+    animation: slideIn 0.5s ease;
+  }
+
+  .info-slide.active{
+    display: block;
+  }
+
+  @keyframes slideIn{
+    from{ opacity: 0; transform: translateY(10px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  .info-header{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+  }
+
+  .info-icon{
+    width: 56px;
+    height: 56px;
+    background: rgba(0,65,130,.4);
+    border: 2px solid rgba(100,150,255,.5);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(0,102,204,.18);
+  }
+
+  .info-icon svg{
+    width: 28px;
+    height: 28px;
+    fill: #7db8ff;
+  }
+
+  .info-title{
+    font-size: 20px;
+    font-weight: 950;
+    color: #fff;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+
+  .info-content{
+    color: rgba(255,255,255,.88);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .info-intro{
+    margin: 0 0 16px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(255,255,255,.92);
+  }
+
+  .info-list{
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px;
+  }
+
+  .info-list li{
+    padding: 10px 0;
+    padding-left: 28px;
+    position: relative;
+    color: rgba(255,255,255,.88);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .info-list li::before{
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #4ade80;
+    font-weight: 900;
+    font-size: 18px;
+  }
+
+  .info-highlight{
+    background: rgba(34,197,94,.15);
+    border: 1px solid rgba(34,197,94,.35);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-top: 18px;
+    color: #4ade80;
+    font-weight: 800;
+    font-size: 14px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* Slider Dots */
+  .slider-dots{
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+
+  .dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .dot:hover{
+    background: rgba(255,255,255,.5);
+  }
+
+  .dot.active{
+    background: #0066cc;
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  /* ===== Remove dark page overlay ===== */
+  body{
+    background:
+      linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
+      url("{% static 'img/SL-012322-48100-03.webp' %}") center/cover no-repeat fixed;
+  }
+
+  /* ===== Equal-width cards on desktop ===== */
+  @media (min-width: 768px){
+    .welcome-container{
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .card,
+    .info-slider{
+      width: 100%;
+      max-width: 520px;
+      box-sizing: border-box;
+    }
+  }
+</style>
+
+<!-- Welcome Container -->
+<div class="welcome-container">
+  <!-- Main Welcome Card (Top) -->
+  <div class="card">
+    <h1>
+      <span class="silver-run">WELCOME</span>
+      <span class="silver-run wave-bang">!</span>
+    </h1>
+
+    <p>
+      Come to your trusted bank,<br>
+      we are waiting to serve you 24 hours
+    </p>
+
+    <a href="/login/" class="btn-start">
+      START →
+    </a>
+
+    <a href="/register/" class="btn-register">
+      REGISTER +
+    </a>
+
+    <small>
+      Trusted • 24/7 support
+    </small>
+  </div>
+
+  <!-- Info Slider (Bottom) -->
+  <div class="info-slider">
+    <!-- Slide 1: Quick Loans -->
+    <div class="info-slide active" data-slide="0">
+      <div class="info-header">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/>
+            <path d="M13 9V3.5L18.5 9H13z"/>
+          </svg>
+        </div>
+        <div class="info-title">Quick<br>Loans</div>
+      </div>
+      <div class="info-content">
+        <p class="info-intro">Get instant access to personal loans with competitive rates:</p>
+        <ul class="info-list">
+          <li>Loan amount: ₱100,000 - ₱5,000,000</li>
+          <li>Flexible terms: 6-60 months</li>
+          <li>Low interest rate: 0.5% monthly</li>
+          <li>Fast approval: 24-48 hours</li>
+        </ul>
+        <div class="info-highlight">
+          ✨ Apply online in minutes
+        </div>
+      </div>
+      <div class="slider-dots">
+        <span class="dot active" onclick="showSlide(0)"></span>
+        <span class="dot" onclick="showSlide(1)"></span>
+        <span class="dot" onclick="showSlide(2)"></span>
+      </div>
+    </div>
+
+    <!-- Slide 2: How It Works -->
+    <div class="info-slide" data-slide="1">
+      <div class="info-header">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <div class="info-title">How It<br>Works</div>
+      </div>
+      <div class="info-content">
+        <p class="info-intro">Simple 4-step process:</p>
+        <ul class="info-list">
+          <li>Register account with phone number</li>
+          <li>Complete loan application form</li>
+          <li>Upload required documents (ID, selfie)</li>
+          <li>Get approved & receive funds</li>
+        </ul>
+        <div class="info-highlight">
+          ⚡ Funds directly to your bank account
+        </div>
+      </div>
+      <div class="slider-dots">
+        <span class="dot" onclick="showSlide(0)"></span>
+        <span class="dot active" onclick="showSlide(1)"></span>
+        <span class="dot" onclick="showSlide(2)"></span>
+      </div>
+    </div>
+
+    <!-- Slide 3: Security & Trust -->
+    <div class="info-slide" data-slide="2">
+      <div class="info-header">
+        <div class="info-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+            <path d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+          </svg>
+        </div>
+        <div class="info-title">Secure &<br>Licensed</div>
+      </div>
+      <div class="info-content">
+        <p class="info-intro">Your trusted lending partner:</p>
+        <ul class="info-list">
+          <li>Fully licensed financial institution</li>
+          <li>Bank-level data encryption</li>
+          <li>18+ years of experience</li>
+          <li>50,000+ satisfied customers</li>
+          <li>24/7 customer support</li>
+        </ul>
+        <div class="info-highlight">
+          🔒 Your data is safe with us
+        </div>
+      </div>
+      <div class="slider-dots">
+        <span class="dot" onclick="showSlide(0)"></span>
+        <span class="dot" onclick="showSlide(1)"></span>
+        <span class="dot active" onclick="showSlide(2)"></span>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll('.info-slide');
+
+function showSlide(index){
+  // Hide all slides
+  slides.forEach(s => s.classList.remove('active'));
+  
+  // Show selected slide
+  currentSlide = index;
+  slides[currentSlide].classList.add('active');
+}
+
+// Auto-advance slides every 5 seconds
+setInterval(() => {
+  currentSlide = (currentSlide + 1) % slides.length;
+  showSlide(currentSlide);
+}, 5000);
+</script>
+
 {% endblock %}

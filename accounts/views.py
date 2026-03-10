@@ -1485,6 +1485,154 @@ def contact_view(request):
 
 
 @login_required(login_url="login")
+def loan_info_view(request):
+    """Multi-step loan information collection page."""
+    existing = (
+        LoanApplication.objects
+        .filter(user=request.user)
+        .exclude(status="REJECTED")
+        .order_by("-id")
+        .first()
+    )
+
+    if request.method != "POST":
+        if existing:
+            return redirect(reverse("quick_loan"))
+        amount = (request.GET.get("amount") or "").strip()
+        term = (request.GET.get("term") or "").strip()
+        return render(request, "loan_info.html", {"amount": amount, "term": term})
+
+    if existing:
+        messages.info(request, "You already have an active application.")
+        return redirect("quick_loan")
+
+    # Collect all form data
+    full_name = (request.POST.get("full_name") or "").strip()
+    age_raw = (request.POST.get("age") or "").strip()
+    current_living = (request.POST.get("current_living") or "").strip()
+    current_job = (request.POST.get("current_job") or "").strip()
+    hometown = (request.POST.get("hometown") or "").strip()
+    income = (request.POST.get("income") or "").strip()
+    monthly_expenses = (request.POST.get("monthly_expenses") or "").strip()
+    guarantor_contact = (request.POST.get("guarantor_contact") or "").strip()
+    guarantor_current_living = (request.POST.get("guarantor_current_living") or "").strip()
+    identity_name = (request.POST.get("identity_name") or "").strip()
+    identity_number = (request.POST.get("identity_number") or "").strip()
+    signature_data = (request.POST.get("signature_data") or "").strip()
+    loan_amount_raw = (request.POST.get("loan_amount") or "").strip()
+    term_raw = (request.POST.get("loan_terms") or "").strip()
+    loan_purposes = request.POST.getlist("loan_purposes")
+
+    # Bank/beneficiary info
+    bank_name = (request.POST.get("bank_name") or "").strip()
+    bank_account = (request.POST.get("bank_account") or "").strip()
+    account_holder = (request.POST.get("account_holder") or "").strip()
+
+    # Files
+    id_front_raw = request.FILES.get("id_front")
+    id_back_raw = request.FILES.get("id_back")
+    selfie_raw = request.FILES.get("selfie_with_id")
+
+    def _err(msg):
+        messages.error(request, msg)
+        qs = ""
+        if loan_amount_raw and term_raw:
+            qs = f"?amount={loan_amount_raw}&term={term_raw}"
+        return redirect(reverse("loan_info") + qs)
+
+    if not (full_name and age_raw and current_living and hometown and monthly_expenses
+            and guarantor_contact and guarantor_current_living and identity_name and identity_number):
+        return _err("Please fill all required fields.")
+
+    if not (id_front_raw and id_back_raw and selfie_raw):
+        return _err("Please upload Front/Back/Selfie ID images.")
+
+    if not signature_data.startswith("data:image"):
+        return _err("Please draw your signature first.")
+
+    try:
+        age = int(age_raw)
+    except ValueError:
+        return _err("Invalid age.")
+
+    try:
+        amount = Decimal(loan_amount_raw)
+    except (InvalidOperation, ValueError):
+        return _err("Invalid loan amount.")
+
+    try:
+        term_months = int(term_raw)
+    except (ValueError, TypeError):
+        return _err("Please choose loan terms.")
+
+    if term_months not in (6, 12, 24, 36, 48, 60):
+        return _err("Invalid loan terms.")
+
+    cfg = LoanConfig.objects.first()
+    if cfg:
+        if amount < Decimal(str(cfg.min_amount)) or amount > Decimal(str(cfg.max_amount)):
+            return _err(f"Loan amount must be between {cfg.min_amount} and {cfg.max_amount}.")
+        rate = Decimal(str(cfg.interest_rate_monthly))
+    else:
+        rate = Decimal("0.0003")
+
+    total = amount + (amount * rate * Decimal(term_months))
+    monthly = total / Decimal(term_months)
+
+    try:
+        id_front = normalize_upload_image(id_front_raw, max_side=1600, quality=78, out_format="WEBP")
+        id_back = normalize_upload_image(id_back_raw, max_side=1600, quality=78, out_format="WEBP")
+        selfie_with_id = normalize_upload_image(selfie_raw, max_side=1600, quality=78, out_format="WEBP")
+    except ValueError as e:
+        return _err(str(e))
+    except Exception:
+        return _err("Image upload error. Please try again with a different photo.")
+
+    try:
+        header, b64 = signature_data.split(";base64,", 1)
+        sig_file = ContentFile(base64.b64decode(b64), name=f"signature_{request.user.id}.png")
+    except Exception:
+        return _err("Signature error. Please clear and draw again.")
+
+    LoanApplication.objects.create(
+        user=request.user,
+        full_name=full_name,
+        age=age,
+        current_living=current_living,
+        current_job=current_job,
+        hometown=hometown,
+        income=income,
+        monthly_expenses=monthly_expenses,
+        guarantor_contact=guarantor_contact,
+        guarantor_current_living=guarantor_current_living,
+        identity_name=identity_name,
+        identity_number=identity_number,
+        id_front=id_front,
+        id_back=id_back,
+        selfie_with_id=selfie_with_id,
+        signature_image=sig_file,
+        amount=amount,
+        term_months=term_months,
+        interest_rate_monthly=rate,
+        monthly_repayment=monthly,
+        status="PENDING",
+        loan_purposes=loan_purposes or [],
+    )
+
+    # Save bank info to PaymentMethod
+    if bank_name or bank_account:
+        pm, _ = PaymentMethod.objects.get_or_create(user=request.user)
+        if not pm.locked:
+            pm.bank_name = bank_name
+            pm.bank_account = bank_account
+            pm.wallet_name = account_holder
+            pm.locked = True
+            pm.save()
+
+    return redirect(reverse("quick_loan") + "?done=1")
+
+
+@login_required(login_url="login")
 def loan_apply_view(request):
     # lock if already has any active loan (including DRAFT) except rejected
     existing = (

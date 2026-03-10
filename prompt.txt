@@ -1,0 +1,45 @@
+Fix choose.html - remove dark overlays and make cards equal width:
+
+IMPORTANT: Only change what I specify below. Do NOT modify:
+- Django template tags ({% %})
+- Existing animations
+- Button functionality
+- Color schemes
+- Any code not mentioned
+
+CHANGES NEEDED:
+
+1. REMOVE ALL DARK OVERLAYS:
+   Find ALL elements with dark/black backgrounds that cover the page background
+   Common patterns to remove:
+   - background: rgba(0,0,0,0.X)
+   - background: linear-gradient with rgba(0,0,0,...)
+   - Any overlay divs with dark backgrounds
+   - backdrop-filter or -webkit-backdrop-filter causing darkness
+   
+   Keep the beautiful background image visible
+   Only keep card backgrounds (the blue gradient cards should stay)
+   Remove darkness between cards and page background
+
+2. MAKE CARDS EQUAL WIDTH ON DESKTOP:
+   On desktop/PC view (min-width: 768px):
+   - Welcome card (top)
+   - Info slider card (bottom)
+   Both should have EXACTLY same width
+   Both should be centered
+   Suggested: max-width: 520px for both
+   
+   Mobile stays as-is (stacked vertically, full width)
+
+3. WHAT TO KEEP UNCHANGED:
+   - Card blue gradients (the actual card backgrounds)
+   - All text content
+   - All buttons and links
+   - Django template structure
+   - Icon SVGs
+   - Slider dots functionality
+   - Auto-slider JavaScript
+   - Spacing between cards
+
+File: templates/choose.html
+Only modify CSS, do not change HTML structure or Django tags.

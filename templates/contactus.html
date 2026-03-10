@@ -19,7 +19,7 @@
 
   color: #e8f2ff;
   font-weight: 800;
-  font-size: 13px;        /* ⭐ អក្សរតូច */
+  font-size: 13px;
   letter-spacing: .04em;
 
   text-decoration: none;
@@ -45,7 +45,7 @@
 /* Telegram inline (NO card background) */
 .telegram-inline{
   text-align:center;
-  margin: 6px 0 12px;   /* ឲ្យវាជិតល្អ */
+  margin: 6px 0 12px;
 }
 
 .tg-title{
@@ -55,7 +55,14 @@
   opacity: .9;
   letter-spacing: .03em;
 }
-/* Back button shape like picture */
+
+/* ✅ Back button - white background with blue border matching cards */
+.top-actions{
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .back-btn{
   position: relative;
   display: inline-flex;
@@ -63,22 +70,23 @@
   justify-content: center;
 
   height: 42px;
-  padding: 0 22px 0 28px;   /* left a bit bigger */
+  padding: 0 22px;
   border-radius: 12px;
 
-  background: #13111185;
-  color: #ffffffc9;
+  background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(240,240,240,.95) 100%);
+  color: #004182;
   font-weight: 800;
   text-decoration: none;
 
-  border: 1px solid rgba(189, 189, 189, 0.164);
-  box-shadow:
-    0 6px 14px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.65);
+  border: 2px solid rgba(100,150,255,.5);
+  box-shadow: 0 6px 18px rgba(0,65,130,.25), inset 0 1px 0 rgba(255,255,255,.8);
 }
+
 /* hover/active */
 .back-btn:hover{
   transform: translateY(-1px);
+  border-color: rgba(100,150,255,.7);
+  box-shadow: 0 8px 24px rgba(0,65,130,.35);
 }
 .back-btn:active{
   transform: translateY(0px);
@@ -89,14 +97,9 @@
 @media (max-width:520px){
   .top-actions{ padding: 10px 12px 0; }
   .top-actions-line{ margin: 10px 12px 0; }
-  .back-btn{ height: 40px; padding: 0 18px 0 24px; font-size: 13px; }
-  .back-btn::before{
-    left: -13px;
-    border-top: 20px solid transparent;
-    border-bottom: 20px solid transparent;
-    border-right: 13px solid #e7e7e7;
-  }
+  .back-btn{ height: 40px; padding: 0 18px; font-size: 13px; }
 }
+
   body{
     margin:0;
     min-height:100vh;
@@ -116,7 +119,7 @@
   .page{
     width: min(520px, 94vw);
     margin: 0 auto;
-    padding: 14px 14px 92px; /* leave space for bottom nav */
+    padding: 14px 14px 92px;
     box-sizing: border-box;
   }
 
@@ -226,9 +229,6 @@
     <div class="title">CONTACT US</div>
     <p class="sub">Send us a message — we will contact you soon.</p>
   </div>
-  <!-- TELEGRAM CONTACT CARD -->
-  
-
 
   {% if sent %}
     <div class="alert-success">
@@ -255,13 +255,14 @@
       <button class="btn" type="submit">Send Message</button>
     </form>
   </div>
+
   <!-- TOP ACTIONS -->
-<div class="top-actions">
-  <a class="back-btn" href="javascript:history.back()">
-    Back
-  </a>
-</div>
-<div class="top-actions-line"></div>
+  <div class="top-actions">
+    <a class="back-btn" href="javascript:history.back()">
+      Back
+    </a>
+  </div>
+  <div class="top-actions-line"></div>
 
 </div>
 {% endblock %}

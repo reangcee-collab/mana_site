@@ -1,54 +1,77 @@
-Remove dark background overlays from ALL pages to match choose.html brightness:
+Update profile.html and loan_info.html for Information viewing feature:
 
-PROBLEM: 
-- choose.html has bright, visible background (GOOD - keep this)
-- login.html has dark/black overlay making background too dark (BAD - fix this)
-- Other pages may also have dark overlays
+CHANGES TO MAKE:
 
-GOAL:
-Make ALL pages have the same bright background as choose.html
+1. PROFILE.HTML - Change Button Text and Link:
+   Find the "Loan Application" menu button
+   
+   Current:
+   - Title: "Loan Application"
+   - Subtitle: "Apply & track your status"
+   - Link: {% url 'quick_loan' %}
+   
+   Change to:
+   - Title: "Information"
+   - Subtitle: "View your application details"
+   - Link: {% url 'loan_info' %}
+   
+   Keep same icon and styling
 
-FILES TO CHECK AND FIX:
-1. login.html
-2. register.html  
-3. Any other template files with dark overlays
+2. LOAN_INFO.HTML - Add View-Only Mode:
+   
+   A. Check if user already confirmed application:
+      - If application status is APPROVED or REJECTED or PENDING
+      - OR if user has already submitted loan application
+      - Then activate VIEW-ONLY mode
+   
+   B. In VIEW-ONLY mode:
+      - All input fields become DISABLED (cannot edit)
+      - Show GREEN checkmark on completed steps
+      - Hide "Confirm Application" button OR show as disabled
+      - Add message: "Application submitted - View only"
+      - Keep all data visible but not editable
+   
+   C. Green checkmark for completed steps:
+      CSS for completed step icon:
+      - Background: #22c55e (green)
+      - White checkmark icon
+      - Or add "✓" symbol next to step title
+   
+   D. Disable all inputs in view-only mode:
+      Add disabled attribute to:
+      - All <input> fields
+      - All <select> dropdowns
+      - All <textarea> fields
+      - File upload buttons
+      - Bank selection
+   
+   E. Visual indicator:
+      Add banner at top of page in view-only mode:
+      "Your application has been submitted. Information shown below is for reference only."
 
-WHAT TO REMOVE:
-Find and remove ALL of these dark overlay patterns:
+3. WHAT TO KEEP UNCHANGED:
+   - Django template structure
+   - URL routing (backend handles this)
+   - Form field names
+   - Validation logic
+   - Other profile menu items
+   - Page styling and colors
 
-1. Body/HTML dark overlays:
-   body { background: linear-gradient(rgba(0,0,0,0.X), ...) }
-   Remove the rgba(0,0,0,...) gradient layer
-   Keep only the background image
+IMPLEMENTATION NOTES:
+- Use Django template conditional: {% if user.has_submitted_application %}
+- Or check loan status: {% if loan_status in "APPROVED,REJECTED,PENDING" %}
+- Add CSS class "view-only" to form when in view mode
+- Use :disabled pseudo-class for styling disabled inputs
 
-2. Dark wrapper divs:
-   Any div with:
-   - background: rgba(0,0,0,...)
-   - background: linear-gradient with rgba(0,0,0,...)
-   That covers the whole page
+Example disabled input:
+<input type="text" name="full_name" value="{{ user.full_name }}" disabled readonly>
 
-3. Backdrop filters causing darkness:
-   - backdrop-filter: brightness(...) if < 1
-   - Any filter making things darker
+Example completed step indicator:
+<div class="step-icon completed">
+  <svg><!-- checkmark icon --></svg>
+</div>
 
-WHAT TO KEEP:
-- Card backgrounds (the form cards with blue/dark styling)
-- Button backgrounds
-- Input field backgrounds
-- All functionality and structure
-- Django template tags {% %}
-
-REFERENCE (GOOD):
-choose.html body background - bright and visible
-Copy this background style to other pages
-
-REFERENCE (BAD):  
-login.html - has dark overlay, background too dark
-Remove the dark overlay layer
-
-IMPORTANT:
-- Only modify CSS background/overlay properties
-- Do NOT change card styling
-- Do NOT change Django template structure
-- Do NOT change form functionality
-- Make background consistent across ALL pages
+.step-icon.completed {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+}

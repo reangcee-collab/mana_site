@@ -348,6 +348,26 @@ button, .btn, .modal-btn, .cta-confirm, .back-btn{
   border-radius:12px; padding:12px 14px; margin-bottom:12px;
   font-size:13px; font-weight:600; color:#fca5a5;
 }
+
+/* ===== VIEW-ONLY MODE ===== */
+.view-only-banner{
+  background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.4);
+  border-radius:12px; padding:12px 16px; margin-bottom:14px;
+  font-size:13px; font-weight:600; color:#4ade80; text-align:center;
+}
+.view-only-mode .step-card{ cursor:default; }
+.view-only-mode .step-card:hover{ transform:none; border-color:rgba(100,150,255,.35); }
+.view-only-mode .bank-card{ pointer-events:none; }
+.view-only-mode .purpose-pill-m{ pointer-events:none; }
+.view-only-mode .upload-box{ pointer-events:none; opacity:.7; }
+.view-only-mode .modal-btn,
+.view-only-mode .sig-clear-btn{ display:none; }
+.view-only-mode .mf input,
+.view-only-mode .mf textarea,
+.view-only-mode .mf select{
+  opacity:.7; cursor:not-allowed;
+  background:rgba(255,255,255,.03);
+}
 </style>
 
 <!-- Hidden main form -->
@@ -375,8 +395,11 @@ button, .btn, .modal-btn, .cta-confirm, .back-btn{
   <input type="file" name="selfie_with_id" id="fileSelfie" accept="image/*">
 </form>
 
-<div class="page">
+<div class="page{% if view_only %} view-only-mode{% endif %}">
   {% if messages %}{% for msg in messages %}<div class="err-banner">{{ msg }}</div>{% endfor %}{% endif %}
+  {% if view_only %}
+  <div class="view-only-banner">Your application has been submitted. Information shown below is for reference only.</div>
+  {% endif %}
 
   <!-- Loan Summary -->
   <div class="summary-card">
@@ -444,9 +467,15 @@ button, .btn, .modal-btn, .cta-confirm, .back-btn{
 
   </div>
 
+  {% if not view_only %}
   <button class="cta-confirm" type="button" onclick="confirmApplication()">
     Confirm Application
   </button>
+  {% else %}
+  <button class="cta-confirm" type="button" disabled style="opacity:.45;cursor:not-allowed;">
+    Application Submitted
+  </button>
+  {% endif %}
 </div>
 
 <!-- ===== MODAL 1: IDENTITY ===== -->
@@ -708,7 +737,11 @@ button, .btn, .modal-btn, .cta-confirm, .back-btn{
 <script>
 // ===== LOAN SUMMARY =====
 (function(){
+  {% if view_only %}
+  const a = Number("{{ existing.amount }}"), t = Number("{{ existing.term_months }}"), r = 0.005;
+  {% else %}
   const a = Number("{{ amount }}" || 0), t = Number("{{ term }}" || 0), r = 0.005;
+  {% endif %}
   const fmt = n => n > 0 ? Number(n).toLocaleString() : "—";
   document.getElementById("dispAmount").textContent = a > 0 ? "PHP " + fmt(a) : "—";
   document.getElementById("dispTerm").textContent = t > 0 ? t + " months" : "—";
@@ -911,5 +944,58 @@ function confirmApplication(){
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });
+
+{% if view_only %}
+// ===== VIEW-ONLY MODE INIT =====
+(function(){
+  // Mark all steps complete
+  for(var n=1;n<=4;n++) updateBadge(n,true);
+
+  // Pre-fill identity modal
+  document.getElementById("m1IdentityName").value = "{{ existing.identity_name|escapejs }}";
+  document.getElementById("m1IdentityNumber").value = "{{ existing.identity_number|escapejs }}";
+
+  // Pre-fill personal modal
+  document.getElementById("m2FullName").value = "{{ existing.full_name|escapejs }}";
+  document.getElementById("m2Age").value = "{{ existing.age }}";
+  document.getElementById("m2CurrentLiving").value = "{{ existing.current_living|escapejs }}";
+  document.getElementById("m2CurrentJob").value = "{{ existing.current_job|escapejs }}";
+  document.getElementById("m2Hometown").value = "{{ existing.hometown|escapejs }}";
+  document.getElementById("m2Income").value = "{{ existing.income|escapejs }}";
+  document.getElementById("m2MonthlyExpenses").value = "{{ existing.monthly_expenses|escapejs }}";
+  document.getElementById("m2GuarantorContact").value = "{{ existing.guarantor_contact|escapejs }}";
+  document.getElementById("m2GuarantorLiving").value = "{{ existing.guarantor_current_living|escapejs }}";
+
+  // Pre-check loan purposes
+  var purposes = {{ loan_purposes_json|safe }};
+  if(Array.isArray(purposes)){
+    purposes.forEach(function(p){
+      var cb = document.querySelector('#modal2 input[name="loan_purposes"][value="'+p+'"]');
+      if(cb) cb.checked = true;
+    });
+  }
+
+  // Pre-fill beneficiary modal
+  {% if pm and pm.bank_name %}
+  document.querySelectorAll(".bank-card").forEach(function(c){
+    if(c.dataset.bank === "{{ pm.bank_name|escapejs }}") c.classList.add("selected");
+  });
+  var disp = document.getElementById("selectedBankDisplay");
+  disp.textContent = "Selected: {{ pm.bank_name|escapejs }}";
+  disp.classList.add("show");
+  document.getElementById("m3BankAccount").value = "{{ pm.bank_account|escapejs }}";
+  document.getElementById("m3AccountHolder").value = "{{ pm.wallet_name|escapejs }}";
+  {% endif %}
+
+  // Disable all modal inputs
+  document.querySelectorAll(".modal-box input:not([type='hidden']), .modal-box textarea, .modal-box select").forEach(function(el){
+    el.disabled = true;
+  });
+
+  // Disable signature canvas interaction
+  var canvas = document.getElementById("sigCanvas");
+  if(canvas) canvas.style.pointerEvents = "none";
+})();
+{% endif %}
 </script>
 {% endblock %}

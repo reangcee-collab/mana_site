@@ -1497,7 +1497,13 @@ def loan_info_view(request):
 
     if request.method != "POST":
         if existing:
-            return redirect(reverse("quick_loan"))
+            pm = getattr(request.user, "payment_method", None)
+            return render(request, "loan_info.html", {
+                "view_only": True,
+                "existing": existing,
+                "pm": pm,
+                "loan_purposes_json": json.dumps(existing.loan_purposes or []),
+            })
         amount = (request.GET.get("amount") or "").strip()
         term = (request.GET.get("term") or "").strip()
         return render(request, "loan_info.html", {"amount": amount, "term": term})

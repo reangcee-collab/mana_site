@@ -5,7 +5,7 @@
 {% block content %}
 <style>
 /* ===== Notification Bell (with badge + small alert animation) ===== */
-/* ✅ Dashboard ONLY: reserve space for top bar */
+/* Dashboard ONLY: reserve space for top bar */
 .wrap{
   padding-top:78px !important;
 }
@@ -13,13 +13,14 @@
   width:34px;
   height:34px;
   border-radius:12px;
-  background:rgba(0,0,0,.18);
+  background: #1A2F4E;
   display:flex;
   align-items:center;
   justify-content:center;
   flex: 0 0 auto;
   text-decoration:none;
-  position: relative; /* ✅ for badge */
+  position: relative;
+  opacity: 1;
 }
 
 /* badge number */
@@ -43,7 +44,7 @@
   box-shadow: 0 6px 14px rgba(0,0,0,.35);
   border: 2px solid rgba(0,0,0,.25);
 }
-/* ===== Unread pulse (CSS only) ===== */
+/* Unread pulse (CSS only) */
 .notify-wrap.has-unread{
   animation: notifPulse 1.35s ease-in-out infinite;
 }
@@ -54,15 +55,14 @@
   100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
 }
 
-/* ===== Red dot mode (no number) ===== */
-/* ✅ if you want dot-only, add class "dot-only" on <a class="notify-wrap ..."> */
+/* Red dot mode (no number) */
 .notify-wrap.dot-only .notify-badge{
   min-width:10px;
   width:10px;
   height:10px;
   padding:0;
   border-radius:999px;
-  font-size:0;          /* hide number */
+  font-size:0;
   line-height:0;
   top: -4px;
   right: -4px;
@@ -102,7 +102,7 @@
   animation:ring .5s ease;
 }
 
-/* ✅ alert animation when there is unread */
+/* alert animation when there is unread */
 .notify-wrap.has-unread{
   animation: pop .28s ease;
 }
@@ -141,37 +141,36 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;              /* ✅ padding តូចជាង */
+  padding: 6px 10px;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 10px;                /* ✅ font តូចជាង */
-  letter-spacing: .3px;           /* ✅ spacing តិចជាង */
+  font-size: 10px;
+  letter-spacing: .3px;
   
-  /* ✅ មិនកាត់អក្សរ */
   white-space: nowrap;
   
-  height: 28px;                   /* ✅ កម្ពស់តូចជាង */
+  height: 28px;
   line-height: 1;
   box-sizing: border-box;
 }
 
 /* ACTIVE */
 .status-active{
-  background: #16a34a; /* green */
+  background: #16a34a;
   color: #fff;
 }
 
 /* FROZEN / ERROR / REJECT */
 .status-danger{
-  background: #dc2626; /* red */
+  background: #dc2626;
   color: #fff;
 }
 /* WARNING / YELLOW */
 .status-warn{
-  background: #eab308; /* yellow strong */
-  color: #111;         /* readable */
+  background: #eab308;
+  color: #111;
 }
-  /* if base.html uses wrapper flex causing “twist” */
+  /* if base.html uses wrapper flex causing twist */
   .wrap{
     padding-top:0 !important;
     display:block !important;
@@ -180,46 +179,49 @@
 
   html, body{
     width:100%;
-    overflow-x:hidden; /* stop sideways jump/twist */
+    overflow-x:hidden;
   }
 
   /* ===== Dashboard page layout (center on PC/phone) ===== */
   .dash-wrap{
     width: min(520px, 94vw);
     margin: 0 auto;
-    padding: 74px 14px 24px; /* ✅ bottom padding small (bar is not fixed now) */
+    padding: 74px 14px 24px;
     box-sizing: border-box;
   }
 
   /* ===== Background fixed ===== */
   body{
-    margin: 0;
-    min-height: 100vh;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background:
-      linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
-      url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat scroll !important;
-  }
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: 
+    linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
+    url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed !important;
+  opacity: 1 !important;
+}
   /* ===== Top bar (mini only) ===== */
   .topbar{
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 80;
-    background: linear-gradient(90deg, #004182, #054585d0);
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(0,0,0,.18);
-    box-shadow: 0 8px 24px rgba(0,0,0,.25);
-    transform: translateY(0);
-    transition: transform .22s ease;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(125,184,255,0.3);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  transform: translateY(0);
+  transition: transform .22s ease;
+}
   .topbar.hide-bar{
     transform: translateY(-110%);
   }
 
   .topbar-inner{
-  width: min(520px, 94vw);   /* ✅ same as dash-wrap */
+  width: min(520px, 94vw);
   margin: 0 auto;
   position: relative;
   display:flex;
@@ -227,10 +229,10 @@
   justify-content:space-between;
   gap:10px;
   min-height: 40px;
-  padding: 0 14px;          /* ✅ same padding as dash-wrap */
+  padding: 0 14px;
   box-sizing: border-box;
 
-  max-width: none;          /* ✅ important: stop old max-width behavior */
+  max-width: none;
 }
 
   /* Brand mini still center absolutely for logo */
@@ -262,46 +264,36 @@
   }
 
   .topbar-left{
-    margin-left: 0px; /* Tweak so button aligns to left edge of .cardx (profile card) */
+    margin-left: 0px;
   }
   .topbar-right{
-    margin-right: 0px; /* Tweak so button aligns to right edge of .cardx (profile card) */
+    margin-right: 0px;
   }
 
   .info-btn{
     width:34px;height:34px;border-radius:12px;
-    border:0;
-    background: rgba(0,0,0,.18);
+    border:1px solid #1E3A5F;
+    background: #1A2F4E;
     color:#fff;
     display:flex;align-items:center;justify-content:center;
     cursor:pointer;
+    opacity:1;
   }
 
-  /* ===== Cards — blue-gray gradient, metallic border ===== */
+  /* ===== Cards - BLUE GRADIENT (updated) ===== */
   .cardx{
     position: relative;
-    background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
+    background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
     border-radius: 18px;
     padding: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 2px solid rgba(100,150,255,.35);
-    box-shadow:
-      0 8px 32px rgba(0,65,130,.45),
-      0 0 0 1px rgba(255,255,255,.06),
-      inset 0 1px 0 rgba(255,255,255,.10),
-      0 0 26px rgba(0,102,204,.18);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(125,184,255,0.3) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    opacity: 1 !important;
     overflow: hidden;
     margin-bottom: 12px;
     transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
-  }
-  .cardx:hover{
-    border-color: rgba(100,150,255,.58);
-    box-shadow:
-      0 12px 40px rgba(0,65,130,.55),
-      0 0 30px rgba(0,102,204,.25),
-      inset 0 1px 0 rgba(255,255,255,.12);
-    transform: translateY(-1px);
   }
 
   /* ===== Swipe in animation (left/right) ===== */
@@ -322,30 +314,32 @@
   .profile-card{ display:flex; gap:12px; align-items:flex-start; }
   .avatar{
     width:44px;height:44px;border-radius:14px;
-    background: rgba(255, 255, 255, 0.699);
+    background: #1A2F4E;
     display:flex;align-items:center;justify-content:center;
     flex:0 0 auto;
-    border:1px solid rgba(255,255,255,.10);
+    border:1px solid #1E3A5F;
+    opacity:1;
   }
   .avatar svg{ width:22px; height:22px; opacity:.9; }
   .profile-main{ flex:1 1 auto; min-width:0; }
     .row1{ 
     display:flex; 
-    align-items:center;           /* ✅ center ជំនួស flex-start */
+    align-items:center;
     justify-content:space-between; 
     gap:10px; 
   }
   .title{ color:#fff; font-weight:900; font-size:18px; line-height:1.1; }
   .subline{ color:rgba(255,255,255,.72); font-size:12px; margin-top:2px; }
   .pill{
-    padding:6px 12px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.10);
-    background: rgba(0, 65, 130, 0.60);   /* #004182 */color: rgba(255,255,255,.92);
-    color:#dfffe9;
-    font-weight:800;
-    font-size:12px;
-    white-space:nowrap;
-  }
+  padding:6px 12px;border-radius:999px;
+  border:1px solid rgba(100,150,255,.35);
+  background: #1A2F4E;
+  color: #7db8ff;
+  font-weight:800;
+  font-size:12px;
+  white-space:nowrap;
+  opacity:1;
+}
   .amount{
   font-size:26px;
   font-weight:950;
@@ -355,16 +349,21 @@
 } 
   .status{ margin-top:6px;font-size:12px;font-weight:900;color:#d5ffe7; }
 
-  /* ===== Section title ===== */
-  .section-title{
-    margin: 14px 2px 10px;
-    color:#e9fff1;
-    font-weight:950;
-    font-size:12px;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    opacity:.9;
-  }
+  /* ===== Section title - Inside card, centered, with spacing ===== */
+.section-title{
+  margin: 0 auto 14px auto;  /* bottom margin 14px for spacing between cards */
+  padding: 6px 16px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 999px;
+  color: #fff !important;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+  display: table;
+  opacity: 1 !important;
+}
 
 /* ===== Why choose (fix long title) ===== */
 /* ===== Why choose (single line + tight spacing) ===== */
@@ -375,7 +374,7 @@
   align-items:center;
   justify-content:center;
   text-align:center;
-  gap:6px;                     /* ✅ not far */
+  gap:6px;
   flex-wrap:wrap;
   margin-bottom:10px;
 
@@ -390,29 +389,29 @@
 }
 
 .why-head .brand{
-  color:#7dd3fc;               /* ✅ visible on dark */
+  color:#7dd3fc;
   text-shadow: 0 2px 10px rgba(0,0,0,.55);
   letter-spacing:.04em;
   font-weight:950;
   text-transform:uppercase;
 
-  white-space:nowrap;          /* ✅ force 1 line */
+  white-space:nowrap;
 }
 
-/* ✅ keep 1 line on all devices */
+/* keep 1 line on all devices */
 .why-head{
-  flex-wrap: nowrap !important;   /* no wrap */
+  flex-wrap: nowrap !important;
   gap: 6px !important;
 }
 
 .why-head .brand{
-  min-width: 0;                   /* allow shrink */
+  min-width: 0;
   overflow: hidden;
-  text-overflow: ellipsis;        /* if too long -> ... */
-  white-space: nowrap !important; /* force 1 line */
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
 }
 
-/* ✅ mobile: make it smaller so it fits */
+/* mobile: make it smaller so it fits */
 @media (max-width: 420px){
   .why-head{ gap: 4px !important; }
 
@@ -421,14 +420,15 @@
   }
 
   .why-head .brand{
-    font-size: 15px;      /* reduce on phone */
-    letter-spacing: .02em;/* less spacing = more fit */
+    font-size: 15px;
+    letter-spacing: .02em;
   }
 }
   .ad-frame{
     border-radius: 16px; overflow:hidden;
-    border:1px solid rgba(255,255,255,.10);
-    background: rgba(0, 0, 0, 0.219);
+    border:1px solid #1E3A5F;
+    background: #0A1628;
+    opacity: 1;
     position:relative;
     height: 132px;
   }
@@ -464,68 +464,125 @@
   .ad-text h4{ margin:0; font-size:16px; font-weight:950; letter-spacing:.01em; }
   .ad-text p{ margin:4px 0 0; font-size:12px; opacity:.86; }
   .ad-btn{
-    position:absolute; left:14px; bottom:12px; z-index:2;
-    display:inline-flex; align-items:center; gap:8px;
-    padding:7px 12px; border-radius:999px;
-    border:1px solid rgba(255,255,255,.16);
-    background: rgba(0,0,0,.28);
-    color:#fff; font-weight:900; font-size:12px;
-    text-decoration:none;
-  }
-  .dots{ display:flex; gap:6px; justify-content:center; margin-top:10px; opacity:.9; }
-  .dot{ width:7px;height:7px;border-radius:99px;background: rgba(255,255,255,.25); }
-  .dot.on{ background: #004182; }
+  position:absolute; left:14px; bottom:12px; z-index:2;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:7px 12px; border-radius:999px;
+  border:1px solid rgba(100,150,255,.35);
+  background: #0A1628;
+  color: #7db8ff; font-weight:900; font-size:12px;
+  text-decoration:none;
+  opacity:1;
+}
+  .dots{ display:flex; gap:6px; justify-content:center; margin-top:10px; opacity:1; }
+  .dot{ width:7px;height:7px;border-radius:99px;background: #1E3A5F; }
+  .dot.on{ background: #7db8ff; }
 
   /* ===== Quick loan ===== */
   .quick{
-    margin-top: 14px;
-    width: 100%;
-    border:0;
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: linear-gradient(90deg, #004182, #0066cc);
-    color:#fff;
-    font-weight:700;
-    font-family:"Inter","Poppins",system-ui,sans-serif;
-    letter-spacing:.03em;
-    text-transform: none;
-    box-shadow: 0 8px 28px rgba(0,65,130,.4);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:12px;
-    cursor:pointer;
-    position: relative;
-    overflow:hidden;
-    transition: background .2s ease, box-shadow .2s ease, transform .15s ease;
-  }
-  .quick:hover{
-    background: linear-gradient(90deg, #0052a3, #0080ff);
-    box-shadow: 0 10px 32px rgba(0,65,130,.5);
-    transform: translateY(-1px);
-  }
-  .quick{
+  margin-top: 14px;
+  width: 100%;
+  height: 56px;
+  border: none !important;
+  border-radius: 999px;
+  
+  /* Solid bright blue like image 2 */
+  background: linear-gradient(180deg, #00a8ff 0%, #007bff 100%) !important;
+  
+  color: #fff !important;
+  font-weight: 800 !important;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  
+  /* Soft shadow */
+  box-shadow: 
+    0 4px 15px rgba(0,123,255,0.4),
+    0 6px 0 #0056b3,
+    inset 0 1px 0 rgba(255,255,255,0.3);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
   text-decoration: none !important;
+  opacity: 1 !important;
+  transition: all 0.1s ease;
+  
+  overflow: hidden;
 }
 
-.quick::after{
-  display: none !important;
-  content: none !important;
-}  
-  .quick .go{
-    width:30px;height:30px;border-radius:999px;
-    background: rgba(0,0,0,.20);
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(255,255,255,.20);
-  }
-  .quick .go svg{ width:16px;height:16px; fill:#fff; opacity:.95; }
+/* shine effect */
+.quick::before{
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+  animation: shine 2s infinite;
+}
+
+@keyframes shine{
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.quick:active{
+  transform: translateY(4px);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.6),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 2px 0 #0f2744, 
+    0 4px 10px rgba(74,144,217,0.6);
+}
+
+.quick .go{
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  
+  background: 
+    linear-gradient(180deg, 
+      rgba(255,255,255,0.5) 0%, 
+      rgba(255,255,255,0.2) 50%, 
+      rgba(0,0,0,0.1) 100%
+    );
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    0 2px 4px rgba(0,0,0,0.3);
+  
+  margin-left: 4px;
+}
+
+.quick .go svg{
+  width: 14px;
+  height: 14px;
+  fill: #fff;
+  
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
 
   /* ===== Video section ===== */
   .video-card{
     border-radius: 16px;
     overflow:hidden;
-    border:1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.28);
+    border:1px solid #1E3A5F;
+    background: #112240;
+    opacity: 1;
     height: 160px;
     position:relative;
   }
@@ -541,24 +598,26 @@
   .table-card{ padding: 12px; }
 
   /* ===== Bottom nav (IN-FLOW, Quick-loan style) ===== */
-  .bottom-nav{
+.bottom-nav{
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: -50px!important;  /* iOS safe area */
+  bottom: -50px!important;
   z-index: 80;
 
-  width: min(350px, 92vw);   /* short + responsive */
-  margin: 0;                 /* fixed bar no margin needed */
+  width: min(350px, 92vw);
+  margin: 0;
   padding: 12px 14px;
 
-  background: linear-gradient(90deg, #004182, #054585d0);
-  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+  border: 1px solid rgba(125,184,255,0.3) !important;
+  border-top: 1px solid rgba(125,184,255,0.3) !important;
   border-radius: 22px;
 
-  box-shadow: 0 16px 40px rgba(0,0,0,.45);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.55);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
 
   overflow: hidden;
 }
@@ -603,10 +662,13 @@
   .nav-item:active{ transform: scale(.98); }
   .nav-item svg{ width:20px;height:20px; fill:#fff; opacity:.95; }
   .nav-item.active{
-    opacity:1;
-    background: rgba(0, 65, 130, 0.22);
-    border: 1px solid rgba(255,255,255,.16);
-  }
+  opacity:1;
+  background: rgba(0,65,130,0.15);
+  border: 1px solid rgba(100,150,255,.4);
+  color: #7db8ff;
+}
+.nav-item.active svg{ fill: #7db8ff; }
+  .nav-item.active svg{ fill: #C9A84C; }
 
   /* ===== Exchange rate ===== */
   .fx-scroll{
@@ -616,16 +678,17 @@
     padding-right: 2px;
   }
   .fx-scroll::-webkit-scrollbar{ width: 6px; }
-  .fx-scroll::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.18); border-radius: 99px; }
+  .fx-scroll::-webkit-scrollbar-thumb{ background: #1E3A5F; border-radius: 99px; }
   .fx-table{ width:100%; border-collapse: collapse; }
   .fx-table thead th{
-    position: sticky;
-    top: 0;
-    background: rgba(0,0,0,.35);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 2;
-  }
+  position: sticky;
+  top: 0;
+  background: #1A2F4E !important;
+  color: #7db8ff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  z-index: 2;
+}
   .fx-table th, .fx-table td{ padding: 10px 10px; }
   .fx-table th{
     font-size: 11px;
@@ -633,7 +696,7 @@
     text-transform: uppercase;
     opacity: .85;
   }
-  .fx-table td{ border-top: 1px solid rgba(255,255,255,.08); color:#f2fff7; }
+  .fx-table td{ border-top: 1px solid #1E3A5F; color: #FFFFFF; }
   .fx-left{ display:flex; align-items:center; gap:10px; min-width: 0; }
   .fx-flag{
     width: 22px; height: 16px;
@@ -656,8 +719,8 @@
     align-items:center;
     margin-top: 8px;
     font-size: 11px;
-    opacity: .85;
-    color:#eafff1;
+    opacity: 1;
+    color: #8899AA;
   }
   .fx-auto{ opacity: .75; }
   
@@ -666,12 +729,7 @@
   .bottom-nav{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
   .fx-table thead th{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
 }
-/* =========================
-   ✅ STEP 1: Mobile/Android performance mode
-   - Keep blur on iPhone/PC
-   - Disable blur on phone/Android (smooth)
-   ========================= */
-/* ===== STEP 2: Keep blur on iPhone/PC, disable blur on Android only ===== */
+/* All blur disabled globally */
 .android-no-blur .cardx,
 .android-no-blur .bottom-nav,
 .android-no-blur .topbar,
@@ -680,13 +738,11 @@
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-
-/* keep look glass (but cheap for android) */
 .android-no-blur .cardx{
-  background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%) !important;
+  background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
 }
 
-/* ✅ FORCE badge color (prevent CSS override) */
+/* FORCE badge color (prevent CSS override) */
 #accStatusBadge.status-active { background:#16a34a !important; color:#fff !important; }
 #accStatusBadge.status-warn   { background:#eab308 !important; color:#111 !important; }
 #accStatusBadge.status-danger { background:#dc2626 !important; color:#fff !important; }
@@ -876,25 +932,28 @@
 
   <!-- Quick loan -->
   <a href="{% url 'quick_loan' %}" class="quick reveal from-left ovelion-head">
-    Quick Loan →
-    <span class="go" aria-hidden="true">
-      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-    </span>
-  </a>
+  Quick Loan
+  <span class="go" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+  </span>
+</a>
 
   <!-- Client last status (video) -->
-  <div class="section-title reveal from-right ovelion" id="status">Our Services</div>
   <div class="cardx video-card metal reveal from-right">
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
+    <div class="section-title ovelion" id="status">Our Services</div>
     <video id="statusVideo" autoplay muted loop playsinline preload="metadata">
       <source src="{% static 'video/video.webm' %}" type="video/webm">
     </video>
   </div>
+</div>
 
   <!-- Currency -->
-  <div class="section-title reveal from-left ovelion" id="currency">CURRENCY</div>
-
   <div class="cardx table-card reveal from-left">
-    <div class="fx-scroll" aria-label="Exchange rates list">
+  <div style="display:flex; justify-content:center; margin-bottom:10px;">
+    <div class="section-title ovelion" id="currency">Currency</div>
+  </div>
+  <div class="fx-scroll" aria-label="Exchange rates list">
       <table class="fx-table">
         <thead>
           <tr>
@@ -913,7 +972,7 @@
     </div>
   </div>
 
-  <!-- ✅ Bottom nav now UNDER currency card (in-flow) -->
+  <!-- Bottom nav now UNDER currency card (in-flow) -->
   <nav class="bottom-nav" role="navigation" aria-label="Bottom Navigation">
     <div class="nav-inner">
       <a class="nav-item" href="#top" data-nav="home" aria-label="Home">
@@ -938,7 +997,7 @@
 </div>
 
 <script>
-/* ===== Reveal animation on load (swipe left/right) ===== */
+/* Reveal animation on load (swipe left/right) */
 (function(){
   const nodes = Array.from(document.querySelectorAll('.reveal'));
   if(!nodes.length) return;
@@ -947,7 +1006,7 @@
 </script>
 
 <script>
-/* ===== Make video show/play from first load ===== */
+/* Make video show/play from first load */
 (function(){
   const v = document.getElementById('statusVideo');
   if(!v) return;
@@ -969,7 +1028,7 @@
 </script>
 
 <script>
-/* ===== Ad slider ===== */
+/* Ad slider */
 (function(){
   const slides = Array.from(document.querySelectorAll('.ad-slide'));
   const dots = Array.from(document.querySelectorAll('#adsDots .dot'));
@@ -987,7 +1046,7 @@
 </script>
 
 <script>
-/* ===== Bottom nav active highlight ===== */
+/* Bottom nav active highlight */
 (function(){
   const items = Array.from(document.querySelectorAll(".bottom-nav .nav-item"));
   if(!items.length) return;
@@ -1009,7 +1068,6 @@
     const updatedEl = document.getElementById("fxUpdated");
     if (!rowsEl || !updatedEl) return;
   
-    // ✅ Only MUST show
     const currencies = [
   { code:"PHP", country:"Philippines", flag:"{% static 'img/flags/philippines.png' %}" },
   { code:"SAR", country:"Saudi",       flag:"{% static 'img/flags/saudi arabian.png' %}" },
@@ -1025,7 +1083,6 @@
   
     function fmtRate(x){
       if (!Number.isFinite(x)) return "—";
-      // ✅ no trailing .00
       const s = new Intl.NumberFormat(undefined, {
         maximumFractionDigits: 2,
         minimumFractionDigits: 0,
@@ -1065,7 +1122,6 @@
       updatedEl.textContent = "Updated: " + (updatedText || new Date().toLocaleString());
     }
   
-    // ✅ IMPORTANT: use your Django endpoint
     fetch("/api/fx/", { cache: "no-store" })
       .then(r => r.ok ? r.json() : Promise.reject(r))
       .then(data => render(data.rates || {}, data.updated))
@@ -1074,7 +1130,7 @@
   </script>
 
 <script>
-  /* ===== Smart hide/show TOP bar on scroll (disable on Android for smooth) ===== */
+  /* Smart hide/show TOP bar on scroll (disable on Android for smooth) */
   (function(){
     const topBar = document.querySelector('.topbar');
     if(!topBar) return;
@@ -1082,13 +1138,11 @@
     const ua = (navigator.userAgent || "").toLowerCase();
     const isAndroid = ua.includes("android");
   
-    // ✅ Android: keep bar always visible (NO scroll listener = smoother)
     if(isAndroid){
       topBar.classList.remove('hide-bar');
       return;
     }
   
-    // ✅ iPhone/PC: keep your smart hide/show
     topBar.classList.remove('hide-bar');
   
     let lastY = window.scrollY || 0;
@@ -1107,7 +1161,7 @@
   })();
   </script>
 <script>
-  /* ✅ Auto-clear dot/badge immediately when user opens notifications */
+  /* Auto-clear dot/badge immediately when user opens notifications */
   (function(){
     const a = document.querySelector('.notify-wrap');
     if(!a) return;
@@ -1120,7 +1174,7 @@
   })();
   </script>
 <script>
-  /* ===== STEP 2: Detect Android and add class ===== */
+  /* STEP 2: Detect Android and add class */
   (function(){
     var ua = (navigator.userAgent || "").toLowerCase();
     if(ua.includes("android")){
@@ -1129,5 +1183,13 @@
   })();
   
   </script>  
+
+<style>
+  /* ===== FIX: Our Services & Currency card spacing ===== */
+  .video-card,
+  .table-card {
+    margin-top: 17px !important;
+  }
+</style>
 
 {% endblock %}

@@ -18,18 +18,19 @@
   /* ===== CardX (match dashboard) ===== */
   .cardx{
     position: relative;
-    background: rgba(9, 10, 10, 0.788);
+    background: #112240 !important;
     border-radius: 18px;
     padding: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 3px 4px rgba(245,245,245,.55),
-                inset 0 1px 0 rgba(163,157,157,.918);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid #1E3A5F !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    opacity: 1 !important;
     overflow: hidden;
     margin-bottom: 12px;
   }
 
-  .muted{ color: rgba(255,255,255,.78); }
+  .muted{ color: #8899AA; }
 
   .badge{
     display:inline-flex;
@@ -39,18 +40,20 @@
     border-radius: 999px;
     font-weight: 900;
     font-size: 12px;
-    border: 1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.16);
-    color:#fff;
+    border: 1px solid #C9A84C;
+    background: #1A2F4E;
+    color: #C9A84C;
     white-space: nowrap;
+    opacity: 1;
   }
 
   .pm-section{
     margin:12px 0;
     padding:12px;
     border-radius:16px;
-    border:1px solid rgba(255,255,255,.16);
-    background:rgba(0,0,0,.14);
+    border:1px solid #1E3A5F;
+    background: #1A2F4E;
+    opacity: 1;
   }
 
   .pm-title{ font-weight:950; margin-bottom:6px; color:#fff; }
@@ -62,10 +65,11 @@
     box-sizing:border-box;
     padding: 12px 12px;
     border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.18);
-    background: rgba(0,0,0,.22);
+    border: 1px solid #1E3A5F;
+    background: #0A1628;
     color:#fff;
     outline:none;
+    opacity:1;
   }
   /* ✅ When saved: lock inputs (looks disabled but clean) */
 .pm-locked input,
@@ -79,7 +83,7 @@
 .pm-locked .muted{
   opacity: .85;
 }
-  .pm-section input::placeholder{ color: rgba(255,255,255,.55); }
+  .pm-section input::placeholder{ color: #8899AA; }
 
   .hint{
     margin-top:10px;
@@ -92,11 +96,12 @@
     margin-top:14px;
     padding: 12px 12px;
     border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.12);
-    background: rgba(255,255,255,.06);
+    border: 1px solid #1E3A5F;
+    background: #1A2F4E;
     font-size: 12px;
     line-height: 1.45;
-    color: rgba(255,255,255,.82);
+    color: #8899AA;
+    opacity: 1;
   }
 
 
@@ -133,15 +138,16 @@
 
   height: 52px;
   border-radius: 18px;
-  border: 1px solid rgba(255,255,255,.16);
+  border: none !important;
 
-  background: linear-gradient(90deg, #004182, #054585d0);
-  color:#fff;
+  background: linear-gradient(135deg, #C9A84C, #F0C96B);
+  color: #0A1628;
   text-decoration:none;
   font-weight:950;
   letter-spacing:.04em;
+  opacity:1;
 
-  box-shadow: 0 14px 36px rgba(0,0,0,.45);
+  box-shadow: 0 8px 24px rgba(201,168,76,.4);
 }
 
 /* disabled */
@@ -185,11 +191,12 @@
   padding: 14px 14px;
   border-radius: 18px;
 
-  background: rgba(10,10,10,.92);
-  border: 1px solid rgba(255,255,255,.14);
+  background: #112240;
+  border: 1px solid #1E3A5F;
   box-shadow: 0 18px 60px rgba(0,0,0,.55);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1;
 }
 
 .pm-toast-ico{
@@ -200,9 +207,8 @@
   align-items:center;
   justify-content:center;
 
-  /* ✅ RED STRONGER */
-  background: rgba(233, 23, 23, 0.534);
-  border: 1px solid rgba(239, 68, 68, .85);
+  background: #5c0010;
+  border: 1px solid #FF1744;
   box-shadow:
     0 0 0 1px rgba(239, 68, 68, .55),
     0 10px 26px rgba(239, 68, 68, .20);

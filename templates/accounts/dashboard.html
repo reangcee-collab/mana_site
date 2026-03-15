@@ -54,10 +54,12 @@
       position: sticky; top:0; z-index:10;
       padding: 14px 16px;
       display:flex; align-items:center; justify-content:space-between;
-      background: linear-gradient(90deg, rgba(15,122,58,.92), rgba(22,163,74,.92));
+      background: #0A1628;
       color:#fff;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 22px rgba(0,0,0,.18);
+      backdrop-filter: none !important;
+      border-bottom: 1px solid #1E3A5F;
+      box-shadow: 0 10px 22px rgba(0,0,0,.35);
+      opacity: 1;
     }
     .brand{ display:flex; align-items:center; gap:10px; font-weight:900; }
     .logo{
@@ -93,13 +95,14 @@
     }
 
     .card{
-      background: var(--card);
-      border: 1px solid var(--line);
+      background: #112240;
+      border: 1px solid #1E3A5F;
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
       padding: 16px;
       margin-bottom: 14px;
-      backdrop-filter: blur(8px);
+      backdrop-filter: none !important;
+      opacity: 1;
     }
 
     h1,h2,h3{ margin:0 0 10px; }

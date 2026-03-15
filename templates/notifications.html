@@ -4,8 +4,9 @@
 {% block content %}
 <style>
 .msg-box.success{
-  background: rgba(34,197,94,.10);
-  border: 1px solid rgba(34,197,94,.25);
+  background: #0d2f1a;
+  border: 1px solid #00C853;
+  opacity: 1;
 }
   .back-btn{
   position: relative;
@@ -17,15 +18,14 @@
   padding: 0 22px 0 28px;
   border-radius: 12px;
 
-  background: #13111185;
-  color: #ffffffc9;
+  background: #1A2F4E;
+  color: #C9A84C;
   font-weight: 800;
   text-decoration: none;
 
-  border: 1px solid rgba(189, 189, 189, 0.164);
-  box-shadow:
-    0 6px 14px rgba(0,0,0,.18),
-    inset 0 1px 0 rgba(255,255,255,.65);
+  border: 1px solid #C9A84C;
+  box-shadow: 0 6px 14px rgba(0,0,0,.25);
+  opacity: 1;
 }
 .back-btn:hover{ transform: translateY(-1px); }
 .back-btn:active{ transform: translateY(0px); opacity: .92; }
@@ -51,17 +51,19 @@
 
 .cardx{
   position: relative;
-  background: rgba(0, 0, 0, 0.58);
+  background: #112240 !important;
   border-radius: 18px;
   padding: 18px;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 2px 2px rgba(245,245,245,.55), inset 0 1px 0 rgba(255,255,255,.10);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid #1E3A5F;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 1;
   overflow: hidden;
 }
 
 .muted{
-  color: rgba(255,255,255,.78);
+  color: #8899AA;
   font-size: 13px;
   line-height: 1.45;
 }
@@ -72,18 +74,19 @@
   border-radius: 16px;
   padding: 18px 16px 16px;
   position: relative;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255,255,255,.10);
-  box-shadow: 0 10px 26px rgba(0,0,0,.25);
+  background: #1A2F4E;
+  border: 1px solid #1E3A5F;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  opacity: 1;
 }
 
 .msg-box.info{
-  background: rgba(34, 197, 94, 0.10);
-  border: 1px solid rgba(34, 197, 94, 0.22);
+  background: #0d2f1a;
+  border: 1px solid #00C853;
 }
 .msg-box.danger{
-  background: rgba(220, 38, 38, 0.12);
-  border: 1px solid rgba(220, 38, 38, 0.26);
+  background: #3d0010;
+  border: 1px solid #FF1744;
 }
 
 /* icon (only for alert) */
@@ -99,16 +102,17 @@
   left: 14px;
   top: 14px;
 
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.14);
+  background: #1E3A5F;
+  border: 1px solid #C9A84C;
+  opacity: 1;
 }
 .msg-box.danger .msg-ico{
-  background: rgba(220, 38, 38, 0.16);
-  border-color: rgba(220, 38, 38, 0.28);
+  background: #5c0010;
+  border-color: #FF1744;
 }
 .msg-box.info .msg-ico{
-  background: rgba(34, 197, 94, 0.16);
-  border-color: rgba(34, 197, 94, 0.28);
+  background: #0d2f1a;
+  border-color: #00C853;
 }
 .msg-ico svg{ width: 18px; height: 18px; opacity: .95; }
 .msg-box.danger .msg-ico svg{ fill: #ffb4b4; }

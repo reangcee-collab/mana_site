@@ -1,130 +1,116 @@
-Update loan_info.html to show signature and ID photos in view-only mode:
+I want to redesign the user-facing dashboard/site with a clean, 
+professional style. All cards, topbar, and bottom navbar must have 
+opacity 100% (no transparency/blur). 
 
-CRITICAL ISSUE:
-When user views their submitted application (Information page), signature and ID photos are NOT showing. This MUST be fixed.
+The color theme should be a rich, deep navy blue + gold accent combination 
+(professional finance app style).
 
-REQUIRED CHANGES:
+Please do the following:
 
-1. REDUCE GREEN CARD OPACITY:
-   The completed step cards (green background) are TOO bright/opaque
-   They need MORE opacity (more transparent) to match the loan summary card style
-   
-   Current (too bright):
-   background: rgba(34, 197, 94, 0.X)  /* too low opacity number */
-   
-   Change to (more transparent like loan summary):
-   background: rgba(34, 197, 94, 0.15)  /* higher opacity = more transparent */
-   OR
-   background: rgba(34, 197, 94, 0.12)
-   
-   The green should be subtle, not overpowering
-   Match the opacity level of the loan summary card above
+=== STEP 1: Find all relevant files ===
+1. List all files in templates/ folder
+2. Find the main user dashboard template (dashboard.html or home.html)
+3. Find the main CSS file (static/css/ folder) — show me its contents
+4. Check if there is a base.html or layout template
 
-2. SHOW SIGNATURE in View-Only Mode:
-   - Display the saved signature image
-   - Show it in the signature canvas area OR as an image
-   - Add "Signature on file" label
-   - Disable drawing (canvas should be locked)
-   - Do NOT allow re-signing
-   
-   Example:
-   <div class="signature-display">
-     <img src="{{ user.signature_url }}" alt="Your signature">
-     <p class="signature-label">✓ Signature on file</p>
-   </div>
+=== STEP 2: Fix opacity on ALL elements ===
+Search for any of these in CSS and templates and set them to opacity: 1 or remove transparency:
+- opacity: 0.X  → change to opacity: 1
+- rgba(X, X, X, 0.X)  → change alpha to 1  OR replace with solid color
+- background: transparent → replace with solid color
+- backdrop-filter → remove it
+- -webkit-backdrop-filter → remove it
 
-3. SHOW ID PHOTOS in View-Only Mode:
-   A. Front of ID:
-      - Display uploaded ID front photo
-      - Show in the ID front upload area
-      - Add "Uploaded" checkmark
-      - Disable upload button
-   
-   B. Back of ID:
-      - Display uploaded ID back photo
-      - Show in the ID back upload area
-      - Add "Uploaded" checkmark
-      - Disable upload button
-   
-   C. Selfie + ID:
-      - Display uploaded selfie with ID photo
-      - Show in the selfie upload area
-      - Add "Uploaded" checkmark
-      - Disable upload button
+=== STEP 3: Apply this exact color system to ALL cards, topbar, bottom navbar ===
 
-4. DISABLE RE-UPLOAD in View-Only Mode:
-   - Hide "Click to upload" buttons
-   - Show uploaded images instead
-   - Add visual indicator: "✓ Uploaded"
-   - Make upload areas non-clickable
-   
-   CSS for uploaded state:
-   .upload-area.uploaded {
-     pointer-events: none;
-     opacity: 0.9;
-   }
-   .upload-area.uploaded::after {
-     content: "✓ Uploaded";
-     color: #22c55e;
-   }
+Use this color palette:
+  --color-primary:     #0A1628   /* deep navy */
+  --color-secondary:   #112240   /* card background */
+  --color-accent:      #C9A84C   /* gold */
+  --color-accent-light:#F0C96B   /* light gold */
+  --color-surface:     #1A2F4E   /* elevated card */
+  --color-border:      #1E3A5F   /* card border */
+  --color-text:        #FFFFFF   /* white text */
+  --color-text-muted:  #8899AA   /* muted text */
+  --color-success:     #00C853   /* green for ACTIVE badge */
+  --color-danger:      #FF1744   /* red */
 
-5. DISPLAY LOGIC:
-   If view-only mode (application submitted):
-   - Check if signature exists: show signature image
-   - Check if ID front exists: show ID front image
-   - Check if ID back exists: show ID back image  
-   - Check if selfie exists: show selfie image
-   - Hide all upload buttons
-   - Disable all file input fields
+Apply these styles:
 
-6. EXAMPLE STRUCTURE:
-   
-   <!-- Signature Display -->
-   {% if view_only_mode and user.signature %}
-     <div class="signature-display">
-       <img src="{{ user.signature }}" alt="Signature">
-       <span class="verified">✓ Signature verified</span>
-     </div>
-   {% else %}
-     <!-- Normal signature canvas for new applications -->
-   {% endif %}
-   
-   <!-- ID Photo Display -->
-   {% if view_only_mode and user.id_front %}
-     <div class="photo-display">
-       <img src="{{ user.id_front }}" alt="ID Front">
-       <span class="verified">✓ ID Front uploaded</span>
-     </div>
-   {% else %}
-     <!-- Normal upload button for new applications -->
-   {% endif %}
+/* Topbar */
+.topbar, header, nav.top {
+  background: #0A1628 !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+}
 
-7. STYLING:
-   /* Completed step cards - subtle green like loan summary */
-   .step-card.completed {
-     background: rgba(34, 197, 94, 0.15) !important;  /* more transparent */
-     border-color: rgba(34, 197, 94, 0.35) !important;
-   }
-   
-   .photo-display img,
-   .signature-display img {
-     max-width: 100%;
-     border-radius: 12px;
-     border: 2px solid #22c55e;
-   }
-   
-   .verified {
-     color: #22c55e;
-     font-weight: 800;
-     display: block;
-     margin-top: 8px;
-   }
+/* Bottom Navbar */
+.bottom-nav, .navbar-bottom, nav.bottom {
+  background: #0A1628 !important;
+  opacity: 1 !important;
+  border-top: 1px solid #C9A84C !important;
+  backdrop-filter: none !important;
+}
 
-IMPORTANT:
-- Green cards should have MORE opacity (lower alpha value)
-- Match the subtle transparency of loan summary card
-- Do NOT allow re-upload in view-only mode
-- Always show existing photos/signature
-- Use Django template variables for image URLs
-- Add proper null/empty checks
-- Keep styling consistent with rest of page
+/* All Cards */
+.card, [class*="card"], .widget, .balance-card, .service-card, .currency-card {
+  background: #112240 !important;
+  border: 1px solid #1E3A5F !important;
+  border-radius: 16px !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+
+/* Gold accent for buttons and highlights */
+.btn-primary, .quick-loan-btn, [class*="btn-main"] {
+  background: linear-gradient(135deg, #C9A84C, #F0C96B) !important;
+  color: #0A1628 !important;
+  font-weight: bold !important;
+  border: none !important;
+  opacity: 1 !important;
+}
+
+/* ACTIVE badge */
+.badge-active, .status-active, .badge.active {
+  background: #00C853 !important;
+  color: white !important;
+  opacity: 1 !important;
+}
+
+/* Page background */
+body, .main-content, .page-wrapper {
+  background: #0A1628 !important;
+  opacity: 1 !important;
+}
+
+/* Section titles like "OUR SERVICES", "CURRENCY" */
+.section-title, h2, h3 {
+  color: #C9A84C !important;
+}
+
+/* Currency table */
+table, .currency-table {
+  background: #112240 !important;
+  border-radius: 12px !important;
+}
+table th {
+  color: #C9A84C !important;
+  background: #1A2F4E !important;
+}
+table td {
+  color: #FFFFFF !important;
+  border-color: #1E3A5F !important;
+}
+
+=== STEP 4: Apply to all user-facing templates ===
+Apply changes to:
+- dashboard.html (or home.html)
+- base.html or layout.html (so it applies globally)
+- Any inline styles in templates — replace with the new colors
+
+=== STEP 5: Do NOT touch staff/admin templates ===
+Only change user-facing templates and CSS. 
+Do not modify anything in staff_*.html files.
+
+Show me which files you are changing, then apply all changes.

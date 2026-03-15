@@ -4,7 +4,7 @@
 {% block content %}
 
 <style>
-  @font-face {
+    @font-face {
     font-family: 'Ovelion';
     src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format('truetype');
   }
@@ -16,100 +16,225 @@
   /* ===== Main Container ===== */
   .welcome-container{
     width: 100%;
-    max-width: 520px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 20px 14px;
+    padding: 40px 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 24px;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
   }
 
-  /* ===== Welcome Card (Top) ===== */
+  /* ===== Desktop: Side by Side Layout ===== */
+  @media (min-width: 992px){
+    .welcome-container{
+      flex-direction: row;
+      align-items: stretch;
+      gap: 30px;
+      padding: 40px;
+      min-height: auto;
+    }
+
+    .card,
+    .info-slider{
+      flex: 1;
+      max-width: 480px;
+      min-height: 560px;
+      max-height: 560px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card{
+      justify-content: center;
+      padding: 48px 40px;
+    }
+
+    .info-slider{
+      height: 560px;
+    }
+
+    .info-slide{
+      height: 100%;
+      min-height: 560px;
+      max-height: 560px;
+      display: flex !important;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 36px 32px;
+      box-sizing: border-box;
+    }
+
+    .info-slide:not(.active){
+      display: none !important;
+    }
+
+    .info-content{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .info-list{
+      margin-bottom: 0;
+    }
+
+    .info-list li{
+      padding: 14px 0;
+      padding-left: 32px;
+    }
+
+    .info-highlight{
+      margin-top: auto;
+      margin-bottom: 8px;
+    }
+
+    .slider-dots{
+      margin-top: 0;
+      padding-top: 16px;
+    }
+  }
+
+  /* ===== Welcome Card (Top) - BLUE STYLE ===== */
   .card{
-    background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
-    border: 2px solid rgba(100,150,255,.35);
-    box-shadow: 0 8px 32px rgba(0,65,130,.4), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.08);
+    background: linear-gradient(135deg, #0066cc 0%, #004080 50%, #002850 100%);
+    border: 2px solid rgba(100,180,255,.5);
+    box-shadow: 
+      0 12px 40px rgba(0,102,204,.5),
+      0 0 0 1px rgba(255,255,255,.1),
+      inset 0 1px 0 rgba(255,255,255,.15),
+      inset 0 -1px 0 rgba(0,0,0,.2);
     animation: zoomIn .45s ease;
-    padding: 32px 28px;
-    border-radius: 20px;
+    padding: 40px 32px;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Shine effect for welcome card */
+  .card::before{
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(255,255,255,.1) 50%,
+      transparent 70%
+    );
+    animation: shine 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes shine{
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
   }
 
   .card h1{
-    margin: 0 0 12px;
-    font-size: 36px;
+    margin: 0 0 16px;
+    font-size: 42px;
     font-weight: 900;
     letter-spacing: .6px;
     color: #fff;
+    text-align: center;
+    text-shadow: 0 2px 10px rgba(0,0,0,.3);
   }
 
   .card p{
-    opacity: .92;
-    margin-bottom: 22px;
-    color: rgba(255,255,255,.92);
-    line-height: 1.5;
+    opacity: .95;
+    margin-bottom: 28px;
+    color: rgba(255,255,255,.95);
+    line-height: 1.6;
+    text-align: center;
+    font-size: 16px;
   }
 
   .btn-start{
     display: block;
-    padding: 14px;
+    padding: 16px;
     border-radius: 999px;
-    background: linear-gradient(90deg, #004182, #054585d0);
-    color: #fff;
-    font-weight: 800;
+    background: linear-gradient(90deg, #ffffff 0%, #e6f2ff 100%);
+    color: #004080;
+    font-weight: 900;
     text-decoration: none;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     text-align: center;
-    box-shadow: 0 6px 20px rgba(0,65,130,.3);
+    box-shadow: 0 6px 20px rgba(0,0,0,.3), 0 0 0 1px rgba(255,255,255,.2);
     transition: all 0.2s ease;
+    font-size: 16px;
+    position: relative;
+    z-index: 1;
   }
 
   .btn-start:hover{
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,65,130,.4);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.3);
+    background: linear-gradient(90deg, #ffffff 0%, #f0f7ff 100%);
   }
 
   .btn-register{
     display: block;
-    padding: 12px;
+    padding: 14px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.45);
-    background: transparent;
+    border: 2px solid rgba(255,255,255,.6);
+    background: rgba(255,255,255,.1);
     color: #fff;
     text-decoration: none;
     text-align: center;
-    font-weight: 700;
+    font-weight: 800;
     transition: all 0.2s ease;
+    font-size: 16px;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
   }
 
   .btn-register:hover{
-    background: rgba(255,255,255,.08);
-    border-color: rgba(255,255,255,.65);
+    background: rgba(255,255,255,.2);
+    border-color: rgba(255,255,255,.8);
+    transform: translateY(-1px);
   }
 
   .card small{
     display: block;
-    margin-top: 12px;
-    opacity: .85;
-    color: rgba(255,255,255,.85);
+    margin-top: 16px;
+    opacity: .9;
+    color: rgba(255,255,255,.9);
     text-align: center;
+    font-size: 13px;
+    position: relative;
+    z-index: 1;
   }
 
-  /* ===== Info Slider (Bottom) ===== */
+  /* ===== Info Slider (Bottom) - SOLID WHITE STYLE (OPACITY 100%) ===== */
   .info-slider{
     width: 100%;
+    max-width: 480px;
     position: relative;
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: 24px;
   }
 
   .info-slide{
     display: none;
-    background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%);
-    border: 2px solid rgba(100,150,255,.35);
-    border-radius: 20px;
-    padding: 24px 20px;
-    box-shadow: 0 8px 32px rgba(0,65,130,.4), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.08);
+    background: #ffffff;
+    border: 1px solid #e6f0ff;
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: 
+      0 8px 32px rgba(0,0,0,.15),
+      0 2px 8px rgba(0,0,0,.1);
     animation: slideIn 0.5s ease;
+    position: relative;
   }
 
   .info-slide.active{
@@ -124,140 +249,208 @@
   .info-header{
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255,255,255,.12);
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0,65,130,.1);
   }
 
   .info-icon{
-    width: 56px;
-    height: 56px;
-    background: rgba(0,65,130,.4);
-    border: 2px solid rgba(100,150,255,.5);
-    border-radius: 14px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, rgba(0,102,204,.08) 0%, rgba(0,102,204,.03) 100%);
+    border: 2px solid rgba(0,102,204,.15);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 0 12px rgba(0,102,204,.18);
+    box-shadow: 0 4px 12px rgba(0,102,204,.08);
   }
 
   .info-icon svg{
-    width: 28px;
-    height: 28px;
-    fill: #7db8ff;
+    width: 32px;
+    height: 32px;
+    fill: #0066cc;
   }
 
   .info-title{
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 950;
-    color: #fff;
+    color: #004080;
     letter-spacing: 0.02em;
     line-height: 1.2;
   }
 
   .info-content{
-    color: rgba(255,255,255,.88);
-    font-size: 14px;
-    line-height: 1.6;
+    color: rgba(0,40,80,.8);
+    font-size: 15px;
+    line-height: 1.7;
+    flex: 1;
   }
 
   .info-intro{
-    margin: 0 0 16px;
-    font-size: 15px;
-    line-height: 1.5;
-    color: rgba(255,255,255,.92);
+    margin: 0 0 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(0,40,80,.9);
+    font-weight: 500;
   }
 
   .info-list{
     list-style: none;
     padding: 0;
-    margin: 0 0 18px;
+    margin: 0 0 22px;
   }
 
   .info-list li{
-    padding: 10px 0;
-    padding-left: 28px;
+    padding: 12px 0;
+    padding-left: 32px;
     position: relative;
-    color: rgba(255,255,255,.88);
-    font-size: 14px;
-    line-height: 1.4;
+    color: rgba(0,40,80,.85);
+    font-size: 15px;
+    line-height: 1.5;
   }
 
   .info-list li::before{
     content: "✓";
     position: absolute;
     left: 0;
-    color: #4ade80;
+    color: #0066cc;
     font-weight: 900;
-    font-size: 18px;
+    font-size: 20px;
   }
 
   .info-highlight{
-    background: rgba(34,197,94,.15);
-    border: 1px solid rgba(34,197,94,.35);
+    background: linear-gradient(90deg, rgba(0,102,204,.08) 0%, rgba(0,102,204,.04) 100%);
+    border: 1px solid rgba(0,102,204,.15);
     border-radius: 12px;
-    padding: 12px 14px;
-    margin-top: 18px;
-    color: #4ade80;
+    padding: 14px 16px;
+    margin-top: 20px;
+    color: #0066cc;
     font-weight: 800;
-    font-size: 14px;
+    font-size: 15px;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
   }
 
   /* Slider Dots */
   .slider-dots{
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255,255,255,.08);
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,65,130,.1);
   }
 
   .dot{
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background: rgba(255,255,255,.3);
+    background: rgba(0,65,130,.15);
     cursor: pointer;
     transition: all 0.3s ease;
   }
 
   .dot:hover{
-    background: rgba(255,255,255,.5);
+    background: rgba(0,102,204,.3);
   }
 
   .dot.active{
-    background: #0066cc;
-    width: 24px;
-    border-radius: 4px;
+    background: linear-gradient(90deg, #0066cc 0%, #004080 100%);
+    width: 28px;
+    border-radius: 5px;
   }
 
-  /* ===== Remove dark page overlay ===== */
+  /* ===== Background ===== */
   body{
-    background:
-      linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
-      url("{% static 'img/SL-012322-48100-03.webp' %}") center/cover no-repeat fixed;
+    background: 
+      linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.3)),
+      url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed !important;
+    opacity: 1 !important;
+    min-height: 100vh;
   }
 
-  /* ===== Equal-width cards on desktop ===== */
-  @media (min-width: 768px){
+  /* ===== Silver Animation for Title ===== */
+  .silver-run {
+    background: linear-gradient(
+      120deg,
+      rgba(255,255,255,.70),
+      rgba(255,255,255,.95),
+      rgba(200,200,200,.85),
+      rgba(255,255,255,.95),
+      rgba(255,255,255,.70)
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: silverRun 2.6s linear infinite;
+  }
+  
+  @keyframes silverRun{
+    0%{ background-position:0% 50%; }
+    100%{ background-position:220% 50%; }
+  }
+
+  .wave-bang {
+    display: inline-block;
+    animation: wave 1s ease-in-out infinite;
+    color: #f0c96b;
+  }
+  
+  @keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(15deg); }
+    75% { transform: rotate(-15deg); }
+  }
+
+  /* ===== Mobile Responsive ===== */
+  @media (max-width: 991px){
     .welcome-container{
-      max-width: 520px;
-      margin-left: auto;
-      margin-right: auto;
+      padding: 20px 16px;
+      gap: 20px;
     }
+    
     .card,
     .info-slider{
-      width: 100%;
-      max-width: 520px;
-      box-sizing: border-box;
+      max-width: 100%;
+    }
+    
+    .card{
+      padding: 32px 24px;
+    }
+    
+    .card h1{
+      font-size: 36px;
+    }
+    
+    .info-slide{
+      padding: 24px 20px;
+    }
+  }
+
+  @media (max-width: 480px){
+    .card h1{
+      font-size: 32px;
+    }
+    
+    .info-title{
+      font-size: 20px;
+    }
+    
+    .info-icon{
+      width: 56px;
+      height: 56px;
+    }
+    
+    .info-icon svg{
+      width: 28px;
+      height: 28px;
     }
   }
 </style>

@@ -10,6 +10,16 @@
 :root{
   --g1:#0f7a3a;
   --g2:#22c55e;
+  --color-primary:    #0A1628;
+  --color-secondary:  #112240;
+  --color-accent:     #7db8ff;      /* ពណ៌ខៀវភ្លឺ */
+  --color-accent-light:#a8d4ff;     /* ពណ៌ខៀវភ្លឹង */
+  --color-surface:    #1A2F4E;
+  --color-border:     rgba(100,150,255,.35);  /* border ខៀវ */
+  --color-text:       #FFFFFF;
+  --color-text-muted: #8899AA;
+  --color-success:    #00C853;
+  --color-danger:     #FF1744;
 }
 @font-face{
   font-family: "Ovelion";
@@ -90,10 +100,11 @@ body{
   margin:0;
   min-height:100vh;
   font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:
-    linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.12)),
-    url("{% static 'img/SL-012322-48100-03.webp' %}") center/cover no-repeat fixed;
+  background: 
+    linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
+    url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed;
   color:#fff;
+  opacity: 1;
   /* Reserve space for fixed bottom bar (height + offset) */
   padding-bottom: calc(var(--bar-h) + var(--bar-gap));
 }
@@ -133,16 +144,18 @@ body{
   padding-top: 72px;
 }
 
-/* ===== GLASS CARD ===== */
+/* ===== SOLID CARD ===== */
 .card{
   width:100%;
   max-width:420px;
   padding:28px;
   border-radius:18px;
-  background:rgba(255,255,255,.14);
-  backdrop-filter:blur(18px);
-  -webkit-backdrop-filter:blur(18px);
-  box-shadow:0 30px 70px rgba(0,0,0,.45);
+  background: #112240;
+  border: 1px solid #1E3A5F;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 1;
   animation: zoomIn .45s ease;
   text-align:center;
 }
@@ -217,7 +230,7 @@ body{
 }
 h1,h2,h3{ margin:0 0 10px; }
 .muted{
-  color: rgba(255,255,255,.7);
+  color: #8899AA;
   font-size: 14px;
 }
 
@@ -240,13 +253,17 @@ h1,h2,h3{ margin:0 0 10px; }
 }
 .btn:active{ transform: scale(.98); }
 .btn-primary{
-  background: linear-gradient(90deg, #004182, #054585d0);
-  color:#fff;
+  background: linear-gradient(135deg, #0d5aa8, #004182) !important;
+  color: #fff !important;
+  font-weight: bold !important;
+  border: 2px solid rgba(100,150,255,.35) !important;
+  opacity: 1 !important;
 }
 .btn-ghost{
-  background: transparent;
-  border: 1px solid rgba(255,255,255,.35);
+  background: #112240;
+  border: 1px solid #1E3A5F;
   color: #fff;
+  opacity: 1;
 }
 
 /* ===== FORM STYLES ===== */
@@ -261,18 +278,19 @@ input, select, textarea{
   width:100%;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.2);
-  background: rgba(255,255,255,.1);
+  border: 1px solid #1E3A5F;
+  background: #1A2F4E;
   color: #fff;
   outline:none;
   font-size: 14px;
+  opacity: 1;
 }
 input::placeholder, textarea::placeholder{
-  color: rgba(255,255,255,.5);
+  color: #8899AA;
 }
 input:focus, select:focus, textarea:focus{
-  border-color: var(--g2);
-  background: rgba(255,255,255,.15);
+  border-color: rgba(100,150,255,.55);
+  background: #1A2F4E;
 }
 
 /* ===== BADGES ===== */
@@ -282,15 +300,16 @@ input:focus, select:focus, textarea:focus{
   border-radius:999px;
   font-size: 12px;
   font-weight: 700;
-  border:1px solid rgba(255,255,255,.2);
-  background: rgba(255,255,255,.1);
+  border:1px solid #1E3A5F;
+  background: #1A2F4E;
   color: #fff;
+  opacity: 1;
 }
-.b-pending{ background: rgba(245,158,11,.2); border-color: rgba(245,158,11,.4); }
-.b-approved{ background: rgba(34,197,94,.2); border-color: rgba(34,197,94,.4); }
-.b-otp{ background: rgba(59,130,246,.2); border-color: rgba(59,130,246,.4); }
-.b-paid{ background: rgba(34,197,94,.25); border-color: rgba(34,197,94,.45); }
-.b-rejected{ background: rgba(239,68,68,.2); border-color: rgba(239,68,68,.4); }
+.b-pending{ background: #7a5c00; border-color: #a87d00; color:#fff; }
+.b-approved{ background: #00C853; border-color: #00a844; color:#fff; }
+.b-otp{ background: #1A2F4E; border-color: #C9A84C; color:#C9A84C; }
+.b-paid{ background: #00C853; border-color: #00a844; color:#fff; }
+.b-rejected{ background: #FF1744; border-color: #cc1236; color:#fff; }
 
 /* ===== CARD OVERRIDES FOR GRID ===== */
 .grid .card{
@@ -305,35 +324,29 @@ input:focus, select:focus, textarea:focus{
   letter-spacing: .03em !important;
 }
 
-/* ===== BUTTON COLOR GRADIENT (Task 6 - Global) ===== */
+/* ===== BUTTON COLOR GRADIENT (Gold accent) ===== */
 .btn-primary{
-  background: linear-gradient(90deg, #004182, #0066cc) !important;
-  box-shadow: 0 6px 20px rgba(0,65,130,.35) !important;
+  background: linear-gradient(135deg, #C9A84C, #F0C96B) !important;
+  color: #0A1628 !important;
+  box-shadow: 0 6px 20px rgba(201,168,76,.35) !important;
+  opacity: 1 !important;
 }
 .btn-primary:hover{
-  background: linear-gradient(90deg, #0052a3, #0080ff) !important;
+  background: linear-gradient(135deg, #1a6bc4, #0d5aa8) !important;
 }
 
-/* ===== CARD VISIBILITY — Global blue-gray gradient + blue metallic border ===== */
+/* ===== CARDX — Navy + BLUE GRADIENT BORDER (#02060E to #0356C5) ===== */
 .cardx{
-  background: linear-gradient(135deg, rgba(30,58,95,.98) 0%, rgba(20,40,75,.98) 100%) !important;
+  background: linear-gradient(180deg, #02060E 0%, #0356C5 100%) !important;
   border-radius: 16px !important;
-  border: 2px solid rgba(100,150,255,.35) !important;
-  box-shadow:
-    0 8px 32px rgba(0,65,130,.4),
-    0 0 0 1px rgba(255,255,255,.06),
-    inset 0 1px 0 rgba(255,255,255,.08),
-    0 0 22px rgba(0,102,204,.14) !important;
-  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease !important;
+  border: 1px solid rgba(125,184,255,0.3) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 1 !important;
+  transition: transform .22s ease, box-shadow .22s ease !important;
 }
-.cardx:hover{
-  border-color: rgba(100,150,255,.58) !important;
-  box-shadow:
-    0 12px 40px rgba(0,65,130,.5),
-    0 0 28px rgba(0,102,204,.22),
-    inset 0 1px 0 rgba(255,255,255,.1) !important;
-  transform: translateY(-1px) !important;
-}
+
 
 /* ===== FIXED BOTTOM BAR ===== */
 .fixed-bottom-bar {
@@ -342,8 +355,11 @@ input:focus, select:focus, textarea:focus{
   right: 0;
   bottom: 30px;
   height: 60px;
-  background: linear-gradient(90deg, var(--g1), var(--g2));
-  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  background: #0A1628;
+  border-top: 1px solid rgba(100,150,255,.35);  /* ខៀវ border */
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  opacity: 1;
+  backdrop-filter: none;
   z-index: 20;
   display: flex;
   align-items: center;

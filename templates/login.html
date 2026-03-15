@@ -5,28 +5,34 @@
 
 {% block content %}
 <style>
-  :root{
-  --g1: #004182;
-  --g2: #054585d0;
-}
+  body{
+    margin:0;
+    min-height:100vh;
+    background: 
+      linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
+      url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed !important;
+    opacity: 1 !important;
+    color:#fff;
+  }
+
   .center{
-    min-height: calc(100vh - 120px);
+    min-height: 100vh;
     display:flex;
-    align-items:flex-start;
+    align-items:flex-start; /* ✅ Changed to flex-start for top alignment */
     justify-content:center;
-    padding: 22px 14px 40px;
+    padding: 60px 14px 20px; /* ✅ More top padding, less bottom */
     box-sizing:border-box;
   }
 
+  /* ✅ Login card - Blue gradient style */
   .glass-card{
-    width: min(560px, 100%);
-    margin-top: 10px;
-    background: rgba(40,40,40,.40);
-    border: 1px solid rgba(255,255,255,.18);
+    width: min(420px, 100%);
+    background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+    border: 1px solid rgba(125,184,255,0.3) !important;
     border-radius: 18px;
-    padding: 18px;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 18px 50px rgba(0,0,0,.45);
+    padding: 28px 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    opacity: 1;
     animation: zoomIn .35s ease-out both;
   }
 
@@ -35,51 +41,70 @@
     to{ transform: translateY(0) scale(1); opacity:1; }
   }
 
-  /* ✅ Silver running title */
+  /* Title */
   .title{
     text-align:center;
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 950;
-    letter-spacing: .6px;
-    margin: 6px 0 14px;
-    background: linear-gradient(90deg, rgba(255,255,255,.35), rgba(255,255,255,.95), rgba(255,255,255,.35));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    background-size: 220% 100%;
-    animation: shimmer 2.2s linear infinite;
-  }
-  @keyframes shimmer{
-    0%{ background-position: 0% 50%; }
-    100%{ background-position: 200% 50%; }
+    letter-spacing: .5px;
+    margin: 0 0 24px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
 
-  .field{ margin: 12px 0; }
+  .field{ margin: 16px 0; }
   .label{
     font-size: 13px;
     font-weight: 800;
-    opacity: .92;
     margin: 0 0 8px;
+    color: #7db8ff;
+    letter-spacing: 0.02em;
   }
 
+  /* Input wrap - dark blue style */
   .input-wrap{
     display:flex;
     align-items:center;
-    gap:10px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(255,255,255,.35);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+    gap:12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #1A2F4E;
+    border: 1px solid rgba(125,184,255,0.3);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     box-sizing:border-box;
+    transition: all .2s ease;
+  }
+  
+  .input-wrap:focus-within{
+    border-color: rgba(125,184,255,0.6);
+    box-shadow: 0 0 0 3px rgba(125,184,255,0.15), 0 4px 12px rgba(0,0,0,0.3);
   }
 
+  /* ✅ Icon box - Same blue style for both icons */
+  .icon-box{
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: #1A2F4E;
+    border: 1px solid rgba(125,184,255,0.4);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  
+  /* ✅ Both icons use same blue gradient */
+  .icon-box{
+    background: linear-gradient(135deg, #4a90d9 0%, #2a5a8a 100%);
+    border: 1px solid rgba(125,184,255,0.5);
+  }
 
   .icon-box svg{
-    width:18px;
-    height:18px;
-    fill:#054585d0;
-    opacity:.95;
+    width:20px;
+    height:20px;
+    fill: #fff;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
   }
 
   .input{
@@ -87,97 +112,126 @@
     border:none;
     outline:none;
     background:transparent;
-    font-size:14px;
-
-    /* ✅ FIX: typed text color */
-    color:#111;
-    caret-color:#111;
+    font-size:15px;
+    color: #fff;
+    caret-color: #7db8ff;
+    font-weight: 600;
   }
 
-  /* ✅ FIX: placeholder color */
   .input::placeholder{
-    color:#888;
-    opacity:1;
+    color: #7db8ff;
+    opacity: 0.6;
   }
 
-  /* ✅ FIX: Chrome autofill keeps text black */
+  /* Chrome autofill fix */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus{
-    -webkit-text-fill-color:#111 !important;
-    box-shadow: 0 0 0px 1000px rgba(255,255,255,.92) inset !important;
+    -webkit-text-fill-color: #fff !important;
+    box-shadow: 0 0 0px 1000px #1A2F4E inset !important;
     transition: background-color 9999s ease-in-out 0s;
   }
 
+  /* Eye button */
   .eye-btn{
     border:none;
-    background:transparent;
+    background: rgba(125,184,255,0.15);
     cursor:pointer;
-    width:34px;
-    height:34px;
-    border-radius: 11px;
+    width:36px;
+    height:36px;
+    border-radius: 10px;
     display:flex;
     align-items:center;
     justify-content:center;
+    transition: all .2s ease;
   }
-  .eye-btn:hover{ background: rgba(0,0,0,.06); }
+  .eye-btn:hover{ 
+    background: rgba(125,184,255,0.3);
+    transform: scale(1.05);
+  }
   .eye-btn svg{
     width:18px;
     height:18px;
-    fill:#054585d0;
-    opacity:.9;
+    fill: #7db8ff;
   }
 
+  /* Login button - White style */
   .btn{
     width:100%;
-    height:46px;
+    height: 52px;
     border:none;
-    border-radius:999px;
-    margin-top: 10px;
-    background: linear-gradient(90deg,var(--g1),var(--g2));
-    color:#fff;
-    font-weight: 950;
-    letter-spacing:.4px;
-    box-shadow: 0 14px 28px rgba(0,0,0,.40);
+    border-radius: 14px;
+    margin-top: 20px;
+    background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%) !important;
+    color: #333 !important;
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: 0.08em;
     cursor:pointer;
+    box-shadow: 0 6px 0 #bdbdbd, 0 4px 15px rgba(0,0,0,0.15) !important;
+    transition: all .15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .btn:hover{
+    background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 100%) !important;
+    box-shadow: 0 6px 0 #bdbdbd, 0 6px 20px rgba(0,0,0,0.2) !important;
+    transform: translateY(-2px);
+  }
+  
+  .btn:active{
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #bdbdbd, 0 2px 8px rgba(0,0,0,0.15) !important;
   }
 
+  /* Footer */
   .foot{
     text-align:center;
-    margin-top: 10px;
-    font-size: 13px;
-    opacity: .92;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #7db8ff;
   }
   .foot a{
-    color:#59acffe8;
-    font-weight: 900;
+    color: #fff;
+    font-weight: 800;
     text-decoration:none;
+    transition: all .2s ease;
   }
-  .foot a:hover{ text-decoration: underline; }
+  .foot a:hover{ 
+    text-decoration: underline;
+    color: #7db8ff;
+  }
 
+  /* Error message */
   .err{
-    margin: 10px 0 0;
-    background: rgba(255, 0, 0, .14);
-    border: 1px solid rgba(255, 0, 0, .25);
-    color:#ffecec;
-    padding: 10px 12px;
+    margin: 0 0 16px;
+    background: rgba(220,38,38,0.15);
+    border: 1px solid rgba(220,38,38,0.4);
+    color: #fca5a5;
+    padding: 12px 16px;
     border-radius: 12px;
     font-size: 13px;
+    font-weight: 600;
+    text-align: center;
   }
 
   @media (max-width:480px){
-    .glass-card{ padding:16px; border-radius:16px; }
-    .btn{ height:46px; }
+    .center{ padding: 40px 14px 20px; }
+    .glass-card{ padding: 24px 20px; }
+    .title{ font-size: 22px; }
   }
 
   @font-face {
-  font-family: 'Ovelion';
-  src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format('truetype');
-}
+    font-family: 'Ovelion';
+    src: url("{% static 'fonts/Ovelion-Regular.ttf' %}") format('truetype');
+  }
 
-body, body * {
-  font-family: 'Ovelion', sans-serif !important;
-}
+  body, body * {
+    font-family: 'Ovelion', sans-serif !important;
+  }
 </style>
 
 <div class="center">
@@ -185,7 +239,7 @@ body, body * {
 
     <div class="title">Login</div>
 
-    <!-- ✅ Professional alert (Django messages) -->
+    <!-- Error messages -->
     {% if messages %}
       {% for message in messages %}
         <div class="err"><strong>Login failed:</strong> {{ message }}</div>
@@ -203,12 +257,12 @@ body, body * {
         <div class="label">Phone Number</div>
         <div class="input-wrap">
           <div class="icon-box" aria-hidden="true">
-            <!-- phone -->
+            <!-- phone icon -->
             <svg viewBox="0 0 24 24">
               <path d="M6.6 10.8c1.8 3.6 3.9 5.7 7.5 7.5l2.5-2.5c.3-.3.7-.4 1.1-.3 1.2.4 2.6.7 4 .7.6 0 1 .4 1 1V21c0 .6-.4 1-1 1C10.6 22 2 13.4 2 2c0-.6.4-1 1-1h3.1c.6 0 1 .4 1 1 0 1.4.2 2.8.7 4 .1.4 0 .8-.3 1.1L6.6 10.8z"/>
             </svg>
           </div>
-          <input class="input" type="text" name="phone" placeholder="Phone number" required>
+          <input class="input" type="text" name="phone" placeholder="Enter phone number" required>
         </div>
       </div>
 
@@ -216,16 +270,16 @@ body, body * {
         <div class="label">Password</div>
         <div class="input-wrap">
           <div class="icon-box" aria-hidden="true">
-            <!-- lock -->
+            <!-- lock icon -->
             <svg viewBox="0 0 24 24">
               <path d="M12 1a5 5 0 00-5 5v3H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 8V6a3 3 0 016 0v3H9z"/>
             </svg>
           </div>
 
-          <input id="pwd" class="input" type="password" name="password" placeholder="Password" required>
+          <input id="pwd" class="input" type="password" name="password" placeholder="Enter password" required>
 
           <button type="button" class="eye-btn" id="togglePwd" aria-label="Show password">
-            <!-- eye -->
+            <!-- eye icon -->
             <svg viewBox="0 0 24 24">
               <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10z"/>
             </svg>
@@ -233,7 +287,10 @@ body, body * {
         </div>
       </div>
 
-      <button class="btn" type="submit">→ LOGIN</button>
+      <button class="btn" type="submit">
+        <span>→</span>
+        <span>LOGIN</span>
+      </button>
 
       <div class="foot">
         No account? <a href="/register/">Register</a>

@@ -36,27 +36,29 @@
     padding:0 14px;
     border-radius:999px;
     text-decoration:none;
-    color:#fff;
+    color: #0A1628;
     font-weight:800;
-    background: linear-gradient(90deg, var(--g1), var(--g2));
-    box-shadow:0 8px 20px rgba(0,0,0,.35);
-    border:1px solid rgba(255,255,255,.18);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, #C9A84C, #F0C96B);
+    box-shadow:0 6px 16px rgba(201,168,76,.35);
+    border: none;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    opacity: 1;
   }
   .nav .nav-pill svg{ width:18px; height:18px; }
 
-  /* ===== REGISTER CARD ===== */
+  /* ===== REGISTER CARD - Changed to blue gradient style ===== */
   .auth-card{
     width:min(560px, 92vw);
     margin-top:10px;
     padding:22px 22px 18px;
     border-radius:18px;
-    background: rgba(255,255,255,.18);
-    border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 18px 48px rgba(0,0,0,.45);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+    border: 1px solid rgba(125,184,255,0.3) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    opacity: 1;
   }
 
   /* ===== silver running title ===== */
@@ -115,7 +117,10 @@
     box-sizing:border-box;
   }
   .input::placeholder{ color:#666; }
-
+  .input:focus {
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(255,255,255,.5);
+}
   .icon-left{
     position:absolute;
     left:14px;
@@ -151,15 +156,22 @@
     margin-top:14px;
     border:0;
     border-radius:999px;
-    background: linear-gradient(90deg, var(--g1), var(--g2));
-    color:#fff;
+    background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%) !important;
+    color: #333 !important;
     font-weight:900;
     letter-spacing:.4px;
     cursor:pointer;
-    box-shadow: 0 10px 26px rgba(0,0,0,.35);
-    transition: opacity .2s ease, transform .05s ease;
+    box-shadow: 0 6px 0 #bdbdbd, 0 4px 15px rgba(0,0,0,0.15) !important;
+    transition: all .15s ease;
   }
-  .btn-main:active{ transform: translateY(1px); }
+  .btn-main:hover:not(:disabled){
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #bdbdbd, 0 6px 20px rgba(0,0,0,0.2) !important;
+  }
+  .btn-main:active:not(:disabled){
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #bdbdbd, 0 2px 8px rgba(0,0,0,0.15) !important;
+  }
   .btn-main:disabled{
     opacity:.55;
     cursor:not-allowed;
@@ -246,12 +258,13 @@
   .agreement-box{
     width:min(720px, 100%);
     max-height: min(86vh, 760px);
-    background: rgba(25,25,25,.92);
-    border:1px solid rgba(255,255,255,.14);
+    background: #112240;
+    border:1px solid #1E3A5F;
     border-radius: 18px;
     box-shadow: 0 24px 60px rgba(0,0,0,.55);
     overflow:hidden;
-    backdrop-filter: blur(10px);
+    backdrop-filter: none !important;
+    opacity: 1;
   }
   .agreement-head{
     padding: 14px 16px;
@@ -446,7 +459,7 @@ body, body * {
       <div class="agree-line">
         <input type="checkbox" id="agreeChk" name="agree" value="1">
         <span class="agree-text">
-          I have read and agree to the <a href="#" id="openAgreement">User Agreement</a>.
+         <span style="color: #fff;">I have read and agree to the</span> <a href="#" id="openAgreement">User Agreement</a>.
         </span>
       </div>
     </div>
@@ -455,9 +468,7 @@ body, body * {
     <button class="btn-main" type="submit" id="registerBtn" disabled>REGISTER</button>
 
     <div class="footer">
-      Already have account? <a href="/login/">Back to login</a>
-    </div>
-  </form>
+  <span style="color: #59acffe8;">Already have account?</span> <a href="/login/" style="color: #fff !important; font-weight: 900; text-decoration: none;">Back to login</a>
 </div>
 
 <!-- Agreement Modal -->
@@ -745,13 +756,10 @@ body, body * {
       const id = btn.getAttribute('data-target');
       const input = document.getElementById(id);
       if (!input) return;
-
       const on = btn.querySelector('.eye-on');
       const off = btn.querySelector('.eye-off');
-
       const isHidden = input.type === 'password';
       input.type = isHidden ? 'text' : 'password';
-
       if (on && off){
         on.style.display = isHidden ? 'none' : 'block';
         off.style.display = isHidden ? 'block' : 'none';
@@ -766,7 +774,6 @@ body, body * {
     const declineBtn = document.getElementById('declineAgreement');
     const acceptBtn = document.getElementById('acceptAgreement');
     const body = document.getElementById('agreementBody');
-
     const agreeChk = document.getElementById('agreeChk');
     const registerBtn = document.getElementById('registerBtn');
     const agreeHidden = document.getElementById('agreeAccepted');
@@ -777,18 +784,13 @@ body, body * {
     function syncRegisterButton(){
       agreeChk.checked = hasAccepted;
       if (agreeHidden) agreeHidden.value = hasAccepted ? "1" : "0";
-
-      // ✅ IMPORTANT: block register until accepted
-      if (registerBtn){
-        registerBtn.disabled = !hasAccepted;
-      }
+      if (registerBtn) registerBtn.disabled = !hasAccepted;
     }
 
     function openModal(e){
       if (e) e.preventDefault();
       modal.style.display = 'flex';
       modal.setAttribute('aria-hidden', 'false');
-
       acceptBtn.disabled = true;
       acceptBtn.classList.remove('enabled');
       body.scrollTop = 0;
@@ -802,7 +804,6 @@ body, body * {
     openBtn.addEventListener('click', openModal);
     closeBtn.addEventListener('click', closeModal);
 
-    // enable Agree only when scrolled to bottom
     body.addEventListener('scroll', () => {
       const nearBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 6;
       if (nearBottom){
@@ -823,7 +824,6 @@ body, body * {
       closeModal();
     });
 
-    // clicking checkbox forces modal
     agreeChk.addEventListener('change', () => {
       if (!hasAccepted){
         agreeChk.checked = false;
@@ -831,7 +831,6 @@ body, body * {
       }
     });
 
-    // extra safety: if someone bypasses, block submit
     if (form){
       form.addEventListener('submit', (e) => {
         if (!hasAccepted || (agreeHidden && agreeHidden.value !== "1")){
@@ -842,32 +841,23 @@ body, body * {
     }
 
     syncRegisterButton();
-
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
     });
   })();
-</script>
 
-<!-- ✅ Phone digits only (no letters / symbols / +) -->
-<script>
   (function(){
     const phone = document.getElementById("id_phone");
     if(!phone) return;
-
     function onlyDigits(){
       phone.value = (phone.value || "").replace(/\D+/g, "");
     }
-
     phone.addEventListener("input", onlyDigits);
     phone.addEventListener("paste", () => setTimeout(onlyDigits, 0));
-
     phone.addEventListener("keydown", (e) => {
       const bad = ["+", "-", " ", "e", "E", "."];
       if (bad.includes(e.key)) e.preventDefault();
     });
   })();
 </script>
-
 {% endblock %}
-```0

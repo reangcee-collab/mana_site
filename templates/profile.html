@@ -6,12 +6,12 @@
 <style>
   /* ✅ Apply Ovillon to ALL text on this page */
   body, body *{
-  font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
-}
+    font-family: "Ovelion", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+  }
 
-  /* ✅ Back button - white background with blue border matching cards */
+  /* ✅ Back button */
   .top-actions{
-    margin: 6px 0 12px 0;  /* ✅ smaller top margin = closer to Logout */
+    margin: 20px 0 12px 0;
     display: flex;
     justify-content: flex-start;
   }
@@ -21,18 +21,17 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     height: 42px;
     padding: 0 22px;
     border-radius: 12px;
-
-    background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(240,240,240,.95) 100%);
-    color: #004182;
+    background: #1A2F4E;
+    color: #7db8ff;
     font-weight: 800;
     text-decoration: none;
-
-    border: 2px solid rgba(100,150,255,.5);
-    box-shadow: 0 6px 18px rgba(0,65,130,.25), inset 0 1px 0 rgba(255,255,255,.8);
+    border: 1px solid #7db8ff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    opacity:1;
+    transition: all .25s ease;
   }
   
   .back-btn:hover{ 
@@ -55,16 +54,19 @@
   body{
     margin:0;
     min-height:100vh;
-    background:
+    background: 
       linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
       url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed !important;
+    opacity: 1 !important;
     color:#fff;
   }
+  
   .wrap{
     align-items:flex-start !important;
     justify-content:center !important;
     padding-top:72px !important;
   }
+  
   .p-wrap{
     width: min(520px, 94vw);
     margin: 0 auto;
@@ -72,18 +74,31 @@
     box-sizing: border-box;
   }
 
-  /* ===== Profile card (same as Wallet top card) ===== */
+  /* ===== Profile card - Dashboard Style ===== */
   .cardx{
     position: relative;
-    background: linear-gradient(90deg, #004182, #054585d0);
+    background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
     border-radius: 18px;
     padding: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 18px 45px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.10);
-    border: 1px solid rgba(255,255,255,.14);
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(125,184,255,0.3) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    opacity: 1 !important;
     overflow: hidden;
     margin-bottom: 12px;
+    transition: all .22s ease;
+  }
+
+  .cardx:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
+  }
+
+  /* Profile header card specific */
+  .profile-header-card{
+    background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+    border: 1px solid rgba(125,184,255,0.3) !important;
   }
 
   .head{
@@ -93,123 +108,200 @@
     gap:12px;
     margin-bottom:12px;
   }
+  
   .h-title{
     font-weight:950;
-    font-size:18px;
+    font-size:20px;
     letter-spacing:.02em;
+    color: #fff;
   }
+  
   .h-sub{
-    font-size:12px;
-    opacity:.75;
-    margin-top:2px;
+    font-size:13px;
+    opacity:.85;
+    margin-top:4px;
+    color: #7db8ff;
   }
+
+  /* Status Badge - Dashboard Style */
   .mini{
-    padding:6px 12px;
+    padding:8px 16px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.22);
-    color:#fafafa;
+    border:1px solid rgba(125,184,255,0.4);
+    background: #1A2F4E;
+    color:#7db8ff;
     font-weight:850;
     font-size:12px;
     white-space:nowrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .mini.status-active{
+    background: #16a34a;
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  .balance-display{
+    font-size:32px; 
+    font-weight:950; 
+    margin-top:16px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
 
   .menu{
     display:grid;
-    gap:12px;
+    gap:10px;
+    margin-top: 8px;
   }
 
-  /* ✅ Button cards - soft blue like Withdrawal amount card */
+  /* ✅ SLIM Buttons - No 3D effect, clean and simple */
   .p-btn{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    padding:14px 14px;
+    padding:14px 16px;
     text-decoration:none;
     color:#fff;
-
-    position: relative;
-    background: linear-gradient(135deg, rgba(30,58,95,.96) 0%, rgba(20,40,75,.96) 100%);
-    border-radius: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 6px 28px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.07);
-    border: 2px solid rgba(100,150,255,.35);
+    background: linear-gradient(135deg, #1e3a5f 0%, #112240 100%) !important;
+    border-radius: 14px;
+    border: 1px solid rgba(125,184,255,0.25) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     overflow: hidden;
-
-    opacity:1;
-    transform:none;
     transition: all .2s ease;
-    margin-bottom:6px;  /* ✅ reduced from 12px to 6px = closer to Back button */
+    position: relative;
+    opacity: 1;
   }
 
+  /* Hover effect - subtle */
   .p-btn:hover{
-    border-color:rgba(211,211,211,.72);
-    box-shadow:0 10px 36px rgba(0,0,0,.55), 0 0 22px rgba(192,192,192,.12), inset 0 1px 0 rgba(255,255,255,.08);
-    transform:translateY(-1px);
+    background: linear-gradient(135deg, #243b5a 0%, #1a2f4e 100%) !important;
+    border-color: rgba(125,184,255,0.5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
   }
 
-  .p-btn:active{ 
-    transform: scale(.99) translateY(0); 
+  /* Active/Press effect */
+  .p-btn:active{
+    transform: translateY(0px);
+    background: linear-gradient(135deg, #1a2f4e 0%, #0f2744 100%) !important;
   }
 
-  /* Remove old pseudo-elements */
-  .p-btn::before,
-  .p-btn::after{
-    content: none;
-    display: none;
-  }
-
+  /* Left side - Icon + Text */
   .left{
     display:flex;
     align-items:center;
     gap:12px;
+    flex: 1;
     min-width:0;
   }
-  .ico{
-    width:42px;
-    height:42px;
-    border-radius:14px;
-    background: rgba(0,65,130,.3);
-    border: 2px solid rgba(100,150,255,.5);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex: 0 0 auto;
-    box-shadow: 0 0 10px rgba(0,102,204,.15);
-  }
-  .ico svg{ width:20px; height:20px; fill:none; stroke:#7db8ff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
-  .txt{ min-width:0; }
-  .t1{
-    font-weight:950;
-    font-size:14px;
-    letter-spacing:.02em;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .t2{
-    font-size:12px;
-    opacity:.75;
-    margin-top:2px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-  }
-  .chev{
-    width:30px;
-    height:30px;
-    border-radius:999px;
-    background: rgba(0,0,0,.20);
-    border:1px solid rgba(255,255,255,.14);
+  /* Icon Circle - smaller */
+  .ico{
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    background: rgba(125,184,255,0.15);
+    border:1px solid rgba(125,184,255,0.3);
     display:flex;
     align-items:center;
     justify-content:center;
-    flex:0 0 auto;
+    flex-shrink: 0;
   }
-  .chev svg{ width:16px; height:16px; fill:#fff; opacity:.95; }
+
+  .ico svg{ 
+    width:18px; 
+    height:18px; 
+    fill:none; 
+    stroke:#7db8ff; 
+    stroke-width:2; 
+    stroke-linecap:round; 
+    stroke-linejoin:round; 
+  }
+
+  /* Text - ONLY title, no subtitle */
+  .txt{
+    display:flex;
+    align-items:center;
+    min-width:0;
+    flex: 1;
+  }
+
+  /* Button title */
+  .t1{
+    font-weight:800;
+    font-size:14px;
+    letter-spacing:.03em;
+    text-transform: uppercase;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    color: #ffffff;
+  }
+
+  /* ❌ Hide subtitle completely */
+  .t2{
+    display: none !important;
+  }
+
+  /* Chevron/Arrow - smaller */
+  .chev{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background: rgba(125,184,255,0.15);
+    border:1px solid rgba(125,184,255,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink: 0;
+  }
+
+  .chev svg{ 
+    width:14px; 
+    height:14px; 
+    fill:none;
+    stroke:#7db8ff;
+    stroke-width:2.5;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+  }
+
+  /* Logout button - Red variant (slim style) */
+  .p-btn.logout-btn{
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+    border-color: rgba(239,68,68,0.3) !important;
+    margin-top: 8px;
+  }
+
+  .p-btn.logout-btn:hover{
+    background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%) !important;
+    border-color: rgba(239,68,68,0.5) !important;
+  }
+
+  .p-btn.logout-btn:active{
+    background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+  }
+
+  .p-btn.logout-btn .ico{
+    background: rgba(239,68,68,0.2);
+    border-color: rgba(239,68,68,0.4);
+  }
+
+  .p-btn.logout-btn .ico svg{
+    stroke: #fca5a5;
+  }
+
+  .p-btn.logout-btn .chev{
+    background: rgba(239,68,68,0.2);
+    border-color: rgba(239,68,68,0.3);
+  }
+
+  .p-btn.logout-btn .chev svg{
+    stroke: #fca5a5;
+  }
 
   /* ===== Logout Confirm Modal ===== */
   .logout-modal{
@@ -218,87 +310,114 @@
     display:none;
     align-items:center;
     justify-content:center;
-    background: rgba(0,0,0,.62);
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(8px);
     z-index:9999;
     padding: 18px 14px;
     box-sizing:border-box;
   }
+  
   .logout-modal.show{ display:flex; }
 
   .logout-box{
     width:min(420px, 92vw);
-    background: rgba(25,25,25,.92);
-    border:1px solid rgba(255,255,255,.14);
-    border-radius: 18px;
-    box-shadow: 0 24px 60px rgba(0,0,0,.55);
+    background: linear-gradient(180deg, #112240 0%, #0a1628 100%);
+    border:1px solid rgba(125,184,255,0.3);
+    border-radius: 20px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 40px rgba(74,144,217,0.2);
     overflow:hidden;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 16px;
+    padding: 24px;
+    text-align: center;
   }
+  
   .logout-title{
     font-weight: 950;
-    letter-spacing:.2px;
-    font-size:16px;
-    margin-bottom:6px;
+    letter-spacing:.5px;
+    font-size:20px;
+    margin-bottom:12px;
+    color: #fff;
   }
+  
   .logout-text{
-    font-size:13px;
-    opacity:.9;
-    line-height:1.45;
-    margin-bottom:14px;
+    font-size:14px;
+    opacity:.85;
+    line-height:1.5;
+    margin-bottom:24px;
+    color: #7db8ff;
   }
+  
   .logout-actions{
     display:flex;
-    gap:10px;
-    justify-content:flex-end;
+    gap:12px;
+    justify-content:center;
   }
+  
   .btn-cancel{
-    height:40px;
-    padding:0 16px;
+    height:44px;
+    padding:0 24px;
     border-radius:999px;
-    border:1px solid rgba(255,255,255,.22);
-    background: rgba(255,255,255,.08);
-    color:#fff;
-    font-weight: 900;
+    border:1px solid rgba(125,184,255,0.4);
+    background: #1A2F4E;
+    color:#7db8ff;
+    font-weight: 800;
     cursor:pointer;
+    opacity:1;
+    transition: all .2s ease;
   }
+
+  .btn-cancel:hover{
+    background: #243b5a;
+    transform: translateY(-1px);
+  }
+  
   .btn-confirm{
-    height:40px;
-    padding:0 16px;
+    height:44px;
+    padding:0 24px;
     border-radius:999px;
     border:0;
-    font-weight: 900;
+    font-weight: 800;
     cursor:pointer;
-    background: linear-gradient(90deg, #004182, #054585d0);
-    color:#e6f1ff;
-    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(220,38,38,.4);
+    transition: all .2s ease;
+  }
+
+  .btn-confirm:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(220,38,38,.5);
   }
 
   .btn-confirm:active{
     transform: scale(.98);
   }
 
-  /* Profile page alert style (use GLOBAL status colors) */
+  /* Profile page alert style */
   .status-alert{
     width: 100%;
-    margin: 0 0 12px;     
-    padding: 12px 16px;
+    margin: 0 0 14px;     
+    padding: 14px 18px;
     border-radius: 999px;
     text-align: center;
     font-weight: 900;
     letter-spacing: .4px;
     box-sizing: border-box;
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(220,38,38,0.3);
   }
+  
   .p-wrap .status-alert{
     width: 100%;          
   }
 </style>
 
 <div class="p-wrap">
-<div id="statusAlert" class="status-alert" style="display:none;"></div>
+  <!-- Status Alert -->
+  <div id="statusAlert" class="status-alert" style="display:none;"></div>
 
-  <div class="cardx" id="profile-currency-section">
+  <!-- Profile Header Card -->
+  <div class="cardx profile-header-card" id="profile-currency-section">
     <div class="head">
       <div>
         <div class="h-title">Profile</div>
@@ -306,18 +425,22 @@
       </div>
 
       {% if request.user.account_status|upper == "ACTIVE" %}
-        <span id="accStatusBadge"
-          class="status-badge {% if request.user.account_status|lower == 'active' %}status-active{% else %}status-danger{% endif %}">
+        <span id="accStatusBadge" class="mini status-active">
+          {{ request.user.account_status|upper }}
+        </span>
+      {% else %}
+        <span id="accStatusBadge" class="mini">
           {{ request.user.account_status|upper }}
         </span>
       {% endif %}
     </div>
 
-    <div style="font-size:12px; opacity:.85;">
-      <div class="amount" style="font-size:28px; font-weight:950; margin-top:12px;">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
+    <div class="balance-display">
+      PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span>
     </div>
   </div>
 
+  <!-- Menu Buttons - NO MENU title, slim style, no subtitles -->
   <div class="menu" id="menu">
     <a class="p-btn" href="/credit-score/">
       <div class="left">
@@ -330,7 +453,7 @@
         </div>
       </div>
       <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
 
@@ -345,7 +468,7 @@
         </div>
       </div>
       <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
 
@@ -360,24 +483,11 @@
         </div>
       </div>
       <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
 
-    <a class="p-btn" href="{% url 'payment_method' %}">
-      <div class="left">
-        <div class="ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M3 7h18v10H3V7zm2 2v2h14V9H5zm0 4v2h6v-2H5z"/></svg>
-        </div>
-        <div class="txt">
-          <div class="t1">Payment Method</div>
-          <div class="t2">Add payout details</div>
-        </div>
-      </div>
-      <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
-      </div>
-    </a>
+
     
     <a class="p-btn" href="{% url 'agreement' %}">
       <div class="left">
@@ -392,7 +502,7 @@
         </div>
       </div>
       <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
 
@@ -407,12 +517,12 @@
         </div>
       </div>
       <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
 
-    <!-- ✅ Logout button => open confirm modal -->
-    <a class="p-btn" href="#" id="logoutBtn" aria-label="Logout">
+    <!-- Logout button -->
+    <a class="p-btn logout-btn" href="#" id="logoutBtn" aria-label="Logout">
       <div class="left">
         <div class="ico" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M10 17l1.4-1.4-2.6-2.6H20v-2H8.8l2.6-2.6L10 7l-7 7 7 7zM4 4h7V2H4a2 2 0 0 0-2 2v6h2V4zm0 18h7v-2H4v-6H2v6a2 2 0 0 0 2 2z"/></svg>
@@ -423,17 +533,17 @@
         </div>
       </div>
       <div class="chev" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
   </div>
 
-  <!-- ✅ TOP ACTIONS - closer to Logout button -->
+  <!-- Back Button -->
   <div class="top-actions">
     <a class="back-btn" href="{% url 'dashboard' %}">Back</a>
   </div>
 
-  <!-- ✅ Logout Confirm Modal -->
+  <!-- Logout Confirm Modal -->
   <div id="logoutModal" class="logout-modal" aria-hidden="true">
     <div class="logout-box" role="dialog" aria-modal="true" aria-label="Confirm Logout">
       <div class="logout-title">Confirm Logout</div>

@@ -4,7 +4,7 @@
 
 {% block content %}
 <style>
-/* ✅ Back button - white background with blue border matching cards */
+/* ✅ Back button - blue color matching dashboard */
 .top-actions{
   margin-top: 12px;
   display: flex;
@@ -20,13 +20,14 @@
   padding: 0 22px;
   border-radius: 12px;
 
-  background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(240,240,240,.95) 100%);
-  color: #004182;
+  background: #1A2F4E;
+  color: #7db8ff;
   font-weight: 800;
   text-decoration: none;
 
-  border: 2px solid rgba(100,150,255,.5);
-  box-shadow: 0 6px 18px rgba(0,65,130,.25), inset 0 1px 0 rgba(255,255,255,.8);
+  border: 1px solid #7db8ff;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  opacity: 1;
 }
 /* hover/active */
 .back-btn:hover{
@@ -122,28 +123,34 @@
   color:#111;
 }
   .cardx{
-    position: relative;
-    background: rgba(9, 10, 10, 0.788);
-    border-radius: 18px;
-    padding: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 3px 4px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-  
-  /* ✅ Wallet top card same color as WITHDRAW NOW button */
+  position: relative;
+  background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+  border-radius: 18px;
+  padding: 18px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(125,184,255,0.3) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  opacity: 1 !important;
+  overflow: hidden;
+  margin-bottom: 12px;
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+
+  /* Wallet top card - ប្រើ border ខៀវដូចគ្នា */
 .cardx.wallet-card{
-  background: linear-gradient(90deg, #004182, #054585d0) !important;
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow: 0 18px 45px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.10);
-  box-shadow: 0 3px 4px rgba(245, 245, 245, 0.55), inset 0 1px 0 rgba(163, 157, 157, 0.918);
+  background: #112240 !important;
+  border: 1px solid transparent !important;
+  background-image: linear-gradient(#112240, #112240), linear-gradient(180deg, #02060E 0%, #0356C5 100%) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
 }
 .cardx.wallet-card .sub,
 .cardx.wallet-card .pill{
-  background: rgba(0,0,0,.22);
-  border-color: rgba(255,255,255,.14);
+  background: #1A2F4E;
+  border-color: #7db8ff;
+  color: #7db8ff;
 }
   .row{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -152,10 +159,12 @@
   .sub{ font-size:12px; opacity:.75; margin-top:2px; }
   .pill{
     padding:6px 12px; border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.25);
+    border:1px solid rgba(100,150,255,.35);
+    background: #1A2F4E;
+    color: #7db8ff;
     font-weight:900; font-size:12px;
     white-space:nowrap;
+    opacity:1;
   }
 
   /* Inputs (number) */
@@ -164,20 +173,21 @@
     margin-top: 10px;
     padding: 12px 14px;
     border-radius: 12px;
-    border: 1px solid rgba(255,255,255,.18);
-    background: rgba(0,0,0,.18);
+    border: 1px solid #1E3A5F;
+    background: #1A2F4E;
     color: #fff;
     outline: none;
     font-size: 14px;
+    opacity: 1;
   }
-  .num-input::placeholder{ color: rgba(255,255,255,.45); }
+  .num-input::placeholder{ color: #8899AA; }
   .num-input:focus{
-  border-color: rgba(0,65,130,.75);
-  box-shadow: 0 0 0 3px rgba(5,69,133,.35);
-  background: rgba(0,0,0,.22);
+  border-color: #7db8ff;
+  box-shadow: 0 0 0 3px rgba(125,184,255,.2);
+  background: #1A2F4E;
 }
 
-  /* Withdraw NOW button (Quick Loan style) */
+  /* Withdraw NOW button - Blue style like Quick Loan */
   .big-btn{
     display:flex;
     align-items:center;
@@ -189,21 +199,69 @@
     font-weight:950;
     letter-spacing:.10em;
     text-transform:uppercase;
-    color:#fff;
-    background: linear-gradient(90deg, #004182, #054585d0);
-    box-shadow: 0 18px 45px rgba(0,0,0,.40);
-    border:0;
+    color: #fff !important;
+    
+    background: 
+      linear-gradient(180deg, 
+        rgba(255,255,255,0.4) 0%, 
+        rgba(255,255,255,0.1) 50%, 
+        rgba(0,0,0,0.2) 50%, 
+        rgba(0,0,0,0.4) 100%
+      ),
+      linear-gradient(135deg, #4a90d9 0%, #2a5a8a 50%, #1a3a5a 100%) !important;
+    
+    box-shadow: 
+      inset 0 1px 0 rgba(255,255,255,0.6),
+      inset 0 -1px 0 rgba(0,0,0,0.4),
+      0 6px 0 #0f2744, 
+      0 8px 20px rgba(74,144,217,0.6),
+      0 0 30px rgba(74,144,217,0.3);
+    
+    border: none !important;
+    opacity: 1 !important;
     width:100%;
     cursor:pointer;
-    transition: opacity .2s ease, transform .08s ease, filter .2s ease;
+    transition: all 0.1s ease;
+    position: relative;
+    overflow: hidden;
   }
-  .big-btn:active{ transform: scale(.99); }
+  
+  .big-btn::before{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,0.4),
+      transparent
+    );
+    animation: shine 2s infinite;
+  }
+  
+  @keyframes shine{
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  .big-btn:active{ 
+    transform: translateY(4px);
+    box-shadow: 
+      inset 0 1px 0 rgba(255,255,255,0.6),
+      inset 0 -1px 0 rgba(0,0,0,0.4),
+      0 2px 0 #0f2744, 
+      0 4px 10px rgba(74,144,217,0.6);
+  }
+  
   .big-btn .dot{
     width:32px; height:32px;
     border-radius:999px;
-    background: rgba(0,0,0,.22);
+    background: rgba(255,255,255,.2);
     display:flex; align-items:center; justify-content:center;
-    border:1px solid rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.4);
   }
 
   /* Disabled state */
@@ -225,14 +283,15 @@
   .tl-bullet{
     width:34px; height:34px;
     border-radius:999px;
-    background: rgba(0,0,0,.22);
-    border:1px solid rgba(255,255,255,.10);
+    background: #1A2F4E;
+    border:1px solid #1E3A5F;
     display:flex; align-items:center; justify-content:center;
     flex:0 0 auto;
+    opacity: 1;
   }
   .tl-bullet.on{
-  background:#004182;
-  border-color: rgba(255,255,255,.18);
+  background: #7db8ff;
+  border-color: #4a90d9;
 }
 
 /* ✅ rejected must ALWAYS win even if .on exists */
@@ -288,7 +347,7 @@
   .list-row{
     display:flex; justify-content:space-between; gap:12px;
     padding:10px 0;
-    border-bottom: 1px solid rgba(255,255,255,.08);
+    border-bottom: 1px solid #1E3A5F;
     font-size:13px;
   }
   /* Alert spacing control */
@@ -313,6 +372,12 @@
 /* When success: show ✅, hide ❌ */
 #b3.success .ico-ok{ display:block !important; }
 #b3.success .ico-x{ display:none !important; }
+
+/* ✅ Hover effect - រក្សាទុក border gradient ដដែល */
+.cardx:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
+}
 </style>
 
 <div class="w-wrap ovelion">
@@ -393,15 +458,14 @@
         margin: 10px 2px 0;
         padding: 10px 12px;
         border-radius: 12px;
-        border: 1px solid rgba(239,68,68,.55);
-        background: rgba(245, 6, 6, 0.486);
-        color:#f1dada;
+        border: 1px solid #FF1744;
+        background: #3d0010;
+        color:#fff;
         font-weight:900;
         font-size:12px;">
       </div>
 
       <button class="big-btn" type="button" id="withdrawBtn" disabled>WITHDRAW NOW</button>
-      <div class="hint" id="btnHint">Enter a valid amount to enable withdraw.</div>
     </form>
 
     <!-- Timeline (3 steps only) -->
@@ -608,8 +672,8 @@
     if(b3){
       b3.classList.remove("rejected");
       b3.classList.add("success");
-      b3.style.setProperty("background", "#16a34a", "important");
-      b3.style.setProperty("border-color", "rgba(255,255,255,.18)", "important");
+      b3.style.setProperty("background", "#00C853", "important");
+      b3.style.setProperty("border-color", "rgba(0,200,83,.5)", "important");
 
       // ✅ force ✓
       setIconOK();

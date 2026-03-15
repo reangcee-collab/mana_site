@@ -4,85 +4,45 @@
 
 {% block content %}
 <style>
-
-/* Telegram button clean style */
-.tg-btn{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
-  height: 42px;
-  padding: 0 18px;
-
-  border-radius: 999px;
-  background: linear-gradient(90deg, #004182, #054585d0);
-
-  color: #e8f2ff;
-  font-weight: 800;
-  font-size: 13px;
-  letter-spacing: .04em;
-
-  text-decoration: none;
-  box-shadow: 0 10px 26px rgba(0,0,0,.28);
-}
-
-.tg-btn:active{
-  transform: scale(.98);
-}
-
-/* Telegram icon */
-.tg-icon{
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-}
-
-/* text spacing */
-.tg-text{
-  line-height: 1;
-}
-
-/* Telegram inline (NO card background) */
-.telegram-inline{
-  text-align:center;
-  margin: 6px 0 12px;
-}
-
-.tg-title{
-  margin: 0 0 10px;
-  font-weight: 950;
-  font-size: 14px;
-  opacity: .9;
+/* ===== BUTTON FONT ===== */
+button, .btn, .back-btn{
+  font-family: "Inter", "Poppins", system-ui, -apple-system, Segoe UI, sans-serif !important;
+  font-weight: 600;
   letter-spacing: .03em;
 }
 
-/* ✅ Back button - white background with blue border matching cards */
+/* ===== PAGE LAYOUT ===== */
+.wrap{ align-items:flex-start; }
+.page{
+  width: min(520px, 94vw);
+  margin: 0 auto;
+  padding: 14px 14px 32px;
+  box-sizing: border-box;
+}
+
+/* ===== BACK BUTTON - Same as wallet page ===== */
 .top-actions{
   margin-top: 12px;
   display: flex;
   justify-content: flex-start;
 }
-
 .back-btn{
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   height: 42px;
   padding: 0 22px;
   border-radius: 12px;
-
-  background: linear-gradient(135deg, rgba(255,255,255,.95) 0%, rgba(240,240,240,.95) 100%);
-  color: #004182;
+  background: #1A2F4E;
+  color: #7db8ff;
   font-weight: 800;
   text-decoration: none;
-
-  border: 2px solid rgba(100,150,255,.5);
-  box-shadow: 0 6px 18px rgba(0,65,130,.25), inset 0 1px 0 rgba(255,255,255,.8);
+  border: 1px solid #7db8ff;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  opacity: 1;
+  transition: all .15s ease;
 }
-
-/* hover/active */
 .back-btn:hover{
   transform: translateY(-1px);
   border-color: rgba(100,150,255,.7);
@@ -96,135 +56,187 @@
 /* Mobile adjustments */
 @media (max-width:520px){
   .top-actions{ padding: 10px 12px 0; }
-  .top-actions-line{ margin: 10px 12px 0; }
   .back-btn{ height: 40px; padding: 0 18px; font-size: 13px; }
 }
 
-  body{
-    margin:0;
-    min-height:100vh;
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background:
-      linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.12)),
-      url("{% static 'img/SL-012322-48100-03.webp' %}") center / cover no-repeat fixed !important;
-    color:#fff;
-  }
-
-  .wrap{
-    align-items:flex-start !important;
-    justify-content:center !important;
-    padding-top:72px !important;
-  }
-
-  .page{
-    width: min(520px, 94vw);
-    margin: 0 auto;
-    padding: 14px 14px 92px;
-    box-sizing: border-box;
-  }
-
-  .cardx{
-    position: relative;
-    background: rgba(9, 10, 10, 0.78);
-    border-radius: 18px;
-    padding: 18px;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 3px 4px rgba(245,245,245,.55), inset 0 1px 0 rgba(163,157,157,.90);
-    overflow: hidden;
-    margin-bottom: 12px;
-  }
-
-  .title{
-    font-weight: 950;
-    font-size: 18px;
-    letter-spacing:.04em;
-    margin: 0 0 6px;
-  }
-  .sub{
-    font-size: 12px;
-    opacity: .80;
-    margin: 0;
-  }
-
-  label{
-    display:block;
-    font-size: 12px;
-    opacity:.90;
-    margin: 10px 0 6px;
-    font-weight: 800;
-  }
-
-  input, textarea{
-    width:100%;
-    box-sizing:border-box;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,.16);
-    background: rgba(255,255,255,.08);
-    color:#fff;
-    padding: 12px 12px;
-    outline:none;
-  }
-
-  textarea{
-    min-height: 110px;
-    resize: none;
-  }
-
-  input:focus, textarea:focus{
-  border-color: rgba(0,65,130,.85);
-  box-shadow: 0 0 0 3px rgba(5,69,133,.25);
+/* ===== CARD STYLE - Same as wallet page ===== */
+.cardx{
+  position: relative;
+  background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
+  border-radius: 18px;
+  padding: 18px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(125,184,255,0.3) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  opacity: 1 !important;
+  overflow: hidden;
+  margin-bottom: 12px;
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.cardx:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5) !important;
 }
 
-  .btn{
-    width:100%;
-    margin-top: 12px;
-    border: none;
-    border-radius: 999px;
-    padding: 14px 16px;
-    font-weight: 950;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color:#fff;
-    cursor:pointer;
-    background: linear-gradient(90deg, #004182, #054585d0);
-    box-shadow: 0 12px 30px rgba(0,0,0,.35);
-  }
-  .btn:active{ transform: scale(.99); }
+/* Title and subtitle */
+.title{
+  font-weight: 950;
+  font-size: 18px;
+  letter-spacing: .04em;
+  margin: 0 0 6px;
+  color: #fff;
+}
+.sub{
+  font-size: 12px;
+  opacity: .80;
+  margin: 0;
+  color: #fff;
+}
 
-  .alert-success{
-  border: 1px solid rgba(34,197,94,.55);
-  background: rgba(34,197,94,.12);
-  color: #e6f1ff;
+/* ===== FORM FIELDS - Same as wallet page ===== */
+label{
+  display: block;
+  font-size: 12px;
+  opacity: .90;
+  margin: 10px 0 6px;
+  font-weight: 800;
+  color: #fff;
+}
 
-  padding: 12px 12px;
+input, textarea{
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid #1E3A5F;
+  background: #1A2F4E;
+  color: #fff;
+  padding: 12px 14px;
+  outline: none;
+  opacity: 1;
+  font-size: 14px;
+  transition: all .15s ease;
+}
+
+textarea{
+  min-height: 110px;
+  resize: none;
+}
+
+input:focus, textarea:focus{
+  border-color: #7db8ff;
+  box-shadow: 0 0 0 3px rgba(125,184,255,.2);
+  background: #1A2F4E;
+}
+
+input::placeholder, textarea::placeholder{
+  color: #8899AA;
+}
+
+/* ===== SUBMIT BUTTON - Same gray style as Continue to Application ===== */
+.btn{
+  width: 100%;
+  margin-top: 12px;
+  border: none;
   border-radius: 14px;
+  padding: 16px;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: .05em;
+  color: #333 !important;
+  cursor: pointer;
+  background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%) !important;
+  box-shadow: 0 6px 0 #bdbdbd, 0 4px 15px rgba(0,0,0,0.15) !important;
+  opacity: 1;
+  transition: all .15s ease;
+}
+.btn:hover{
+  background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 100%) !important;
+  box-shadow: 0 6px 0 #bdbdbd, 0 6px 20px rgba(0,0,0,0.2) !important;
+}
+.btn:active{
+  transform: translateY(4px);
+}
+
+/* ===== ALERT SUCCESS ===== */
+.alert-success{
+  border: 1px solid #00C853;
+  background: rgba(0,200,83,0.15);
+  color: #4ade80;
+  opacity: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
   font-weight: 900;
   margin-bottom: 12px;
 }
 
-  .muted{
-    font-size: 12px;
-    opacity:.75;
-    margin-top: 10px;
-  }
+/* ===== TELEGRAM SECTION ===== */
+.telegram-inline{
+  text-align: center;
+  margin: 6px 0 12px;
+}
+
+.tg-title{
+  margin: 0 0 10px;
+  font-weight: 950;
+  font-size: 14px;
+  opacity: .9;
+  letter-spacing: .03em;
+  color: #fff;
+}
+
+/* Telegram button - keep gold style or change to gray? */
+.tg-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%) !important; /* ពណ៌ប្រផេះ/ស */
+  color: #333 !important; /* ពណ៌ខ្មៅ */
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: .04em;
+  text-decoration: none;
+  box-shadow: 0 6px 0 #bdbdbd, 0 4px 15px rgba(0,0,0,0.15) !important;
+  opacity: 1;
+  transition: all .15s ease;
+}
+.tg-btn:hover{
+  background: linear-gradient(180deg, #ffffff 0%, #e8e8e8 100%) !important;
+  box-shadow: 0 6px 0 #bdbdbd, 0 6px 20px rgba(0,0,0,0.2) !important;
+}
+.tg-btn:active{
+  transform: translateY(4px);
+}
+
+.tg-icon{
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.tg-text{
+  line-height: 1;
+}
 </style>
 
 <div class="page">
+  <!-- Telegram Section -->
   <div class="telegram-inline">
     <h4 class="tg-title">Telegram Contact</h4>
-  
     <a href="https://t.me/CustomerServices24h_16868"
        target="_blank"
        class="tg-btn">
-  
       <img src="{% static 'img/icons/telegram.png' %}"
            alt="Telegram"
            class="tg-icon">
-  
       <span class="tg-text">Telegram</span>
     </a>
   </div>
+
+  <!-- Contact Header Card -->
   <div class="cardx">
     <div class="title">CONTACT US</div>
     <p class="sub">Send us a message — we will contact you soon.</p>
@@ -236,33 +248,32 @@
     </div>
   {% endif %}
 
+  <!-- Contact Form Card -->
   <div class="cardx">
     <form method="POST" action="/contact/">
       {% csrf_token %}
 
       <label>Full name</label>
-      <input type="text" name="full_name" required>
+      <input type="text" name="full_name" placeholder="Enter your full name" required>
 
       <label>Phone / WhatsApp</label>
-      <input type="tel" name="phone" required>
+      <input type="tel" name="phone" placeholder="Enter your phone number" required>
 
       <label>Subject (optional)</label>
-      <input type="text" name="subject">
+      <input type="text" name="subject" placeholder="Enter subject">
 
       <label>Message</label>
-      <textarea name="message" required></textarea>
+      <textarea name="message" placeholder="Enter your message" required></textarea>
 
       <button class="btn" type="submit">Send Message</button>
     </form>
   </div>
 
-  <!-- TOP ACTIONS -->
+  <!-- Back Button -->
   <div class="top-actions">
     <a class="back-btn" href="javascript:history.back()">
       Back
     </a>
   </div>
-  <div class="top-actions-line"></div>
-
 </div>
 {% endblock %}

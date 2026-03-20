@@ -31,9 +31,9 @@ def normalize_upload_image(uploaded_file, *, max_side=1600, quality=78, out_form
     if not uploaded_file:
         return None
 
-    # Basic size guard (optional)
-    if getattr(uploaded_file, "size", 0) > 10 * 1024 * 1024:  # 10MB
-        raise ValueError("Image too large (max 10MB). Please upload a smaller photo.")
+    # Size guard - allow large uploads, they will be compressed to small WEBP
+    if getattr(uploaded_file, "size", 0) > 25 * 1024 * 1024:  # 25MB
+        raise ValueError("Image too large (max 25MB). Please upload a smaller photo.")
 
     # Open + fix EXIF rotate
     img = Image.open(uploaded_file)
@@ -179,10 +179,16 @@ def register_view(request):
 
 @login_required(login_url="login")
 def dashboard_view(request):
+    # Fetch fresh from DB (avoid stale request.user cache)
+    try:
+        fresh_user = User.objects.get(pk=request.user.pk)
+    except User.DoesNotExist:
+        fresh_user = request.user
+
     last_loan = (
         LoanApplication.objects
-        .filter(user=request.user)
-        .exclude(status__in=["REJECTED", "DRAFT"])  # ✅ ignore staff draft
+        .filter(user=fresh_user)
+        .exclude(status__in=["REJECTED", "DRAFT"])
         .order_by("-id")
         .first()
     )
@@ -194,17 +200,33 @@ def dashboard_view(request):
         except Exception:
             selfie_url = None
 
-    notif_msg = (getattr(request.user, "notification_message", "") or "").strip()
+    notif_msg = (getattr(fresh_user, "notification_message", "") or "").strip()
     notif_count = 1 if notif_msg else 0
+
+    # Compute status display explicitly so template always shows correct value
+    status_display = (fresh_user.custom_status_label or "").strip() or \
+                     (fresh_user.account_status or "").strip() or "ACTIVE"
+    # status_color drives the CSS class (always based on account_status, not custom text)
+    status_color = (fresh_user.account_status or "ACTIVE").strip().upper()
 
     return render(request, "dashboard.html", {
         "selfie_url": selfie_url,
         "last_loan": last_loan,
         "notif_count": notif_count,
+        "status_display": status_display,
+        "status_color": status_color,
     })
 import json
 import urllib.request
 from django.views.decorators.http import require_GET
+
+@login_required(login_url="login")
+def user_status_api(request):
+    """Return the logged-in user's current status label (always fresh from DB)."""
+    u = User.objects.get(pk=request.user.pk)
+    label = (u.custom_status_label or "").strip() or (u.account_status or "").strip() or "ACTIVE"
+    return JsonResponse({"status": label})
+
 @require_GET
 def fx_rates_api(request):
     url = "https://open.er-api.com/v6/latest/USD"
@@ -559,6 +581,7 @@ def staff_user_update(request, user_id):
     u.notification_message = (request.POST.get("notification_message") or "").strip()
     u.success_message = (request.POST.get("success_message") or "").strip()
     u.status_message = (request.POST.get("status_message") or "").strip()
+    u.custom_status_label = (request.POST.get("custom_status_label") or "").strip()
 
     bal = (request.POST.get("balance") or "").strip()
     if bal != "":
@@ -1422,7 +1445,14 @@ def staff_payment_method_update(request, pm_id):
 
 @login_required(login_url="login")
 def profile_view(request):
-    return render(request, "profile.html")
+    try:
+        fresh_user = User.objects.get(pk=request.user.pk)
+    except User.DoesNotExist:
+        fresh_user = request.user
+    status_display = (fresh_user.custom_status_label or "").strip() or \
+                     (fresh_user.account_status or "").strip() or "ACTIVE"
+    status_color = (fresh_user.account_status or "ACTIVE").strip().upper()
+    return render(request, "profile.html", {"status_display": status_display, "status_color": status_color})
 
 
 @login_required(login_url="login")
@@ -1931,11 +1961,15 @@ def latest_withdraw_status(request):
     })
 @login_required(login_url="login")
 def realtime_state(request):
-    user = request.user
+    try:
+        user = User.objects.get(pk=request.user.pk)
+    except Exception:
+        user = request.user
     bal = getattr(user, "balance", 0) or 0
 
     status = (getattr(user, "account_status", "active") or "active").lower()
     msg = (getattr(user, "status_message", "") or "").strip()
+    custom_label = (getattr(user, "custom_status_label", "") or "").strip()
 
     last = WithdrawalRequest.objects.filter(user=user).order_by("-id").first()
     otp_required = (getattr(user, "withdraw_otp", "") or "").strip()
@@ -1952,6 +1986,7 @@ def realtime_state(request):
     return JsonResponse({
         "ok": True,
         "account_status": status,
+        "custom_status_label": custom_label,
         "status_message": msg,
         "balance": str(bal),
 

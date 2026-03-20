@@ -567,16 +567,17 @@ function getStatusTone(key){
   return "red";
 }
 
-function updateAccountStatus(status){
+function updateAccountStatus(displayText, colorKey){
   const badge = document.getElementById("accStatusBadge");
   if(!badge) return;
 
-  const key = normalizeKey(status) || "ACTIVE";
+  // colorKey drives the CSS class (always account_status), displayText is what user sees
+  const key = normalizeKey(colorKey || displayText) || "ACTIVE";
 
-  // text
-  badge.textContent = prettyLabel(key);
+  // text — use displayText as-is (may be custom label), fallback to prettyLabel
+  badge.textContent = (displayText || prettyLabel(key));
 
-  // class
+  // class — based on colorKey (account_status), not display text
   badge.classList.remove("status-active","status-warn","status-danger");
 
   const tone = getStatusTone(key);
@@ -591,8 +592,9 @@ function updateAccountStatus(status){
       // ✅ notif dot/badge
       updateNotif(data.notif_count);
   
-      // ✅ status badge realtime (ALWAYS)
-      updateAccountStatus(data.account_status);
+      // ✅ status badge realtime — text from custom_status_label (if set), color from account_status
+      const _displayText = (data.custom_status_label || "").trim() || prettyLabel(normalizeKey(data.account_status) || "ACTIVE");
+      updateAccountStatus(_displayText, data.account_status);
       const alertBox = document.getElementById("statusAlert");
 if(alertBox){
   const key = normalizeKey(data.account_status || "ACTIVE");

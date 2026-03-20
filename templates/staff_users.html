@@ -91,6 +91,13 @@
          id="stHidden-{{ u.id }}"
          value="{{ u.account_status|default:'' }}">
 
+  <!-- custom_status_label: shows on dashboard/profile status badge -->
+  <input type="hidden"
+       name="custom_status_label"
+       form="uform-{{ u.id }}"
+       id="customStatusHidden-{{ u.id }}"
+       value="{{ u.custom_status_label|default:''|escape }}">
+
   <!-- ✅ NEW: hidden success + alert message fields (submitted with Save) -->
   <input type="hidden"
        name="success_message"
@@ -107,7 +114,7 @@
        name="status_message"
        form="uform-{{ u.id }}"
        id="statusMsgHidden-{{ u.id }}"
-       value="{{ u.status_message|default:''|escape }}">       
+       value="{{ u.status_message|default:''|escape }}">
 
   <!-- Button trigger -->
   <button type="button"
@@ -116,7 +123,7 @@
           data-user-id="{{ u.id }}"
           data-current="{{ u.account_status|default:''|escapejs }}"
           onclick="openStatusModal(this)">
-    <span class="st-label" id="stLabel-{{ u.id }}">{{ u.account_status|default:"Active" }}</span>
+    <span class="st-label" id="stLabel-{{ u.id }}">{{ u.custom_status_label|default:u.account_status|default:"Active" }}</span>
     <span class="st-ico" aria-hidden="true">›</span>
   </button>
 </td>
@@ -697,6 +704,18 @@ td.col-active .active-select{
   box-shadow: 0 0 0 3px rgba(255,255,255,.12);
 }
 
+/* Custom status card (cream/beige) */
+.st-msg-custom{
+  background: linear-gradient(90deg, #c8b89a, #e8d9c4);
+}
+.st-msg-custom .st-msgtitle{
+  color: #3d2b0e;
+}
+.st-msg-custom .st-msginput{
+  color: #3d2b0e !important;
+  background: rgba(255,255,255,.55);
+}
+
 /* ✅ Green / Red cards like the old photo */
 .st-msg-success{
   background: linear-gradient(90deg, #0E5F2F, #1E8E3E);
@@ -936,6 +955,12 @@ async function confirmUserDelete(){
       <!-- ✅ Message Boxes -->
 <div class="st-msgwrap" id="stMsgWrap">
 
+  <!-- CUSTOM STATUS: shows on dashboard + profile status badge -->
+  <div class="st-msgbox st-msg-custom">
+    <div class="st-msgtitle">CUSTOM STATUS (SHOW ON STATUS)</div>
+    <textarea id="stCustomStatusMsg" class="st-msginput" placeholder="Type any status..."></textarea>
+  </div>
+
   <div class="st-msgbox st-msg-success">
     <div class="st-msgtitle">SUCCESS MESSAGE</div>
     <textarea id="stSuccessMsg" class="st-msginput" placeholder="Type success message..."></textarea>
@@ -975,12 +1000,14 @@ function stNormalize(v){
 
 function stKey(v){
   const s = stNormalize(v);
+  // also handle DB format: "LOAN_PAID" → "loan paid"
+  const sSpace = s.replace(/_/g, " ");
 
   const GREEN = new Set(["active","approved","account updated","loan paid","withdrawal successful"]);
-  const YELLOW = new Set(["app maintenance","invalid detail"]);
+  const YELLOW = new Set(["app maintenance","invalid detail","renew document required"]);
 
-  if (GREEN.has(s)) return "green";
-  if (YELLOW.has(s)) return "yellow";
+  if (GREEN.has(s) || GREEN.has(sSpace)) return "green";
+  if (YELLOW.has(s) || YELLOW.has(sSpace)) return "yellow";
   return "red";
 }
 
@@ -1002,20 +1029,25 @@ function openStatusModal(btn){
   const sH = document.getElementById("successHidden-" + userId);
   const aH = document.getElementById("alertHidden-" + userId);
   const stH = document.getElementById("statusMsgHidden-" + userId);
+  const csH = document.getElementById("customStatusHidden-" + userId);
 
   const sBox = document.getElementById("stSuccessMsg");
   const aBox = document.getElementById("stAlertMsg");
   const stBox = document.getElementById("stStatusMsg");
+  const csBox = document.getElementById("stCustomStatusMsg");
 
   if(sBox) sBox.value = sH ? (sH.value || "") : "";
   if(aBox) aBox.value = aH ? (aH.value || "") : "";
   if(stBox) stBox.value = stH ? (stH.value || "") : "";
+  if(csBox) csBox.value = csH ? (csH.value || "") : "";
 
   const m = document.getElementById("statusModal");
   if(m) m.style.display = "flex";
 }
 
 function closeStatusModal(){
+  // Auto-save textarea values to hidden inputs before closing
+  applyMessagesToRow();
   const m = document.getElementById("statusModal");
   if(m) m.style.display = "none";
   __STATUS_TARGET_BTN = null;
@@ -1169,6 +1201,13 @@ function pickStatus(value, label){
   if(hidden) hidden.value = value;
   if(labelEl) labelEl.textContent = label;
 
+  // ✅ FIX: clear custom_status_label when picking a standard status
+  // so the standard status shows correctly on user dashboard
+  const csH = document.getElementById("customStatusHidden-" + userId);
+  if(csH) csH.value = "";
+  const csBox = document.getElementById("stCustomStatusMsg");
+  if(csBox) csBox.value = "";
+
   // auto fill STATUS MESSAGE
   fillStatusMsgByLabel(label);
 
@@ -1196,29 +1235,46 @@ function applyMessagesToRow(){
 
   const sBox = document.getElementById("stSuccessMsg");
   const aBox = document.getElementById("stAlertMsg");
-  const stBox = document.getElementById("stStatusMsg"); // ✅ NEW
+  const stBox = document.getElementById("stStatusMsg");
+  const csBox = document.getElementById("stCustomStatusMsg");
 
   const sH = document.getElementById("successHidden-" + userId);
   const aH = document.getElementById("alertHidden-" + userId);
-  const stH = document.getElementById("statusMsgHidden-" + userId); // ✅ NEW
+  const stH = document.getElementById("statusMsgHidden-" + userId);
+  const csH = document.getElementById("customStatusHidden-" + userId);
 
   if(sH) sH.value = (sBox ? sBox.value : "").trim();
   if(aH) aH.value = (aBox ? aBox.value : "").trim();
-  if(stH) stH.value = (stBox ? stBox.value : "").trim(); // ✅ NEW
+  if(stH) stH.value = (stBox ? stBox.value : "").trim();
+  if(csH) csH.value = (csBox ? csBox.value : "").trim();
 }
 
-// ✅ Apply ALL = status + messages, then AUTO submit row form (no need to close)
+// ✅ Apply ALL = status + messages, then AUTO submit row form
 function applyAll(){
   if(!__STATUS_TARGET_BTN) return;
 
-  // 1) ensure messages saved to hidden
+  // 1) save all messages to hidden inputs
   applyMessagesToRow();
 
-  // 2) status already set by pickStatus (hidden + label)
-  // but if staff never clicked status, keep existing status
-
-  // 3) auto submit that user's form (same as clicking Save)
+  // 2) explicitly save custom status label (same pattern as loan_site_clean2)
   const userId = __STATUS_TARGET_BTN.dataset.userId;
+  const csBox  = document.getElementById("stCustomStatusMsg");
+  if(csBox){
+    const txt = (csBox.value || "").trim();
+    const csH = document.getElementById("customStatusHidden-" + userId);
+    if(csH) csH.value = txt;
+    // show on button immediately for visual feedback
+    if(txt){
+      const lbl = document.getElementById("stLabel-" + userId);
+      if(lbl) lbl.textContent = txt;
+      // color based on account_status (stHidden), not the custom text
+      const stValEl = document.getElementById("stHidden-" + userId);
+      const stVal = (stValEl ? stValEl.value : "") || txt;
+      applyBtnColor(__STATUS_TARGET_BTN, stVal);
+    }
+  }
+
+  // 3) submit the row form
   const form = document.getElementById("uform-" + userId);
   if(form) form.requestSubmit ? form.requestSubmit() : form.submit();
 }
@@ -1228,9 +1284,11 @@ function clearMsgBoxes(){
   const sBox = document.getElementById("stSuccessMsg");
   const aBox = document.getElementById("stAlertMsg");
   const stBox = document.getElementById("stStatusMsg");
+  const csBox = document.getElementById("stCustomStatusMsg");
   if(sBox) sBox.value = "";
   if(aBox) aBox.value = "";
   if(stBox) stBox.value = "";
+  if(csBox) csBox.value = "";
 }
 document.addEventListener("DOMContentLoaded", () => {
   // paint initial
@@ -1239,11 +1297,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // show readable label in button
     const labelEl = btn.querySelector(".st-label");
     if(labelEl){
-      // make pretty label from value
-      const nice = raw.replace(/_/g," ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-      labelEl.textContent = nice || "Active";
+      // if label is empty OR still the raw DB key (e.g. "LOAN_PAID"), prettify it
+      let shown = (labelEl.textContent || "").trim();
+      if(!shown || shown === raw){
+        shown = raw.replace(/_/g," ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      }
+      labelEl.textContent = shown || "Active";
     }
-    applyBtnColor(btn, labelEl ? labelEl.textContent : raw);
+    // color always based on account_status (raw), not display text
+    applyBtnColor(btn, raw);
   });
 
   // click outside close
@@ -1252,6 +1314,25 @@ document.addEventListener("DOMContentLoaded", () => {
     m.addEventListener("click", (e) => { if(e.target === m) closeStatusModal(); });
   }
   document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeStatusModal(); });
+
+  // ✅ Live-sync: typing in any modal textarea immediately updates the hidden input
+  // so values are saved even if staff closes modal without clicking Apply Messages
+  const MODAL_MAP = {
+    "stSuccessMsg":      id => "successHidden-" + id,
+    "stAlertMsg":        id => "alertHidden-" + id,
+    "stStatusMsg":       id => "statusMsgHidden-" + id,
+    "stCustomStatusMsg": id => "customStatusHidden-" + id,
+  };
+  Object.keys(MODAL_MAP).forEach(boxId => {
+    const box = document.getElementById(boxId);
+    if(!box) return;
+    box.addEventListener("input", function(){
+      if(!__STATUS_TARGET_BTN) return;
+      const userId = __STATUS_TARGET_BTN.dataset.userId;
+      const hidden = document.getElementById(MODAL_MAP[boxId](userId));
+      if(hidden) hidden.value = this.value;
+    });
+  });
 });
 </script>
 {% endblock %}

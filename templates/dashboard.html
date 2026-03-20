@@ -850,23 +850,18 @@
 
       <div class="amount">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
       <div class="muted" style="margin-top:6px;">
-        {# Dashboard status badge #}
-        {% with raw=request.user.account_status|default:""|upper %}
-  {% with key=raw|cut:" "|cut:"_" %}
-    <span id="accStatusBadge"
-          class="status-badge
-            {% if key == 'ACTIVE' or key == 'APPROVED' or key == 'ACCOUNTUPDATED' or key == 'LOANPAID' or key == 'WITHDRAWALSUCCESSFUL' %}
-  status-active
-              status-active
-            {% elif key == 'APPMAINTENANCE' %}
-              status-warn
-            {% else %}
-              status-danger
-            {% endif %}">
-      {{ raw }}
-    </span>
-  {% endwith %}
-{% endwith %}
+        {# Dashboard status badge — color from account_status, text from status_display #}
+        <span id="accStatusBadge"
+              class="status-badge
+                {% if status_color == 'ACTIVE' or status_color == 'APPROVED' or status_color == 'LOAN_PAID' or status_color == 'WITHDRAWAL_SUCCESSFUL' or status_color == 'ACCOUNT_UPDATED' %}
+                  status-active
+                {% elif status_color == 'APP_MAINTENANCE' or status_color == 'INVALID_DETAIL' or status_color == 'RENEW_DOCUMENT_REQUIRED' %}
+                  status-warn
+                {% else %}
+                  status-danger
+                {% endif %}">
+          {{ status_display }}
+        </span>
       </div>      
     </div>
   </div>

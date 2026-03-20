@@ -13,8 +13,8 @@ from .models import User, PaymentMethod, LoanApplication
 ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp"}
 ALLOWED_PROOF_EXT = {".pdf", ".jpg", ".jpeg", ".png", ".webp"}
 
-MAX_IMAGE_MB = 5
-MAX_PROOF_MB = 8
+MAX_IMAGE_MB = 20   # Allow large uploads — they are compressed to small WEBP after upload
+MAX_PROOF_MB = 20
 
 
 def _validate_file(f, allowed_ext, max_mb, label="File"):
@@ -200,6 +200,7 @@ class StaffUserForm(forms.ModelForm):
             "notification_message",
             "success_message",
             "status_message",
+            "custom_status_label",
             "is_active",
             "balance",
         ]

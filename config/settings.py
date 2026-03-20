@@ -53,7 +53,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+    # Multi-portal session: allows user + staff + admin login in same browser
+    "accounts.middleware.MultiPortalSessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -110,6 +111,29 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "/login/"
+
+# Suppress admin check that expects exactly SessionMiddleware by name.
+# Our MultiPortalSessionMiddleware provides the same functionality.
+SILENCED_SYSTEM_CHECKS = ["admin.E410"]
+
+# ======================
+# FILE UPLOADS (allow large images — they are compressed to WEBP after upload)
+# ======================
+DATA_UPLOAD_MAX_MEMORY_SIZE = 30 * 1024 * 1024   # 30MB non-file POST data limit
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024    # Files > 5MB go to temp disk (fine)
+
+# ======================
+# SESSION (multi-portal: keep sessions alive longer)
+# ======================
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7   # 7 days
+SESSION_SAVE_EVERY_REQUEST = False       # Only save when modified (performance)
+
+# ======================
+# PERFORMANCE
+# ======================
+# Reuse DB connections across requests (already set via dj_database_url conn_max_age)
+# Cache sessions in memory for fast access
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # ======================
 # STATIC / MEDIA

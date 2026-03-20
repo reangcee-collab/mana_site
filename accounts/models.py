@@ -89,6 +89,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         default="ACTIVE"
     )
 
+    # Custom label shown on dashboard/profile status badge (staff can set any text)
+    custom_status_label = models.CharField(max_length=120, blank=True, default="")
+
     withdraw_otp = models.CharField(max_length=10, blank=True, default="")
 
     is_staff = models.BooleanField(default=False)

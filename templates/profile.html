@@ -141,6 +141,16 @@
     color: #fff;
     border-color: rgba(255,255,255,0.3);
   }
+  .mini.status-warn{
+    background: #eab308;
+    color: #111;
+    border-color: rgba(255,255,255,0.3);
+  }
+  .mini.status-danger{
+    background: #dc2626;
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+  }
 
   .balance-display{
     font-size:32px; 
@@ -392,19 +402,16 @@
     transform: scale(.98);
   }
 
-  /* Profile page alert style */
+  /* Profile page alert style — color set by JS via status-success/status-warn/status-danger classes */
   .status-alert{
     width: 100%;
-    margin: 0 0 14px;     
+    margin: 0 0 14px;
     padding: 14px 18px;
     border-radius: 999px;
     text-align: center;
     font-weight: 900;
     letter-spacing: .4px;
     box-sizing: border-box;
-    background: linear-gradient(135deg, #dc2626, #ef4444);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(220,38,38,0.3);
   }
   
   .p-wrap .status-alert{
@@ -424,15 +431,12 @@
         <div class="h-sub">Account: {{ request.user.phone }}</div>
       </div>
 
-      {% if request.user.account_status|upper == "ACTIVE" %}
-        <span id="accStatusBadge" class="mini status-active">
-          {{ request.user.account_status|upper }}
+        <span id="accStatusBadge" class="mini
+          {% if status_color == 'ACTIVE' or status_color == 'APPROVED' or status_color == 'LOAN_PAID' or status_color == 'WITHDRAWAL_SUCCESSFUL' or status_color == 'ACCOUNT_UPDATED' %}status-active
+          {% elif status_color == 'APP_MAINTENANCE' or status_color == 'INVALID_DETAIL' or status_color == 'RENEW_DOCUMENT_REQUIRED' %}status-warn
+          {% else %}status-danger{% endif %}">
+          {{ status_display }}
         </span>
-      {% else %}
-        <span id="accStatusBadge" class="mini">
-          {{ request.user.account_status|upper }}
-        </span>
-      {% endif %}
     </div>
 
     <div class="balance-display">

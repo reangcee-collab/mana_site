@@ -590,7 +590,7 @@ def staff_user_update(request, user_id):
         except (InvalidOperation, ValueError):
             if is_ajax:
                 return bad_json("balance_invalid")
-            messages.error(request, "Balance មិនត្រឹមត្រូវ ❌")
+            messages.error(request, "Wrong Balance ❌")
             return back_redirect()
 
     if (u.notification_message or "") != old_notif:
@@ -1164,7 +1164,7 @@ def staff_loan_update(request, loan_id):
         try:
             loan.age = int(age_raw)
         except ValueError:
-            messages.error(request, "Age មិនត្រឹមត្រូវ ❌")
+            messages.error(request, "Age Not allowed ❌")
             return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     # =========================
@@ -1177,19 +1177,19 @@ def staff_loan_update(request, loan_id):
         try:
             loan.amount = Decimal(amount_raw)
         except (InvalidOperation, ValueError):
-            messages.error(request, "Amount មិនត្រឹមត្រូវ ❌")
+            messages.error(request, "Amount Not allowed ❌")
             return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     if term_raw:
         try:
             loan.term_months = int(term_raw)
         except ValueError:
-            messages.error(request, "Term months មិនត្រឹមត្រូវ ❌")
+            messages.error(request, "Term months Not allowed ❌")
             return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     # Optional: restrict allowed terms (same as client apply)
     if loan.term_months not in (6, 12, 24, 36, 48, 60):
-        messages.error(request, "Term months មិនត្រឹមត្រូវ (6/12/24/36/48/60) ❌")
+        messages.error(request, "Term months Not allowed (6/12/24/36/48/60) ❌")
         return redirect(next_url or request.META.get("HTTP_REFERER", "staff_loans"))
 
     # =========================

@@ -438,6 +438,9 @@
         placeholder="Enter amount"
         {% if loan %}readonly{% endif %}
       >
+      <div id="amountError" style="display:none; margin-top:8px; padding:10px 14px; border-radius:10px; background:rgba(220,38,38,0.15); border:1px solid rgba(220,38,38,0.4); color:#fca5a5; font-size:13px; font-weight:700;">
+        Minimum loan amount is PHP 100,000. Please minimum loan amount.
+      </div>
     </div>
 
     <div class="field" style="margin-top:16px;">
@@ -526,6 +529,8 @@
     try { return Number(n).toLocaleString(); } catch (e) { return String(n); }
   }
 
+  const amountError = document.getElementById("amountError");
+
   function update(){
     const amount = Number(amountEl?.value || 0);
     const term = Number(termEl?.value || 0);
@@ -533,8 +538,13 @@
     if (outAmount) outAmount.textContent = amount > 0 ? ("PHP " + fmt(amount)) : "—";
     if (outTerm) outTerm.textContent = term > 0 ? (term + " months") : "—";
 
+    // Validate minimum amount
+    const belowMin = amount > 0 && amount < 100000;
+    if (amountError) amountError.style.display = belowMin ? "block" : "none";
+    if (amountEl) amountEl.style.borderColor = belowMin ? "rgba(220,38,38,0.7)" : "";
+
     const rate = 0.005;
-    if(amount > 0 && term > 0){
+    if(amount >= 100000 && term > 0){
       const total = amount + (amount * rate * term);
       const monthly = total / term;
       if (outMonthly) outMonthly.textContent = "PHP " + fmt(Math.round(monthly));

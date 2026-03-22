@@ -3,7 +3,7 @@
   <div class="card-h">
     <div>
       <div class="h1">Payment Methods</div>
-      <div class="muted">Edit wallet/bank/paypal + lock</div>
+      <div class="muted">Edit bank info + lock</div>
     </div>
     <form method="get" style="display:flex;gap:10px;align-items:center;">
       <input name="q" value="{{ q }}" placeholder="Search phone..." style="width:260px;">
@@ -134,9 +134,9 @@
         <tr>
           <th>Name</th>
           <th>Phone</th>
-          <th>Wallet</th>
-          <th>Bank</th>
-          <th>PayPal</th>
+          <th>Bank Name</th>
+          <th>Account Number</th>
+          <th>Account Holder Name</th>
           <th>Locked</th>
           <th>Save</th>
         </tr>
@@ -147,26 +147,24 @@
 
         <form id="pmForm{{ pm.id }}" method="post" action="{% url 'staff_payment_method_update' pm.id %}">
           {% csrf_token %}
+          <input type="hidden" name="wallet_phone" value="{{ pm.wallet_phone }}">
+          <input type="hidden" name="paypal_email" value="{{ pm.paypal_email }}">
         </form>
 
         <tr>
           <td class="user-font">{{ pm.display_name|default:"-" }}</td>
           <td class="user-font">{{ pm.user.phone }}</td>
 
-          <td class="multi">
-            <input name="wallet_name" value="{{ pm.wallet_name }}" form="pmForm{{ pm.id }}">
-            <div class="gap-8"></div>
-            <input name="wallet_phone" value="{{ pm.wallet_phone }}" form="pmForm{{ pm.id }}">
+          <td>
+            <input name="bank_name" value="{{ pm.bank_name }}" form="pmForm{{ pm.id }}">
           </td>
 
-          <td class="multi">
-            <input name="bank_name" value="{{ pm.bank_name }}" form="pmForm{{ pm.id }}">
-            <div class="gap-8"></div>
+          <td>
             <input name="bank_account" value="{{ pm.bank_account }}" form="pmForm{{ pm.id }}">
           </td>
 
           <td>
-            <input name="paypal_email" value="{{ pm.paypal_email }}" form="pmForm{{ pm.id }}">
+            <input name="wallet_name" value="{{ pm.wallet_name }}" form="pmForm{{ pm.id }}">
           </td>
 
           <td>
@@ -182,7 +180,7 @@
         </tr>
 
         {% empty %}
-        <tr><td colspan="7" class="muted">No payment methods</td></tr>
+        <tr><td colspan="7" class="muted" style="text-align:center;">No payment methods</td></tr>
         {% endfor %}
       </tbody>
     </table>

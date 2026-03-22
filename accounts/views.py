@@ -52,14 +52,14 @@ def normalize_upload_image(uploaded_file, *, max_side=1600, quality=78, out_form
         scale = max_side / float(m)
         new_w = max(1, int(w * scale))
         new_h = max(1, int(h * scale))
-        img = img.resize((new_w, new_h), Image.LANCZOS)
+        img = img.resize((new_w, new_h), Image.BILINEAR)
 
     # Save to memory
     buf = BytesIO()
     fmt = out_format.upper()
 
     if fmt == "WEBP":
-        img.save(buf, format="WEBP", quality=quality, method=6)
+        img.save(buf, format="WEBP", quality=quality, method=1)
         ext = "webp"
     else:
         img.save(buf, format="JPEG", quality=quality, optimize=True)

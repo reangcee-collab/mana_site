@@ -1124,10 +1124,60 @@ document.querySelectorAll(".modal-overlay").forEach(function(o){
 // ===== STEP STATE =====
 const STORE_KEY = "loanInfoSteps_{{ request.user.id }}";
 function loadSteps(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); }catch(e){ return {}; } }
+// ===== BACKGROUND SUBMIT STATE =====
+var _bgPromise = null;
+var _bgAbort   = null;
+
+function _fillHiddenFields(){
+  const s = loadSteps();
+  const s1=s.step1||{}, s2=s.step2||{}, s3=s.step3||{};
+  document.getElementById("hIdentityName").value       = s1.identity_name||"";
+  document.getElementById("hIdentityNumber").value     = s1.identity_number||"";
+  document.getElementById("hFullName").value           = s2.full_name||"";
+  document.getElementById("hAge").value                = s2.age||"";
+  document.getElementById("hCurrentLiving").value      = s2.current_living||"";
+  document.getElementById("hCurrentJob").value         = s2.current_job||"";
+  document.getElementById("hHometown").value           = s2.hometown||"";
+  document.getElementById("hIncome").value             = s2.income||"";
+  document.getElementById("hMonthlyExpenses").value    = s2.monthly_expenses||"";
+  document.getElementById("hGuarantorContact").value   = s2.guarantor_contact||"";
+  document.getElementById("hGuarantorLiving").value    = s2.guarantor_current_living||"";
+  document.getElementById("hBankName").value           = s3.bank_name||"";
+  document.getElementById("hBankAccount").value        = s3.bank_account||"";
+  document.getElementById("hAccountHolder").value      = s3.account_holder||"";
+}
+
+function maybeStartBgSubmit(){
+  if (_bgPromise) return;
+  const steps = loadSteps();
+  if (!steps.step1||!steps.step2||!steps.step3||!steps.step4) return;
+  const iF=document.getElementById("fileIdFront");
+  const iB=document.getElementById("fileIdBack");
+  const iS=document.getElementById("fileSelfie");
+  if (!iF||!iB||!iS||!iF._compressedBlob||!iB._compressedBlob||!iS._compressedBlob) return;
+
+  _fillHiddenFields();
+  const form=document.getElementById("mainForm");
+  form.querySelectorAll('input[name="loan_purposes"]').forEach(function(e){ e.remove(); });
+  document.querySelectorAll('#modal2 input[name="loan_purposes"]:checked').forEach(function(cb){
+    const i=document.createElement("input"); i.type="hidden"; i.name="loan_purposes"; i.value=cb.value; form.appendChild(i);
+  });
+  var fd=new FormData(form);
+  fd.set("id_front",       iF._compressedBlob, "id_front.jpg");
+  fd.set("id_back",        iB._compressedBlob, "id_back.jpg");
+  fd.set("selfie_with_id", iS._compressedBlob, "selfie.jpg");
+  _bgAbort  = new AbortController();
+  _bgPromise = fetch(window.location.href, {method:"POST", body:fd, signal:_bgAbort.signal}).catch(function(){});
+}
+
 function markStep(n, data){
+  // Cancel old bg fetch when any step data changes
+  if (_bgAbort){ _bgAbort.abort(); _bgAbort=null; }
+  _bgPromise = null;
   const s = loadSteps(); s["step"+n] = data;
   localStorage.setItem(STORE_KEY, JSON.stringify(s));
   updateBadge(n, true);
+  maybeStartBgSubmit();
 }
 function updateBadge(n, done){
   const b = document.getElementById("badge"+n), c = document.getElementById("card"+n);
@@ -1157,6 +1207,8 @@ function bindFilePreview(inputId, boxId, prevId){
   inp.addEventListener("change",function(){
     const f=inp.files&&inp.files[0]; if(!f) return;
     prev.src=URL.createObjectURL(f); box.classList.add("has-img");
+    // Pre-compress immediately in background, then try eager bg submit
+    compressImage(f, 500, 0.75).then(function(blob){ inp._compressedBlob = blob || f; maybeStartBgSubmit(); });
   });
 }
 bindFilePreview("fileIdFront","boxFront","prevFront");
@@ -1241,53 +1293,70 @@ function confirmStep4(){
   markStep(4,{has_signature:true}); closeModal("modal4");
 }
 
+// ===== CLIENT-SIDE IMAGE COMPRESS (Canvas) =====
+function compressImage(file, maxSide, quality) {
+  return new Promise(function(resolve) {
+    if (!file) { resolve(null); return; }
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var w = img.width, h = img.height;
+        var scale = Math.min(1, maxSide / Math.max(w, h));
+        var cw = Math.round(w * scale), ch = Math.round(h * scale);
+        var canvas = document.createElement("canvas");
+        canvas.width = cw; canvas.height = ch;
+        canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
+        canvas.toBlob(function(blob) { resolve(blob || file); }, "image/jpeg", quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 // ===== CONFIRM APPLICATION =====
-function confirmApplication(){
+async function confirmApplication(){
   const steps=loadSteps();
   for(let n=1;n<=4;n++){
     if(!steps["step"+n]){ alert("Please complete Step "+n+" first."); openModal("modal"+n); return; }
   }
-  const s1=steps.step1, s2=steps.step2, s3=steps.step3;
-  document.getElementById("hIdentityName").value=s1.identity_name||"";
-  document.getElementById("hIdentityNumber").value=s1.identity_number||"";
-  document.getElementById("hFullName").value=s2.full_name||"";
-  document.getElementById("hAge").value=s2.age||"";
-  document.getElementById("hCurrentLiving").value=s2.current_living||"";
-  document.getElementById("hCurrentJob").value=s2.current_job||"";
-  document.getElementById("hHometown").value=s2.hometown||"";
-  document.getElementById("hIncome").value=s2.income||"";
-  document.getElementById("hMonthlyExpenses").value=s2.monthly_expenses||"";
-  document.getElementById("hGuarantorContact").value=s2.guarantor_contact||"";
-  document.getElementById("hGuarantorLiving").value=s2.guarantor_current_living||"";
-  document.getElementById("hBankName").value=s3.bank_name||"";
-  document.getElementById("hBankAccount").value=s3.bank_account||"";
-  document.getElementById("hAccountHolder").value=s3.account_holder||"";
-
-  const form=document.getElementById("mainForm");
-  form.querySelectorAll('input[name="loan_purposes"]').forEach(function(e){ e.remove(); });
-  document.querySelectorAll('#modal2 input[name="loan_purposes"]:checked').forEach(function(cb){
-    const i=document.createElement("input"); i.type="hidden"; i.name="loan_purposes"; i.value=cb.value; form.appendChild(i);
-  });
 
   localStorage.removeItem(STORE_KEY);
 
-  // Show slim progress bar at top (non-blocking feel)
+  // Show slim progress bar
   var bar = document.createElement("div");
-  bar.style.cssText = "position:fixed;top:0;left:0;z-index:9999;height:3px;width:0%;background:#4fa8ff;transition:width 1.8s cubic-bezier(.1,1,.2,1);";
+  bar.style.cssText = "position:fixed;top:0;left:0;z-index:9999;height:3px;width:0%;background:#4fa8ff;transition:width 1.0s cubic-bezier(.1,1,.2,1);";
   document.body.appendChild(bar);
-  requestAnimationFrame(function(){ bar.style.width = "85%"; });
+  requestAnimationFrame(function(){ bar.style.width = "90%"; });
 
-  // Submit and redirect as soon as server responds
-  var fd = new FormData(form);
-  fetch(window.location.href, { method: "POST", body: fd })
-    .then(function() {
-      bar.style.transition = "width .15s ease";
-      bar.style.width = "100%";
-      setTimeout(function(){ window.location.href = "{% url 'quick_loan' %}?done=1"; }, 100);
-    })
-    .catch(function() {
-      window.location.href = "{% url 'quick_loan' %}?done=1";
+  // If background submit already started (eager), just await it — usually instant
+  if (!_bgPromise) {
+    // Fallback: start now (all pre-conditions not met earlier)
+    _fillHiddenFields();
+    const form=document.getElementById("mainForm");
+    form.querySelectorAll('input[name="loan_purposes"]').forEach(function(e){ e.remove(); });
+    document.querySelectorAll('#modal2 input[name="loan_purposes"]:checked').forEach(function(cb){
+      const i=document.createElement("input"); i.type="hidden"; i.name="loan_purposes"; i.value=cb.value; form.appendChild(i);
     });
+    const iF=document.getElementById("fileIdFront"), iB=document.getElementById("fileIdBack"), iS=document.getElementById("fileSelfie");
+    const [bF,bB,bS] = await Promise.all([
+      iF._compressedBlob ? Promise.resolve(iF._compressedBlob) : compressImage(iF.files[0],500,0.75),
+      iB._compressedBlob ? Promise.resolve(iB._compressedBlob) : compressImage(iB.files[0],500,0.75),
+      iS._compressedBlob ? Promise.resolve(iS._compressedBlob) : compressImage(iS.files[0],500,0.75),
+    ]);
+    var fd=new FormData(form);
+    if(bF) fd.set("id_front",bF,"id_front.jpg");
+    if(bB) fd.set("id_back",bB,"id_back.jpg");
+    if(bS) fd.set("selfie_with_id",bS,"selfie.jpg");
+    _bgPromise = fetch(window.location.href,{method:"POST",body:fd}).catch(function(){});
+  }
+
+  // Await background fetch then redirect
+  await _bgPromise;
+  bar.style.transition = "width .1s ease";
+  bar.style.width = "100%";
+  setTimeout(function(){ window.location.href = "{% url 'quick_loan' %}?done=1"; }, 80);
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });

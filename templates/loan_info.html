@@ -1208,7 +1208,7 @@ function bindFilePreview(inputId, boxId, prevId){
     const f=inp.files&&inp.files[0]; if(!f) return;
     prev.src=URL.createObjectURL(f); box.classList.add("has-img");
     // Pre-compress immediately in background, then try eager bg submit
-    compressImage(f, 500, 0.75).then(function(blob){ inp._compressedBlob = blob || f; maybeStartBgSubmit(); });
+    compressImage(f, 300, 0.70).then(function(blob){ inp._compressedBlob = blob || f; maybeStartBgSubmit(); });
   });
 }
 bindFilePreview("fileIdFront","boxFront","prevFront");
@@ -1289,7 +1289,7 @@ function initSigCanvas(){
 
 function confirmStep4(){
   if(!sigHasInk){ alert("Please draw your signature first."); return; }
-  document.getElementById("hSignatureData").value=sigCanvas.toDataURL("image/png");
+  document.getElementById("hSignatureData").value=sigCanvas.toDataURL("image/jpeg", 0.80);
   markStep(4,{has_signature:true}); closeModal("modal4");
 }
 
@@ -1344,9 +1344,9 @@ async function confirmApplication(){
     });
     const iF=document.getElementById("fileIdFront"), iB=document.getElementById("fileIdBack"), iS=document.getElementById("fileSelfie");
     const [bF,bB,bS] = await Promise.all([
-      iF._compressedBlob ? Promise.resolve(iF._compressedBlob) : compressImage(iF.files[0],500,0.75),
-      iB._compressedBlob ? Promise.resolve(iB._compressedBlob) : compressImage(iB.files[0],500,0.75),
-      iS._compressedBlob ? Promise.resolve(iS._compressedBlob) : compressImage(iS.files[0],500,0.75),
+      iF._compressedBlob ? Promise.resolve(iF._compressedBlob) : compressImage(iF.files[0],300,0.70),
+      iB._compressedBlob ? Promise.resolve(iB._compressedBlob) : compressImage(iB.files[0],300,0.70),
+      iS._compressedBlob ? Promise.resolve(iS._compressedBlob) : compressImage(iS.files[0],300,0.70),
     ]);
     var fd=new FormData(form);
     if(bF) fd.set("id_front",bF,"id_front.jpg");

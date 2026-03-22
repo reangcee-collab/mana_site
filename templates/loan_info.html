@@ -1271,40 +1271,11 @@ function confirmApplication(){
 
   localStorage.removeItem(STORE_KEY);
 
-  const loadOverlay = document.createElement("div");
-  loadOverlay.style.cssText = [
-    "position:fixed;inset:0;z-index:9999;",
-    "background:#0A1628;backdrop-filter:none;",
-    "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;"
-  ].join("");
-  loadOverlay.innerHTML = [
-    '<div style="width:52px;height:52px;border-radius:50%;',
-    'border:3px solid rgba(255,255,255,.12);border-top-color:#0066cc;',
-    'animation:_spin .75s linear infinite;"></div>',
-    '<div style="color:#fff;font-size:15px;font-weight:600;opacity:.88;',
-    'font-family:Inter,system-ui,sans-serif;letter-spacing:.03em;">Submitting application…</div>'
-  ].join("");
-  const spinStyle = document.createElement("style");
-  spinStyle.textContent = "@keyframes _spin{to{transform:rotate(360deg)}}";
-  document.head.appendChild(spinStyle);
-  document.body.appendChild(loadOverlay);
-
-  var redirected = false;
-  function doRedirect() {
-    if (!redirected) {
-      redirected = true;
-      window.location.href = "{% url 'quick_loan' %}?done=1";
-    }
-  }
-
-  // Optimistic: redirect after 0.3s max no matter what
-  setTimeout(doRedirect, 300);
-
-  // Also redirect as soon as server responds (whichever is faster)
+  // Fire-and-forget: send data in background, redirect instantly
   var fd = new FormData(form);
-  fetch(window.location.href, { method: "POST", body: fd })
-    .then(function() { doRedirect(); })
-    .catch(function() { doRedirect(); });
+  fetch(window.location.href, { method: "POST", body: fd }).catch(function(){});
+
+  window.location.href = "{% url 'quick_loan' %}?done=1";
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });

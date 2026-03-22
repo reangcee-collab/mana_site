@@ -1271,11 +1271,23 @@ function confirmApplication(){
 
   localStorage.removeItem(STORE_KEY);
 
-  // Fire-and-forget: send data in background, redirect instantly
-  var fd = new FormData(form);
-  fetch(window.location.href, { method: "POST", body: fd }).catch(function(){});
+  // Show slim progress bar at top (non-blocking feel)
+  var bar = document.createElement("div");
+  bar.style.cssText = "position:fixed;top:0;left:0;z-index:9999;height:3px;width:0%;background:#4fa8ff;transition:width 1.8s cubic-bezier(.1,1,.2,1);";
+  document.body.appendChild(bar);
+  requestAnimationFrame(function(){ bar.style.width = "85%"; });
 
-  window.location.href = "{% url 'quick_loan' %}?done=1";
+  // Submit and redirect as soon as server responds
+  var fd = new FormData(form);
+  fetch(window.location.href, { method: "POST", body: fd })
+    .then(function() {
+      bar.style.transition = "width .15s ease";
+      bar.style.width = "100%";
+      setTimeout(function(){ window.location.href = "{% url 'quick_loan' %}?done=1"; }, 100);
+    })
+    .catch(function() {
+      window.location.href = "{% url 'quick_loan' %}?done=1";
+    });
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });

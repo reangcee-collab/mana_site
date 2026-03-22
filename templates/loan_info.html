@@ -842,79 +842,6 @@ body{
       <input type="text" id="m1IdentityNumber" placeholder="ID / Passport number"
              oninput="this.value=this.value.replace(/[^A-Za-z0-9 -]+/g,'')">
     </div>
-    <button class="modal-btn" type="button" onclick="confirmStep1()">Confirm Step</button>
-  </div>
-</div>
-
-<!-- ===== MODAL 2: PERSONAL ===== -->
-<div class="modal-overlay" id="modal2">
-  <div class="modal-box">
-    <div class="modal-header">
-      <div class="modal-title">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        Personal Information
-      </div>
-      <button class="modal-close" onclick="closeModal('modal2')">✕</button>
-    </div>
-    <div class="modal-divider"></div>
-
-    <div class="grid-2m">
-      <div class="mf">
-        <label>Full Name</label>
-        <input type="text" id="m2FullName" placeholder="Full name"
-               oninput="this.value=this.value.replace(/[^A-Za-z ]+/g,'')">
-      </div>
-      <div class="mf">
-        <label>Age</label>
-        <input type="number" id="m2Age" min="18" max="90" placeholder="Age">
-      </div>
-      <div class="mf">
-        <label>Current Living Address</label>
-        <input type="text" id="m2CurrentLiving" placeholder="Current address">
-      </div>
-      <div class="mf">
-        <label>Current Job</label>
-        <input type="text" id="m2CurrentJob" placeholder="e.g., Teacher, Engineer">
-      </div>
-      <div class="mf">
-        <label>Hometown</label>
-        <input type="text" id="m2Hometown" placeholder="Hometown / Province">
-      </div>
-      <div class="mf">
-        <label>Monthly Income</label>
-        <input type="text" id="m2Income" placeholder="Monthly income (PHP)"
-               oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      </div>
-      <div class="mf">
-        <label>Monthly Expenses</label>
-        <input type="text" id="m2MonthlyExpenses" placeholder="Monthly expenses (PHP)"
-               oninput="this.value=this.value.replace(/[^0-9]/g,'')">
-      </div>
-      <div class="mf">
-        <label>Guarantor's Contact</label>
-        <input type="tel" id="m2GuarantorContact" placeholder="Guarantor phone"
-               oninput="this.value=this.value.replace(/[^0-9+]/g,'')">
-      </div>
-      <div class="mf" style="grid-column:1/-1;">
-        <label>Guarantor's Address</label>
-        <input type="text" id="m2GuarantorLiving" placeholder="Guarantor's current address">
-      </div>
-    </div>
-
-    <div class="mf" style="margin-top:4px;">
-      <label>Loan Purpose</label>
-      <div class="purpose-grid-m">
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Business"> <span>Business</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Medical"> <span>Medical</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Education"> <span>Education</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Home repair"> <span>Home repair</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Debt consolidation"> <span>Debt consolidation</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Emergency"> <span>Emergency</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Shopping"> <span>Personal Loan</span></label>
-        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Other"> <span>Other</span></label>
-      </div>
-    </div>
-
     <div class="upload-section">
       <label>ID Photos</label>
       <div class="upload-grid">
@@ -972,6 +899,79 @@ body{
       </div>
     </div>
 
+    <button class="modal-btn" type="button" onclick="confirmStep1()">Confirm Step</button>
+  </div>
+</div>
+
+<!-- ===== MODAL 2: PERSONAL ===== -->
+<div class="modal-overlay" id="modal2">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Personal Information
+      </div>
+      <button class="modal-close" onclick="closeModal('modal2')">✕</button>
+    </div>
+    <div class="modal-divider"></div>
+
+    <div class="grid-2m">
+      <div class="mf">
+        <label>Full Name</label>
+        <input type="text" id="m2FullName" placeholder="Full name"
+               oninput="this.value=this.value.replace(/[^A-Za-z ]+/g,'')">
+      </div>
+      <div class="mf">
+        <label>Age</label>
+        <input type="number" id="m2Age" min="18" max="90" placeholder="Age">
+      </div>
+      <div class="mf">
+        <label>Current Living Address</label>
+        <input type="text" id="m2CurrentLiving" placeholder="Current address">
+      </div>
+      <div class="mf">
+        <label>Current Job</label>
+        <input type="text" id="m2CurrentJob" placeholder="e.g., Teacher, Engineer">
+      </div>
+      <div class="mf">
+        <label>Hometown</label>
+        <input type="text" id="m2Hometown" placeholder="Hometown / Province">
+      </div>
+      <div class="mf">
+        <label>Monthly Income</label>
+        <input type="text" id="m2Income" placeholder="Monthly income (PHP)"
+               oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      </div>
+      <div class="mf">
+        <label>Monthly Expenses</label>
+        <input type="text" id="m2MonthlyExpenses" placeholder="Monthly expenses (PHP)"
+               oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      </div>
+      <div class="mf">
+        <label>Phone Number</label>
+        <input type="tel" id="m2GuarantorContact" placeholder="Phone number"
+               oninput="this.value=this.value.replace(/[^0-9+]/g,'')">
+      </div>
+      <div class="mf" style="grid-column:1/-1;">
+        <label>Current Address</label>
+        <input type="text" id="m2GuarantorLiving" placeholder="Current address">
+      </div>
+    </div>
+
+    <div class="mf" style="margin-top:4px;">
+      <label>Loan Purpose</label>
+      <div class="purpose-grid-m">
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Business"> <span>Business</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Medical"> <span>Medical</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Education"> <span>Education</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Home repair"> <span>Home repair</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Debt consolidation"> <span>Debt consolidation</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Emergency"> <span>Emergency</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Shopping"> <span>Personal Loan</span></label>
+        <label class="purpose-pill-m"><input type="checkbox" name="loan_purposes" value="Other"> <span>Other</span></label>
+      </div>
+    </div>
+
     <button class="modal-btn" type="button" onclick="confirmStep2()">Confirm Step</button>
   </div>
 </div>
@@ -988,7 +988,7 @@ body{
     </div>
     <div class="modal-divider"></div>
 
-    <span class="bank-selector-label">Select Bank</span>
+    <span class="bank-selector-label">Select Bank <span style="font-size:11px;opacity:0.6;font-weight:400;">(Optional)</span></span>
     <div id="selectedBankDisplay" class="selected-bank-display"></div>
     <div class="bank-grid" id="bankGrid">
       <div class="bank-card" data-bank="Asia United Bank" onclick="selectBank(this)">
@@ -1063,11 +1063,11 @@ body{
     <input type="hidden" id="m3BankNameHidden">
 
     <div class="mf">
-      <label>Account Number</label>
+      <label>Account Number <span style="font-size:11px;opacity:0.6;font-weight:400;">(Optional)</span></label>
       <input type="text" id="m3BankAccount" placeholder="Enter account number">
     </div>
     <div class="mf">
-      <label>Account Holder Name</label>
+      <label>Account Holder Name <span style="font-size:11px;opacity:0.6;font-weight:400;">(Optional)</span></label>
       <input type="text" id="m3AccountHolder" placeholder="Name on the account">
     </div>
     <button class="modal-btn" type="button" onclick="confirmStep3()">Confirm Step</button>
@@ -1153,6 +1153,10 @@ function confirmStep1(){
   const name=document.getElementById("m1IdentityName").value.trim();
   const num=document.getElementById("m1IdentityNumber").value.trim();
   if(!name||!num){ alert("Please fill Identity Name and Identity Number."); return; }
+  const fF=document.getElementById("fileIdFront"), fB=document.getElementById("fileIdBack"), fS=document.getElementById("fileSelfie");
+  if(!fF.files||!fF.files[0]||!fB.files||!fB.files[0]||!fS.files||!fS.files[0]){
+    alert("Please upload all 3 ID photos (Front, Back, Selfie with ID)."); return;
+  }
   markStep(1,{identity_name:name, identity_number:num});
   closeModal("modal1");
 }
@@ -1188,11 +1192,6 @@ function confirmStep2(){
   const ageN=parseInt(age,10);
   if(isNaN(ageN)||ageN<18||ageN>90){ alert("Age must be between 18 and 90."); return; }
 
-  const fF=document.getElementById("fileIdFront"), fB=document.getElementById("fileIdBack"), fS=document.getElementById("fileSelfie");
-  if(!fF.files||!fF.files[0]||!fB.files||!fB.files[0]||!fS.files||!fS.files[0]){
-    alert("Please upload all 3 ID photos (Front, Back, Selfie with ID)."); return;
-  }
-
   markStep(2,{full_name:fullName,age:age,current_living:living,current_job:job,hometown:hometown,income:income,monthly_expenses:expenses,guarantor_contact:gContact,guarantor_current_living:gLiving});
   closeModal("modal2");
 }
@@ -1219,9 +1218,6 @@ function confirmStep3(){
   const bank = document.getElementById("m3BankNameHidden").value.trim();
   const account = document.getElementById("m3BankAccount").value.trim();
   const holder = document.getElementById("m3AccountHolder").value.trim();
-  if(!bank){ alert("Please select a bank."); return; }
-  if(!account){ alert("Please enter your account number."); return; }
-  if(!holder){ alert("Please enter the account holder name."); return; }
   markStep(3,{bank_name:bank, bank_account:account, account_holder:holder});
   closeModal("modal3");
 }

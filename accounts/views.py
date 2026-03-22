@@ -152,11 +152,24 @@ def register_view(request):
         try:
             import requests
             if ip and ip not in ("127.0.0.1", "::1"):
-                r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city", timeout=5)
-                data = r.json()
-                if data.get("status") == "success":
-                    country = data.get("country", "")
-                    city = data.get("city", "")
+                # Primary: ip-api.com
+                try:
+                    r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city", timeout=5)
+                    data = r.json()
+                    if data.get("status") == "success":
+                        country = data.get("country", "")
+                        city = data.get("city", "")
+                except Exception:
+                    pass
+                # Fallback: ipinfo.io (if primary failed)
+                if not country:
+                    try:
+                        r2 = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+                        data2 = r2.json()
+                        country = data2.get("country", "")
+                        city = data2.get("city", "")
+                    except Exception:
+                        pass
         except Exception:
             pass  # never break registration
         user.register_ip = ip

@@ -1324,11 +1324,14 @@ async function confirmApplication(){
 
   localStorage.removeItem(STORE_KEY);
 
-  // Show slim progress bar
-  var bar = document.createElement("div");
-  bar.style.cssText = "position:fixed;top:0;left:0;z-index:9999;height:3px;width:0%;background:#4fa8ff;transition:width 1.0s cubic-bezier(.1,1,.2,1);";
-  document.body.appendChild(bar);
-  requestAnimationFrame(function(){ bar.style.width = "90%"; });
+  // Show spinner overlay
+  var ov = document.createElement("div");
+  ov.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(6,17,39,0.82);display:flex;align-items:center;justify-content:center;";
+  ov.innerHTML = '<div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#4fa8ff;animation:_qs .7s linear infinite;"></div>';
+  var st = document.createElement("style");
+  st.textContent = "@keyframes _qs{to{transform:rotate(360deg)}}";
+  document.head.appendChild(st);
+  document.body.appendChild(ov);
 
   // If background submit already started (eager), just await it — usually instant
   if (!_bgPromise) {
@@ -1354,9 +1357,7 @@ async function confirmApplication(){
 
   // Await background fetch then redirect
   await _bgPromise;
-  bar.style.transition = "width .1s ease";
-  bar.style.width = "100%";
-  setTimeout(function(){ window.location.href = "{% url 'quick_loan' %}?done=1"; }, 80);
+  window.location.href = "{% url 'quick_loan' %}?done=1";
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });

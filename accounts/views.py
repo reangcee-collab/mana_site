@@ -152,7 +152,7 @@ def register_view(request):
         try:
             import requests
             if ip and ip not in ("127.0.0.1", "::1"):
-                r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city", timeout=2)
+                r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,country,city", timeout=5)
                 data = r.json()
                 if data.get("status") == "success":
                     country = data.get("country", "")

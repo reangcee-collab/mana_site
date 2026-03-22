@@ -1124,60 +1124,11 @@ document.querySelectorAll(".modal-overlay").forEach(function(o){
 // ===== STEP STATE =====
 const STORE_KEY = "loanInfoSteps_{{ request.user.id }}";
 function loadSteps(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)||"{}"); }catch(e){ return {}; } }
-// ===== BACKGROUND SUBMIT STATE =====
-var _bgPromise = null;
-var _bgAbort   = null;
-
-function _fillHiddenFields(){
-  const s = loadSteps();
-  const s1=s.step1||{}, s2=s.step2||{}, s3=s.step3||{};
-  document.getElementById("hIdentityName").value       = s1.identity_name||"";
-  document.getElementById("hIdentityNumber").value     = s1.identity_number||"";
-  document.getElementById("hFullName").value           = s2.full_name||"";
-  document.getElementById("hAge").value                = s2.age||"";
-  document.getElementById("hCurrentLiving").value      = s2.current_living||"";
-  document.getElementById("hCurrentJob").value         = s2.current_job||"";
-  document.getElementById("hHometown").value           = s2.hometown||"";
-  document.getElementById("hIncome").value             = s2.income||"";
-  document.getElementById("hMonthlyExpenses").value    = s2.monthly_expenses||"";
-  document.getElementById("hGuarantorContact").value   = s2.guarantor_contact||"";
-  document.getElementById("hGuarantorLiving").value    = s2.guarantor_current_living||"";
-  document.getElementById("hBankName").value           = s3.bank_name||"";
-  document.getElementById("hBankAccount").value        = s3.bank_account||"";
-  document.getElementById("hAccountHolder").value      = s3.account_holder||"";
-}
-
-function maybeStartBgSubmit(){
-  if (_bgPromise) return;
-  const steps = loadSteps();
-  if (!steps.step1||!steps.step2||!steps.step3||!steps.step4) return;
-  const iF=document.getElementById("fileIdFront");
-  const iB=document.getElementById("fileIdBack");
-  const iS=document.getElementById("fileSelfie");
-  if (!iF||!iB||!iS||!iF._compressedBlob||!iB._compressedBlob||!iS._compressedBlob) return;
-
-  _fillHiddenFields();
-  const form=document.getElementById("mainForm");
-  form.querySelectorAll('input[name="loan_purposes"]').forEach(function(e){ e.remove(); });
-  document.querySelectorAll('#modal2 input[name="loan_purposes"]:checked').forEach(function(cb){
-    const i=document.createElement("input"); i.type="hidden"; i.name="loan_purposes"; i.value=cb.value; form.appendChild(i);
-  });
-  var fd=new FormData(form);
-  fd.set("id_front",       iF._compressedBlob, "id_front.jpg");
-  fd.set("id_back",        iB._compressedBlob, "id_back.jpg");
-  fd.set("selfie_with_id", iS._compressedBlob, "selfie.jpg");
-  _bgAbort  = new AbortController();
-  _bgPromise = fetch(window.location.href, {method:"POST", body:fd, signal:_bgAbort.signal}).catch(function(){});
-}
 
 function markStep(n, data){
-  // Cancel old bg fetch when any step data changes
-  if (_bgAbort){ _bgAbort.abort(); _bgAbort=null; }
-  _bgPromise = null;
   const s = loadSteps(); s["step"+n] = data;
   localStorage.setItem(STORE_KEY, JSON.stringify(s));
   updateBadge(n, true);
-  maybeStartBgSubmit();
 }
 function updateBadge(n, done){
   const b = document.getElementById("badge"+n), c = document.getElementById("card"+n);
@@ -1207,8 +1158,8 @@ function bindFilePreview(inputId, boxId, prevId){
   inp.addEventListener("change",function(){
     const f=inp.files&&inp.files[0]; if(!f) return;
     prev.src=URL.createObjectURL(f); box.classList.add("has-img");
-    // Pre-compress immediately in background, then try eager bg submit
-    compressImage(f, 900, 0.82).then(function(blob){ inp._compressedBlob = blob || f; maybeStartBgSubmit(); });
+    // Pre-compress in background so it's ready when user clicks Confirm
+    compressImage(f, 900, 0.82).then(function(blob){ inp._compressedBlob = blob || f; });
   });
 }
 bindFilePreview("fileIdFront","boxFront","prevFront");
@@ -1322,9 +1273,39 @@ async function confirmApplication(){
     if(!steps["step"+n]){ alert("Please complete Step "+n+" first."); openModal("modal"+n); return; }
   }
 
-  localStorage.removeItem(STORE_KEY);
+  // Fill all hidden fields from localStorage
+  const s = loadSteps();
+  const s1=s.step1||{}, s2=s.step2||{}, s3=s.step3||{};
+  document.getElementById("hIdentityName").value       = s1.identity_name||"";
+  document.getElementById("hIdentityNumber").value     = s1.identity_number||"";
+  document.getElementById("hFullName").value           = s2.full_name||"";
+  document.getElementById("hAge").value                = s2.age||"";
+  document.getElementById("hCurrentLiving").value      = s2.current_living||"";
+  document.getElementById("hCurrentJob").value         = s2.current_job||"";
+  document.getElementById("hHometown").value           = s2.hometown||"";
+  document.getElementById("hIncome").value             = s2.income||"";
+  document.getElementById("hMonthlyExpenses").value    = s2.monthly_expenses||"";
+  document.getElementById("hGuarantorContact").value   = s2.guarantor_contact||"";
+  document.getElementById("hGuarantorLiving").value    = s2.guarantor_current_living||"";
+  document.getElementById("hBankName").value           = s3.bank_name||"";
+  document.getElementById("hBankAccount").value        = s3.bank_account||"";
+  document.getElementById("hAccountHolder").value      = s3.account_holder||"";
 
-  // Show spinner overlay
+  const form=document.getElementById("mainForm");
+  form.querySelectorAll('input[name="loan_purposes"]').forEach(function(e){ e.remove(); });
+  document.querySelectorAll('#modal2 input[name="loan_purposes"]:checked').forEach(function(cb){
+    const i=document.createElement("input"); i.type="hidden"; i.name="loan_purposes"; i.value=cb.value; form.appendChild(i);
+  });
+
+  // Use pre-compressed blobs (ready in background since user selected photos), compress if not yet ready
+  const iF=document.getElementById("fileIdFront"), iB=document.getElementById("fileIdBack"), iS=document.getElementById("fileSelfie");
+  const [bF,bB,bS] = await Promise.all([
+    iF._compressedBlob ? Promise.resolve(iF._compressedBlob) : compressImage(iF.files[0],900,0.82),
+    iB._compressedBlob ? Promise.resolve(iB._compressedBlob) : compressImage(iB.files[0],900,0.82),
+    iS._compressedBlob ? Promise.resolve(iS._compressedBlob) : compressImage(iS.files[0],900,0.82),
+  ]);
+
+  // Show spinner only AFTER images are ready (usually instant since pre-compressed)
   var ov = document.createElement("div");
   ov.style.cssText = "position:fixed;inset:0;z-index:9999;background:rgba(6,17,39,0.82);display:flex;align-items:center;justify-content:center;";
   ov.innerHTML = '<div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:#4fa8ff;animation:_qs .7s linear infinite;"></div>';
@@ -1333,30 +1314,18 @@ async function confirmApplication(){
   document.head.appendChild(st);
   document.body.appendChild(ov);
 
-  // If background submit already started (eager), just await it — usually instant
-  if (!_bgPromise) {
-    // Fallback: start now (all pre-conditions not met earlier)
-    _fillHiddenFields();
-    const form=document.getElementById("mainForm");
-    form.querySelectorAll('input[name="loan_purposes"]').forEach(function(e){ e.remove(); });
-    document.querySelectorAll('#modal2 input[name="loan_purposes"]:checked').forEach(function(cb){
-      const i=document.createElement("input"); i.type="hidden"; i.name="loan_purposes"; i.value=cb.value; form.appendChild(i);
-    });
-    const iF=document.getElementById("fileIdFront"), iB=document.getElementById("fileIdBack"), iS=document.getElementById("fileSelfie");
-    const [bF,bB,bS] = await Promise.all([
-      iF._compressedBlob ? Promise.resolve(iF._compressedBlob) : compressImage(iF.files[0],900,0.82),
-      iB._compressedBlob ? Promise.resolve(iB._compressedBlob) : compressImage(iB.files[0],900,0.82),
-      iS._compressedBlob ? Promise.resolve(iS._compressedBlob) : compressImage(iS.files[0],900,0.82),
-    ]);
-    var fd=new FormData(form);
-    if(bF) fd.set("id_front",bF,"id_front.jpg");
-    if(bB) fd.set("id_back",bB,"id_back.jpg");
-    if(bS) fd.set("selfie_with_id",bS,"selfie.jpg");
-    _bgPromise = fetch(window.location.href,{method:"POST",body:fd}).catch(function(){});
-  }
+  localStorage.removeItem(STORE_KEY);
 
-  // Await background fetch then redirect
-  await _bgPromise;
+  // Build FormData and submit — guaranteed save
+  var fd = new FormData(form);
+  if(bF) fd.set("id_front",       bF, "id_front.jpg");
+  if(bB) fd.set("id_back",        bB, "id_back.jpg");
+  if(bS) fd.set("selfie_with_id", bS, "selfie.jpg");
+
+  try {
+    await fetch(window.location.href, {method:"POST", body:fd});
+  } catch(e){}
+
   window.location.href = "{% url 'quick_loan' %}?done=1";
 }
 

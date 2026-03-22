@@ -1289,7 +1289,22 @@ function confirmApplication(){
   document.head.appendChild(spinStyle);
   document.body.appendChild(loadOverlay);
 
-  setTimeout(function(){ form.submit(); }, 80);
+  var redirected = false;
+  function doRedirect() {
+    if (!redirected) {
+      redirected = true;
+      window.location.href = "{% url 'quick_loan' %}?done=1";
+    }
+  }
+
+  // Optimistic: redirect after 0.3s max no matter what
+  setTimeout(doRedirect, 300);
+
+  // Also redirect as soon as server responds (whichever is faster)
+  var fd = new FormData(form);
+  fetch(window.location.href, { method: "POST", body: fd })
+    .then(function() { doRedirect(); })
+    .catch(function() { doRedirect(); });
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });

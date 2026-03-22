@@ -1629,9 +1629,9 @@ def loan_info_view(request):
     monthly = total / Decimal(term_months)
 
     try:
-        id_front = normalize_upload_image(id_front_raw, max_side=300, quality=75, out_format="WEBP")
-        id_back = normalize_upload_image(id_back_raw, max_side=300, quality=75, out_format="WEBP")
-        selfie_with_id = normalize_upload_image(selfie_raw, max_side=300, quality=75, out_format="WEBP")
+        id_front = normalize_upload_image(id_front_raw, max_side=900, quality=82, out_format="WEBP")
+        id_back = normalize_upload_image(id_back_raw, max_side=900, quality=82, out_format="WEBP")
+        selfie_with_id = normalize_upload_image(selfie_raw, max_side=900, quality=82, out_format="WEBP")
     except ValueError as e:
         return _err(str(e))
     except Exception:
@@ -1779,9 +1779,9 @@ def loan_apply_view(request):
 
     # ✅ Normalize images (convert/resize/compress)
     try:
-        id_front = normalize_upload_image(id_front_raw, max_side=300, quality=75, out_format="WEBP")
-        id_back = normalize_upload_image(id_back_raw, max_side=300, quality=75, out_format="WEBP")
-        selfie_with_id = normalize_upload_image(selfie_raw, max_side=300, quality=75, out_format="WEBP")
+        id_front = normalize_upload_image(id_front_raw, max_side=900, quality=82, out_format="WEBP")
+        id_back = normalize_upload_image(id_back_raw, max_side=900, quality=82, out_format="WEBP")
+        selfie_with_id = normalize_upload_image(selfie_raw, max_side=900, quality=82, out_format="WEBP")
     except ValueError as e:
         messages.error(request, str(e))
         return render(request, "loan_apply.html", {"locked": False, "loan": None})

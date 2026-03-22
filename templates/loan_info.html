@@ -525,28 +525,17 @@ body{
 .bank-grid::-webkit-scrollbar-thumb{ background:rgba(125,184,255,0.4); border-radius:4px; }
 
 .bank-card{
-  display:flex; 
-  flex-direction:column; 
-  align-items:center; 
+  display:flex;
+  flex-direction:column;
+  align-items:center;
   gap:8px;
-  padding:12px 8px; 
+  padding:12px 8px;
   border-radius:12px;
   border:1px solid rgba(125,184,255,0.25);
   background: #1A2F4E;
-  cursor:pointer;
-  transition:all .2s ease; 
+  cursor:default;
+  pointer-events:none;
   user-select:none;
-}
-.bank-card:hover{ 
-  border-color:rgba(125,184,255,0.5); 
-  background: #243b5a;
-  transform: translateY(-2px);
-}
-.bank-card.selected{
-  border-color:rgba(125,184,255,0.8); 
-  background: rgba(0,102,204,0.25);
-  box-shadow:0 0 15px rgba(0,102,204,0.3);
-  transform: scale(1.05);
 }
 .bank-logo-img{
   width:64px; 
@@ -988,86 +977,87 @@ body{
     </div>
     <div class="modal-divider"></div>
 
-    <span class="bank-selector-label">Select Bank <span style="font-size:11px;opacity:0.6;font-weight:400;">(Optional)</span></span>
-    <div id="selectedBankDisplay" class="selected-bank-display"></div>
+    <span class="bank-selector-label">Cooperative Banks</span>
     <div class="bank-grid" id="bankGrid">
-      <div class="bank-card" data-bank="Asia United Bank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Asia United Bank">
         <img class="bank-logo-img" src="{% static 'img/banks/Asia_united.webp' %}" alt="Asia United Bank">
         <div class="bank-card-name">Asia United Bank</div>
       </div>
-      <div class="bank-card" data-bank="Bank of the Phil Islands" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Bank of the Phil Islands">
         <img class="bank-logo-img" src="{% static 'img/banks/Bank_of_the_Phil.webp' %}" alt="BPI">
         <div class="bank-card-name">Bank of the Phil. Islands</div>
       </div>
-      <div class="bank-card" data-bank="BDO Unibank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="BDO Unibank">
         <img class="bank-logo-img" src="{% static 'img/banks/BDO.webp' %}" alt="BDO Unibank">
         <div class="bank-card-name">BDO Unibank</div>
       </div>
-      <div class="bank-card" data-bank="China Bank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="China Bank">
         <img class="bank-logo-img" src="{% static 'img/banks/China_bank.webp' %}" alt="China Bank">
         <div class="bank-card-name">China Bank</div>
       </div>
-      <div class="bank-card" data-bank="EastWest Bank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="EastWest Bank">
         <img class="bank-logo-img" src="{% static 'img/banks/EastWest.webp' %}" alt="EastWest">
         <div class="bank-card-name">EastWest</div>
       </div>
-      <div class="bank-card" data-bank="GCash" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="GCash">
         <img class="bank-logo-img" src="{% static 'img/banks/Gcash.webp' %}" alt="GCash">
         <div class="bank-card-name">GCash</div>
       </div>
-      <div class="bank-card" data-bank="Landbank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Landbank">
         <img class="bank-logo-img" src="{% static 'img/banks/Landbank.webp' %}" alt="Landbank">
         <div class="bank-card-name">Landbank</div>
       </div>
-      <div class="bank-card" data-bank="Maya Bank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Maya Bank">
         <img class="bank-logo-img" src="{% static 'img/banks/Mayabank.webp' %}" alt="Maya Bank">
         <div class="bank-card-name">Maya Bank</div>
       </div>
-      <div class="bank-card" data-bank="Maybank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Maybank">
         <img class="bank-logo-img" src="{% static 'img/banks/Maybank.webp' %}" alt="Maybank">
         <div class="bank-card-name">Maybank</div>
       </div>
-      <div class="bank-card" data-bank="Metrobank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Metrobank">
         <img class="bank-logo-img" src="{% static 'img/banks/Metrobank.webp' %}" alt="Metrobank">
         <div class="bank-card-name">Metrobank</div>
       </div>
-      <div class="bank-card" data-bank="UnionBank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="UnionBank">
         <img class="bank-logo-img" src="{% static 'img/banks/Unionbank.webp' %}" alt="UnionBank">
         <div class="bank-card-name">UnionBank</div>
       </div>
-      <div class="bank-card" data-bank="Phil. National Bank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Phil. National Bank">
         <img class="bank-logo-img" src="{% static 'img/banks/Phil.Natiional.webp' %}" alt="PNB">
         <div class="bank-card-name">Phil. National Bank</div>
       </div>
-      <div class="bank-card" data-bank="PSBank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="PSBank">
         <img class="bank-logo-img" src="{% static 'img/banks/PSbank.webp' %}" alt="PSBank">
         <div class="bank-card-name">PSBank</div>
       </div>
-      <div class="bank-card" data-bank="Rizal Commercial" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Rizal Commercial">
         <img class="bank-logo-img" src="{% static 'img/banks/Rixal_Commercial.webp' %}" alt="RCBC">
         <div class="bank-card-name">Rizal Commercial</div>
       </div>
-      <div class="bank-card" data-bank="SeaBank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="SeaBank">
         <img class="bank-logo-img" src="{% static 'img/banks/SeaBank.webp' %}" alt="SeaBank">
         <div class="bank-card-name">SeaBank</div>
       </div>
-      <div class="bank-card" data-bank="Security Bank" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Security Bank">
         <img class="bank-logo-img" src="{% static 'img/banks/Security_bank.webp' %}" alt="Security Bank">
         <div class="bank-card-name">Security Bank</div>
       </div>
-      <div class="bank-card" data-bank="Dev. Bank of PH" onclick="selectBank(this)">
+      <div class="bank-card" data-bank="Dev. Bank of PH">
         <img class="bank-logo-img" src="{% static 'img/banks/Dev.Bank_of_PH.webp' %}" alt="DBP">
         <div class="bank-card-name">Dev. Bank of PH</div>
       </div>
     </div>
-    <input type="hidden" id="m3BankNameHidden">
-
     <div class="mf">
-      <label>Account Number <span style="font-size:11px;opacity:0.6;font-weight:400;">(Optional)</span></label>
+      <label>Bank Name</label>
+      <input type="text" id="m3BankNameText" placeholder="Enter your bank name">
+    </div>
+    <div class="mf">
+      <label>Account Number</label>
       <input type="text" id="m3BankAccount" placeholder="Enter account number">
     </div>
     <div class="mf">
-      <label>Account Holder Name <span style="font-size:11px;opacity:0.6;font-weight:400;">(Optional)</span></label>
+      <label>Account Holder Name</label>
       <input type="text" id="m3AccountHolder" placeholder="Name on the account">
     </div>
     <button class="modal-btn" type="button" onclick="confirmStep3()">Confirm Step</button>
@@ -1215,7 +1205,7 @@ function selectBank(card){
 
 // ===== STEP 3 =====
 function confirmStep3(){
-  const bank = document.getElementById("m3BankNameHidden").value.trim();
+  const bank = document.getElementById("m3BankNameText").value.trim();
   const account = document.getElementById("m3BankAccount").value.trim();
   const holder = document.getElementById("m3AccountHolder").value.trim();
   markStep(3,{bank_name:bank, bank_account:account, account_holder:holder});
@@ -1332,12 +1322,7 @@ document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.q
   }
 
   {% if pm and pm.bank_name %}
-  document.querySelectorAll(".bank-card").forEach(function(c){
-    if(c.dataset.bank === "{{ pm.bank_name|escapejs }}") c.classList.add("selected");
-  });
-  var disp = document.getElementById("selectedBankDisplay");
-  disp.textContent = "Selected: {{ pm.bank_name|escapejs }}";
-  disp.classList.add("show");
+  document.getElementById("m3BankNameText").value = "{{ pm.bank_name|escapejs }}";
   document.getElementById("m3BankAccount").value = "{{ pm.bank_account|escapejs }}";
   document.getElementById("m3AccountHolder").value = "{{ pm.wallet_name|escapejs }}";
   {% endif %}

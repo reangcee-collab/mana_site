@@ -268,29 +268,34 @@ body{
 
 /* ===== MODAL OVERLAY ===== */
 .modal-overlay{
-  position:fixed; 
-  inset:0; 
+  position:fixed;
+  inset:0;
   z-index:900;
-  background:rgba(0,0,0,.85); 
+  background:rgba(0,0,0,.85);
   backdrop-filter: blur(8px);
-  display:none; 
-  align-items:flex-start; 
+  display:none;
+  align-items:flex-start;
   justify-content:center;
   padding: 60px 14px 40px;
   overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .modal-overlay.open{ display:flex; }
 
 .modal-box{
-  width:min(490px,100%); 
+  width:min(490px,100%);
   background: linear-gradient(180deg, #112240 0%, #0a1628 100%);
   border:1px solid rgba(125,184,255,0.3);
-  border-radius:22px; 
+  border-radius:22px;
   padding:22px 20px 24px;
   box-shadow:0 24px 60px rgba(0,0,0,.7), 0 0 40px rgba(74,144,217,0.2);
   opacity:1;
   margin: 0 0 auto 0;
   animation:modalIn .22s ease both;
+  max-height: calc(100svh - 80px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 @keyframes modalIn{
   from{ opacity:0; transform:scale(.96) translateY(12px); }
@@ -1110,12 +1115,22 @@ body{
 // ===== MODALS =====
 function openModal(id){
   const el = document.getElementById(id);
-  if(el){ el.classList.add("open"); document.body.style.overflow="hidden"; }
+  if(el){
+    el.classList.add("open");
+    document.body.style.overflow="hidden";
+    document.body.style.position="fixed";
+    document.body.style.width="100%";
+  }
   if(id === "modal4") initSigCanvas();
 }
 function closeModal(id){
   const el = document.getElementById(id);
-  if(el){ el.classList.remove("open"); document.body.style.overflow=""; }
+  if(el){
+    el.classList.remove("open");
+    document.body.style.overflow="";
+    document.body.style.position="";
+    document.body.style.width="";
+  }
 }
 document.querySelectorAll(".modal-overlay").forEach(function(o){
   o.addEventListener("click", function(e){ if(e.target===o) closeModal(o.id); });

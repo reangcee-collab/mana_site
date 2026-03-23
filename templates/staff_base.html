@@ -472,12 +472,17 @@ th{
   color:rgba(255,255,255,.90);
 }
 
-/* ✅ Horizontal scroll wrapper for wide tables */
+/* ✅ Horizontal scroll wrapper — scrollbar on TOP */
 .table-wrap{
   width:100%;
   overflow-x:auto;
   overflow-y:hidden;
   -webkit-overflow-scrolling: touch;
+  transform: rotateX(180deg);   /* flip wrapper → scrollbar moves to top */
+}
+/* flip content back to normal orientation */
+.table-wrap > *{
+  transform: rotateX(180deg);
 }
 
 input,select{

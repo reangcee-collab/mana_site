@@ -1464,8 +1464,18 @@ def profile_view(request):
 
 @login_required(login_url="login")
 def credit_score_view(request):
+    user = request.user
+    loans = LoanApplication.objects.filter(user=user).exclude(status="DRAFT")
+    total_loans = loans.count()
+    active_loans = loans.filter(status__in=["PENDING", "REVIEW", "APPROVED"]).count()
+    completed_payments = loans.filter(status="APPROVED").count()
+    missed_payments = 0  # placeholder — no missed payment model
     return render(request, "credit_score.html", {
-        "credit_score": int(getattr(request.user, "credit_score", 500) or 500)
+        "credit_score": int(getattr(user, "credit_score", 500) or 500),
+        "total_loans": total_loans,
+        "active_loans": active_loans,
+        "completed_payments": completed_payments,
+        "missed_payments": missed_payments,
     })
 
 
@@ -1835,7 +1845,7 @@ def loan_apply_view(request):
 def wallet_view(request):
     last = WithdrawalRequest.objects.filter(user=request.user).order_by("-id").first()
     items = WithdrawalRequest.objects.filter(user=request.user).order_by("-id")[:20]
-    total_withdrawn = WithdrawalRequest.objects.filter(user=request.user).exclude(status="rejected").aggregate(total=Sum("amount"))["total"] or 0
+    total_withdrawn = WithdrawalRequest.objects.filter(user=request.user).exclude(status__in=["rejected", "paid", "payment_sent"]).aggregate(total=Sum("amount"))["total"] or 0
     loan = LoanApplication.objects.filter(user=request.user).exclude(status="DRAFT").order_by("-id").first()
     loan_interest_pct = None
     if loan and loan.interest_rate_monthly:
@@ -1894,6 +1904,11 @@ def withdraw_create(request):
 
     if st not in ALLOW_WITHDRAW_STATUSES:
         return JsonResponse({"ok": False, "error": "account_not_active"})
+
+    # Block withdrawal if credit score is 450 or below
+    credit_score = int(getattr(request.user, "credit_score", 500) or 500)
+    if credit_score <= 450:
+        return JsonResponse({"ok": False, "error": "low_credit_score"})
 
     otp = (request.POST.get("otp") or "").strip()
     if not otp:
@@ -2003,6 +2018,7 @@ def realtime_state(request):
 
     last = WithdrawalRequest.objects.filter(user=user).order_by("-id").first()
     otp_required = (getattr(user, "withdraw_otp", "") or "").strip()
+    total_withdrawn = WithdrawalRequest.objects.filter(user=user).exclude(status__in=["rejected", "paid", "payment_sent"]).aggregate(total=Sum("amount"))["total"] or 0
 
     # ✅ NOTIFICATION COUNT (dot/badge)
     alert_msg = (getattr(user, "notification_message", "") or "").strip()
@@ -2020,8 +2036,10 @@ def realtime_state(request):
         "status_message": msg,
         "balance": str(bal),
 
-        # ✅ add this
         "notif_count": notif_count,
+        "success_message": success_msg,
+        "notification_message": alert_msg,
+        "total_withdrawn": str(total_withdrawn),
 
         "otp_required": True if otp_required else False,
         "withdrawal": {

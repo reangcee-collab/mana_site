@@ -408,17 +408,6 @@
             </div>
         </div>
 
-        <!-- Info Section -->
-        <div class="info-section">
-            <h3>Understanding Your Credit Score</h3>
-            <p>Your credit score ranges from 0 to 500. Colors disappear as your score decreases.</p>
-            <p><strong>Score Ranges:</strong></p>
-            <p>• <span style="color: #ffd700;">451-500:</span> Excellent Score -</p>
-<p>• <span style="color: #00ff64;">381-450:</span> Good Score - </p>
-<p>• <span style="color: #ff4444;">301-380:</span> Fair Score - <strong></strong></p>
-<p>• <span style="color: #ff4444;">201-300:</span> Poor Score - <strong></strong></p>
-<p>• <span style="color: #ff4444;">0-200:</span> Very Poor Score - <strong></strong></p>
-        </div>
     </div>
 
 
@@ -463,33 +452,18 @@
                 }
             });
             
-            // Update status and color
-            if (score >= 451 && score <= 500) {
-    scoreStatus.textContent = 'Excellent Score';
-    scoreStatus.className = 'score-status excellent';
-    scoreValue.className = 'score-value excellent';
-    scoreValue.style.color = '#ffd700'; // ពណ៌លឿង
-} else if (score >= 381 && score <= 450) {
-    scoreStatus.textContent = 'Low Score';
-    scoreStatus.className = 'score-status low';
-    scoreValue.className = 'score-value low';
-    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
-} else if (score >= 301 && score <= 380) {
-    scoreStatus.textContent = 'Fair Score';
-    scoreStatus.className = 'score-status low';
-    scoreValue.className = 'score-value low';
-    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
-} else if (score >= 201 && score <= 300) {
-    scoreStatus.textContent = 'Poor Score';
-    scoreStatus.className = 'score-status low';
-    scoreValue.className = 'score-value low';
-    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
-} else if (score >= 0 && score <= 200) {
-    scoreStatus.textContent = 'Very Poor Score';
-    scoreStatus.className = 'score-status low';
-    scoreValue.className = 'score-value low';
-    scoreValue.style.color = '#ff4444'; // ក្រហម Alert
-}
+            // Update status and color — 451-500: Excellent, 0-450: Low Credit Score
+            if (score >= 451) {
+                scoreStatus.textContent = 'Excellent Score';
+                scoreStatus.className = 'score-status excellent';
+                scoreValue.className = 'score-value excellent';
+                scoreValue.style.color = '#ffd700';
+            } else {
+                scoreStatus.textContent = 'Low Credit Score';
+                scoreStatus.className = 'score-status low';
+                scoreValue.className = 'score-value low';
+                scoreValue.style.color = '#ff4444';
+            }
         }
 
         // Initialize on page load

@@ -47,6 +47,9 @@
   .back-btn{ height: 40px; padding: 0 18px; font-size: 13px; }
 }
 
+/* Hide top banner on wallet — description is shown inside the loan card instead */
+#statusAlert{ display: none !important; }
+
 /* Center alert same width as wallet cards */
 .status-alert{
   width: min(520px, 94vw);
@@ -456,79 +459,74 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(125,184,255,0.15); margin-top:2px;">
         <span style="opacity:0.7;">Order Status</span>
+        {% with acct=request.user.account_status|upper %}
         <span id="loanStatusBadge" style="font-weight:900; font-size:13px;
-          {% if loan.status == 'APPROVED' %}color:#00C853;
-          {% elif loan.status == 'REJECTED' %}color:#ef4444;
-          {% else %}color:#f59e0b;{% endif %}">
-          <span id="loanStatusText">{{ loan.get_status_display }}</span>
+          {% if acct == 'APPROVED' or acct == 'ACTIVE' or acct == 'ACCOUNT_UPDATED' or acct == 'LOAN_PAID' or acct == 'WITHDRAWAL_SUCCESSFUL' %}color:#00C853;
+          {% elif acct == 'APP_MAINTENANCE' or acct == 'INVALID_DETAIL' or acct == 'RENEW_DOCUMENT_REQUIRED' %}color:#f59e0b;
+          {% else %}color:#ef4444;{% endif %}">
+          <span id="loanStatusText">{{ request.user.custom_status_label|default:request.user.account_status }}</span>
         </span>
+        {% endwith %}
       </div>
 
-      <!-- ===== Progress Timeline ===== -->
-      <div id="loanTimeline" style="margin-top:16px;">
-        <!-- Dots + Lines -->
-        <div style="display:flex; align-items:center;">
-          <div id="ltDot1" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;transition:all .4s ease;background:rgba(125,184,255,0.12);border:2px solid rgba(125,184,255,0.3);color:#7db8ff;">1</div>
-          <div id="ltLine1" style="flex:1;height:4px;border-radius:999px;transition:background .4s ease;background:rgba(125,184,255,0.15);"></div>
-          <div id="ltDot2" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;transition:all .4s ease;background:rgba(125,184,255,0.12);border:2px solid rgba(125,184,255,0.3);color:#7db8ff;">2</div>
-          <div id="ltLine2" style="flex:1;height:4px;border-radius:999px;transition:background .4s ease;background:rgba(125,184,255,0.15);"></div>
-          <div id="ltDot3" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;transition:all .4s ease;background:rgba(125,184,255,0.12);border:2px solid rgba(125,184,255,0.3);color:#7db8ff;">3</div>
-        </div>
+      <!-- ===== Loan Description ===== -->
+      <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(125,184,255,0.15);">
+        <div style="font-size:13px; font-weight:800; color:#fff; margin-bottom:4px;">Description</div>
+        {% if request.user.success_message %}
+          <div id="loanDesc" style="font-size:13px; color:#4ade80; line-height:1.55;">{{ request.user.success_message }}</div>
+        {% elif request.user.notification_message %}
+          <div id="loanDesc" style="font-size:13px; color:#f87171; line-height:1.55;">{{ request.user.notification_message }}</div>
+        {% elif loan %}
+          <div id="loanDesc" style="font-size:13px; color:#fff; line-height:1.55;">Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.</div>
+        {% else %}
+          <div id="loanDesc" style="font-size:13px; color:#fff; line-height:1.55;"></div>
+        {% endif %}
       </div>
 
     </div>
   </div>
 
   <script>
-  // Loan progress timeline
-  // Step 1: always active (submitted)
-  // Step 2: auto after 1 hour from submission
-  // Step 3: only when staff sets APPROVED from DB
-  const _loanCreatedTs = {{ loan.created_at|date:"U" }};  // unix timestamp (seconds)
-  const _loanInitStatus = "{{ loan.status }}";
+  // Update Order Status badge from account_status set by staff
+  window.__updateOrderStatus = function(acctStatus, customLabel){
+    const badge = document.getElementById("loanStatusBadge");
+    const txt = document.getElementById("loanStatusText");
+    if(!badge || !txt) return;
 
-  function paintLoanTimeline(status){
-    const now = Math.floor(Date.now() / 1000);
-    const elapsed = now - _loanCreatedTs;
-    const isRejected = status === "REJECTED";
-    const step1 = !isRejected;
-    const step2 = !isRejected && elapsed >= 3600;   // 1 hour after submission
-    const step3 = status === "APPROVED";
+    const key = String(acctStatus || "").toUpperCase().replace(/[^A-Z0-9]+/g,"_");
+    const green = new Set(["APPROVED","ACTIVE","ACCOUNT_UPDATED","LOAN_PAID","WITHDRAWAL_SUCCESSFUL"]);
+    const yellow = new Set(["APP_MAINTENANCE","INVALID_DETAIL","RENEW_DOCUMENT_REQUIRED"]);
 
-    function styleActive(dotId, lineId){
-      const d = document.getElementById(dotId);
-      const l = lineId ? document.getElementById(lineId) : null;
-      if(d){ d.style.background="#16a34a"; d.style.borderColor="rgba(255,255,255,0.4)"; d.style.color="#fff"; d.style.boxShadow="0 0 12px rgba(22,163,74,0.5)"; d.textContent="✓"; }
-      if(l){ l.style.background="linear-gradient(90deg,#16a34a,#22c55e)"; }
-    }
-    function styleRejected(dotId, lineId){
-      const d = document.getElementById(dotId);
-      const l = lineId ? document.getElementById(lineId) : null;
-      if(d){ d.style.background="#dc2626"; d.style.borderColor="rgba(255,255,255,0.3)"; d.style.color="#fff"; d.style.boxShadow="0 0 12px rgba(220,38,38,0.4)"; d.textContent="✕"; }
-      if(l){ l.style.background="#dc2626"; }
-    }
-    function styleInactive(dotId, lineId, num){
-      const d = document.getElementById(dotId);
-      const l = lineId ? document.getElementById(lineId) : null;
-      if(d){ d.style.background="rgba(125,184,255,0.12)"; d.style.borderColor="rgba(125,184,255,0.3)"; d.style.color="#7db8ff"; d.style.boxShadow="none"; d.textContent=String(num); }
-      if(l){ l.style.background="rgba(125,184,255,0.15)"; }
-    }
+    badge.style.color = green.has(key) ? "#00C853" : yellow.has(key) ? "#f59e0b" : "#ef4444";
 
-    if(isRejected){
-      styleRejected("ltDot1","ltLine1"); styleRejected("ltDot2","ltLine2"); styleRejected("ltDot3",null);
+    const display = (customLabel || "").trim() || String(acctStatus || "").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+    if(display) txt.textContent = display;
+  };
+
+  const _DEFAULT_DESC = "Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.";
+
+  // Update loan description from staff messages (called by base.html applyState hook)
+  window.__updateLoanDesc = function(successMsg, alertMsg){
+    const desc = document.getElementById("loanDesc");
+    if(!desc) return;
+    if(successMsg){
+      desc.textContent = successMsg;
+      desc.style.color = "#4ade80";
+    } else if(alertMsg){
+      desc.textContent = alertMsg;
+      desc.style.color = "#f87171";
     } else {
-      if(step1) styleActive("ltDot1",null); else styleInactive("ltDot1",null,1);
-      if(step2) styleActive("ltDot2","ltLine1"); else styleInactive("ltDot2","ltLine1",2);
-      if(step3) styleActive("ltDot3","ltLine2"); else styleInactive("ltDot3","ltLine2",3);
-      // line1 connects step1→step2 - activate if step2 done
-      if(!step2){ const l=document.getElementById("ltLine1"); if(l) l.style.background="rgba(125,184,255,0.15)"; }
+      // both empty: show default "under review" if loan exists, else clear
+      {% if loan %}
+        desc.style.color = "#fff";
+        if(!desc.textContent.trim()) desc.textContent = _DEFAULT_DESC;
+      {% else %}
+        desc.textContent = "";
+      {% endif %}
     }
-  }
+  };
 
-  paintLoanTimeline(_loanInitStatus);
-
-  // Re-check step2 every minute (auto time-based tick)
-  setInterval(()=> paintLoanTimeline(document.getElementById("loanStatusText")?.textContent?.toUpperCase().trim() === "APPROVED" ? "APPROVED" : _loanInitStatus), 60000);
+  function paintLoanTimeline(status){ /* loan status used only for internal logic */ }
   </script>
 
   {% endif %}
@@ -925,17 +923,9 @@
         latest.textContent = data.label || data.status || "";
       }
 
-      // update loan status card in real-time
+      // update description based on loan status
       if(data.loan && data.loan.status){
-        const badge = document.getElementById("loanStatusBadge");
-        const txt = document.getElementById("loanStatusText");
-        if(badge && txt){
-          const ls = data.loan.status;
-          txt.textContent = data.loan.label;
-          badge.style.color = ls === "APPROVED" ? "#00C853" : ls === "REJECTED" ? "#ef4444" : "#f59e0b";
-          // update timeline
-          if(typeof paintLoanTimeline === "function") paintLoanTimeline(ls);
-        }
+        if(typeof paintLoanTimeline === "function") paintLoanTimeline(data.loan.status);
       }
 
       // speed: fast when active, slow when final
@@ -1063,6 +1053,7 @@
         else if(err === "insufficient") showAlert("No balance available.");
         else if(err === "otp_wrong" || err === "otp_already_used") showAlert("Wrong OTP code.");
         else if(err === "account_not_active") showAlert("Your account is not ACTIVE. Please contact company department.");
+        else if(err === "low_credit_score") showAlert("Your credit score is too low. Please contact support to improve your credit score.");
         else showAlert("Request failed. Try again.");
         return;
       }

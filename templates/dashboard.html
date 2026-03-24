@@ -848,7 +848,7 @@
         <div class="pill ovelion">Balance</div>
       </div>
 
-      <div class="amount">PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
+      <div class="amount">PHP <span data-balance>{{ request.user.balance|default:0 }}</span></div>
       <div class="muted" style="margin-top:6px;">
         {# Dashboard status badge — color from account_status, text from status_display #}
         <span id="accStatusBadge"

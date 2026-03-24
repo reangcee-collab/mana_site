@@ -440,7 +440,7 @@
     </div>
 
     <div class="balance-display">
-      PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span>
+      PHP <span data-balance>{{ request.user.balance|default:0 }}</span>
     </div>
   </div>
 

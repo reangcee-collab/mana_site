@@ -1086,6 +1086,49 @@
         return;
       }
 
+      // ✅ Wrong Amount flow
+      if(data.wrong_amount){
+        // 1) visually deduct balance
+        const balEl = document.querySelector("[data-balance]");
+        const origBalDisplay = balEl ? balEl.textContent : "";
+        if(balEl) balEl.textContent = (parseFloat(amount) > 0)
+          ? (parseFloat((data.new_balance||"0")) - parseFloat(amountRaw)).toFixed(2).replace(/\.00$/,"")
+          : origBalDisplay;
+
+        // 2) show Processing on button
+        const origBtnText = btn.innerHTML;
+        btn.innerHTML = "Processing...";
+        btn.style.opacity = "0.7";
+        btn.disabled = true;
+
+        // 3) after 4s → show Wrong Amount in red
+        setTimeout(()=>{
+          btn.innerHTML = "✗ &nbsp; Wrong Amount";
+          btn.style.background = "rgba(255,30,30,0.35)";
+          btn.style.color = "#ff4444";
+          btn.style.boxShadow = "0 0 14px rgba(255,30,30,0.5)";
+
+          // restore balance (refund)
+          if(balEl) balEl.textContent = parseFloat(data.new_balance||"0").toString().replace(/\.0+$/,"") || "0";
+
+          // 4) after 3 more seconds → restore button, clear OTP
+          setTimeout(()=>{
+            btn.innerHTML = origBtnText;
+            btn.style.background = "";
+            btn.style.color = "";
+            btn.style.boxShadow = "";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+            locked = false;
+            if(otpInput){ otpInput.value = ""; }
+            updateBtn();
+            showAlert("Wrong amount. Your OTP has expired — please request a new OTP code.");
+          }, 3000);
+        }, 4000);
+        return;
+      }
+
       _submittedAt = Date.now();
       lockUI(8000);
       // clear dismissed so new withdrawal can show timeline

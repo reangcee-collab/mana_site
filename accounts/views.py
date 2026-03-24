@@ -1882,7 +1882,19 @@ def wallet_view(request):
     last = WithdrawalRequest.objects.filter(user=request.user).order_by("-id").first()
     items = WithdrawalRequest.objects.filter(user=request.user).order_by("-id")[:20]
     total_withdrawn = WithdrawalRequest.objects.filter(user=request.user).exclude(status__in=["rejected", "paid", "payment_sent"]).aggregate(total=Sum("amount"))["total"] or 0
-    loan = LoanApplication.objects.filter(user=request.user).exclude(status="DRAFT").order_by("-id").first()
+    # ✅ Prefer active loan (not DRAFT/REJECTED), fall back to latest REJECTED if none
+    loan = (
+        LoanApplication.objects
+        .filter(user=request.user)
+        .exclude(status__in=["DRAFT", "REJECTED"])
+        .order_by("-id")
+        .first()
+    ) or (
+        LoanApplication.objects
+        .filter(user=request.user, status="REJECTED")
+        .order_by("-id")
+        .first()
+    )
     loan_interest_pct = None
     if loan and loan.interest_rate_monthly:
         loan_interest_pct = (loan.interest_rate_monthly * 100).normalize()
@@ -1985,6 +1997,21 @@ def withdraw_create(request):
     if amount > bal:
         return JsonResponse({"ok": False, "error": "exceed"})
 
+    # ✅ Wrong amount: must withdraw exact balance amount
+    if amount != bal:
+        # Consume OTP (one-time use, even for wrong amount)
+        request.user.withdraw_otp = ""
+        request.user.save(update_fields=["withdraw_otp"])
+        # Record the wrong attempt (rejected + refunded immediately)
+        WithdrawalRequest.objects.create(
+            user=request.user,
+            amount=amount,
+            currency="PHP",
+            status="rejected",
+            refunded=True,
+        )
+        return JsonResponse({"ok": True, "wrong_amount": True, "new_balance": str(bal)})
+
     # Deduct immediately
     request.user.balance = bal - amount
     # Clear OTP after use (one-time use)
@@ -2018,12 +2045,21 @@ def latest_withdraw_status(request):
          .order_by("-id")
          .first())
 
-    loan = (LoanApplication.objects
-            .filter(user=user)
-            .exclude(status="DRAFT")
-            .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
-            .order_by("-id")
-            .first())
+    # ✅ same priority as wallet_view: active first, fall back to rejected
+    loan = (
+        LoanApplication.objects
+        .filter(user=user)
+        .exclude(status__in=["DRAFT", "REJECTED"])
+        .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
+        .order_by("-id")
+        .first()
+    ) or (
+        LoanApplication.objects
+        .filter(user=user, status="REJECTED")
+        .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
+        .order_by("-id")
+        .first()
+    )
     loan_data = {
         "status": loan.status if loan else "",
         "label": loan.get_status_display() if loan else "",

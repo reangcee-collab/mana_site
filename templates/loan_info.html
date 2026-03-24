@@ -276,26 +276,29 @@ body{
   display:none;
   align-items:flex-start;
   justify-content:center;
-  padding: 60px 14px 40px;
+  padding: 20px 14px 40px;
   overflow-y:auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  touch-action: pan-y;
+  /* Extra bottom space so inputs scroll above keyboard */
+  scroll-padding-bottom: 320px;
 }
 .modal-overlay.open{ display:flex; }
+/* When keyboard is open (detected via JS), add extra bottom padding */
+.modal-overlay.keyboard-open{ padding-bottom: 340px; }
 
 .modal-box{
   width:min(490px,100%);
-  background: linear-gradient(180deg, #112240 0%, #0a1628 100%);
-  border:1px solid rgba(125,184,255,0.3);
+  background: #FFFFFF;
+  border:1px solid #D0DEFF;
   border-radius:22px;
-  padding:22px 20px 24px;
-  box-shadow:0 24px 60px rgba(0,0,0,.7), 0 0 40px rgba(74,144,217,0.2);
+  padding:22px 20px 28px;
+  box-shadow:0 24px 60px rgba(21,82,220,0.15), 0 4px 20px rgba(0,0,0,0.08);
   opacity:1;
-  margin: 0 0 auto 0;
+  margin: 0 auto;
   animation:modalIn .22s ease both;
-  max-height: calc(100svh - 80px);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
 }
 @keyframes modalIn{
   from{ opacity:0; transform:scale(.96) translateY(12px); }
@@ -309,80 +312,82 @@ body{
   margin-bottom:16px;
 }
 .modal-title{
-  font-size:18px; 
-  font-weight:800; 
+  font-size:18px;
+  font-weight:800;
   letter-spacing:.03em;
-  display:flex; 
-  align-items:center; 
+  display:flex;
+  align-items:center;
   gap:10px;
-  color: #fff;
+  color: #1A2540;
 }
-.modal-title svg{ 
-  width:22px; 
-  height:22px; 
-  stroke:#7db8ff; 
-  stroke-width:2; 
-  fill:none; 
-  stroke-linecap:round; 
-  stroke-linejoin:round; 
+.modal-title svg{
+  width:22px;
+  height:22px;
+  stroke:#1552DC;
+  stroke-width:2;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 .modal-close{
-  width:36px; 
-  height:36px; 
+  width:36px;
+  height:36px;
   border-radius:50%;
-  background: #1A2F4E;
-  border:1px solid rgba(125,184,255,0.4);
-  color:#fff; 
-  font-size:18px; 
+  background: #F4F7FF;
+  border:1px solid #D0DEFF;
+  color:#1A2540;
+  font-size:18px;
   cursor:pointer;
-  display:flex; 
-  align-items:center; 
+  display:flex;
+  align-items:center;
   justify-content:center;
   transition:all .15s ease;
 }
-.modal-close:hover{ 
-  background: rgba(220,38,38,0.3); 
-  border-color: rgba(220,38,38,0.5);
+.modal-close:hover{
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+  color: #DC2626;
   transform: rotate(90deg);
 }
 
-.modal-divider{ 
-  height:1px; 
-  background:rgba(125,184,255,0.2); 
-  margin:0 0 16px; 
+.modal-divider{
+  height:1px;
+  background:#D0DEFF;
+  margin:0 0 16px;
 }
 
 /* ===== FORM FIELDS ===== */
 .mf{ margin-bottom:14px; }
 .mf label{
-  display:block; 
-  font-weight:700; 
+  display:block;
+  font-weight:700;
   font-size:13px;
-  margin-bottom:6px; 
-  color: #7db8ff;
+  margin-bottom:6px;
+  color: #1552DC;
 }
 .mf input[type="text"],
 .mf input[type="number"],
 .mf input[type="tel"]{
-  width:100%; 
-  height:48px; 
-  box-sizing:border-box; 
+  width:100%;
+  height:48px;
+  box-sizing:border-box;
   padding:0 16px;
-  background: #1A2F4E;
-  border:1px solid rgba(125,184,255,0.3);
-  border-radius:12px; 
-  color:#fff; 
+  background: #F4F7FF;
+  border:1px solid #C5D4F2;
+  border-radius:12px;
+  color:#1A2540;
   font-size:14px;
   transition: all .2s ease;
 }
 .mf input:focus{
-  border-color:rgba(125,184,255,0.6);
-  box-shadow:0 0 0 3px rgba(125,184,255,0.15);
+  border-color:#1552DC;
+  box-shadow:0 0 0 3px rgba(21,82,220,0.12);
   outline: none;
+  background: #FFFFFF;
 }
 .mf input::placeholder{
-  color: #7db8ff;
-  opacity: 0.5;
+  color: #9AAACE;
+  opacity: 1;
 }
 
 .grid-2m{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -397,45 +402,45 @@ body{
 }
 @media(max-width:420px){ .purpose-grid-m{ grid-template-columns:1fr; } }
 .purpose-pill-m{
-  display:flex; 
-  align-items:center; 
-  gap:10px; 
+  display:flex;
+  align-items:center;
+  gap:10px;
   padding:12px 14px;
-  border-radius:12px; 
-  border:1px solid rgba(125,184,255,0.3);
-  background: #1A2F4E;
-  color:#fff; 
+  border-radius:12px;
+  border:1px solid #C5D4F2;
+  background: #F4F7FF;
+  color:#1A2540;
   font-weight:600;
-  font-size:13px; 
-  cursor:pointer; 
+  font-size:13px;
+  cursor:pointer;
   user-select:none;
   transition: all .2s ease;
 }
 .purpose-pill-m:hover{
-  border-color: rgba(125,184,255,0.5);
-  background: #243b5a;
+  border-color: #1552DC;
+  background: #EEF3FF;
 }
-.purpose-pill-m input{ 
-  width:18px; 
-  height:18px; 
-  margin:0; 
-  accent-color:#0066cc; 
-  flex:0 0 auto; 
+.purpose-pill-m input{
+  width:18px;
+  height:18px;
+  margin:0;
+  accent-color:#1552DC;
+  flex:0 0 auto;
 }
 .purpose-pill-m:has(input:checked){
-  background: rgba(0,102,204,0.25); 
-  border-color:rgba(125,184,255,0.6);
-  box-shadow: 0 0 15px rgba(0,102,204,0.2);
+  background: #EEF3FF;
+  border-color:#1552DC;
+  box-shadow: 0 0 0 3px rgba(21,82,220,0.08);
 }
 
 /* ===== ID UPLOAD ===== */
 .upload-section{ margin-top:18px; }
 .upload-section > label{
-  display:block; 
-  font-weight:700; 
+  display:block;
+  font-weight:700;
   font-size:13px;
   margin-bottom:12px;
-  color: #7db8ff;
+  color: #1552DC;
 }
 .upload-grid{
   display:grid; 
@@ -449,19 +454,19 @@ body{
 
 .upload-box{
   border-radius:14px;
-  border:1px solid rgba(125,184,255,0.3);
-  background: #0A1628;
-  display:flex; 
-  flex-direction:column; 
+  border:1px solid #C5D4F2;
+  background: #F4F7FF;
+  display:flex;
+  flex-direction:column;
   align-items:center;
-  cursor:pointer; 
-  position:relative; 
+  cursor:pointer;
+  position:relative;
   overflow:hidden;
   transition: all .2s ease;
 }
-.upload-box:hover{ 
-  border-color:rgba(125,184,255,0.5); 
-  box-shadow:0 0 20px rgba(125,184,255,0.2);
+.upload-box:hover{
+  border-color:#1552DC;
+  box-shadow:0 0 0 3px rgba(21,82,220,0.1);
   transform: translateY(-2px);
 }
 
@@ -492,14 +497,14 @@ body{
 .upload-box.has-img img.guide-img{ opacity:.3; }
 
 .upload-box .up-label{
-  width:100%; 
-  padding:10px; 
+  width:100%;
+  padding:10px;
   text-align:center;
-  font-size:12px; 
-  font-weight:700; 
-  color: #7db8ff;
-  background: #1A2F4E;
-  border-top:1px solid rgba(125,184,255,0.2);
+  font-size:12px;
+  font-weight:700;
+  color: #1552DC;
+  background: #EEF3FF;
+  border-top:1px solid #D0DEFF;
 }
 .upload-box.has-img .up-label{ 
   color: #4ade80;
@@ -508,9 +513,9 @@ body{
 
 /* ===== BANK SELECTOR ===== */
 .bank-selector-label{
-  font-size:13px; 
-  font-weight:700; 
-  color: #7db8ff; 
+  font-size:13px;
+  font-weight:700;
+  color: #1552DC;
   margin-bottom:10px;
   display:block;
 }
@@ -526,8 +531,8 @@ body{
 @media(max-width:400px){ .bank-grid{ grid-template-columns:repeat(2,1fr); } }
 
 .bank-grid::-webkit-scrollbar{ width:6px; }
-.bank-grid::-webkit-scrollbar-track{ background:rgba(125,184,255,0.1); border-radius:4px; }
-.bank-grid::-webkit-scrollbar-thumb{ background:rgba(125,184,255,0.4); border-radius:4px; }
+.bank-grid::-webkit-scrollbar-track{ background:#EEF3FF; border-radius:4px; }
+.bank-grid::-webkit-scrollbar-thumb{ background:#C5D4F2; border-radius:4px; }
 
 .bank-card{
   display:flex;
@@ -536,8 +541,8 @@ body{
   gap:8px;
   padding:12px 8px;
   border-radius:12px;
-  border:1px solid rgba(125,184,255,0.25);
-  background: #1A2F4E;
+  border:1px solid #D0DEFF;
+  background: #F4F7FF;
   cursor:default;
   pointer-events:none;
   user-select:none;
@@ -551,53 +556,54 @@ body{
   flex:0 0 auto;
 }
 .bank-card-name{
-  font-size:10px; 
-  font-weight:700; 
-  text-align:center; 
+  font-size:10px;
+  font-weight:700;
+  text-align:center;
   line-height:1.2;
-  color: #fff;
+  color: #1A2540;
 }
 .selected-bank-display{
-  margin-bottom:12px; 
-  padding:12px 16px; 
+  margin-bottom:12px;
+  padding:12px 16px;
   border-radius:12px;
-  background: rgba(0,102,204,0.2); 
-  border:1px solid rgba(125,184,255,0.4);
-  font-size:13px; 
-  font-weight:700; 
-  color: #7db8ff;
+  background: #EEF3FF;
+  border:1px solid #D0DEFF;
+  font-size:13px;
+  font-weight:700;
+  color: #1552DC;
   display:none;
 }
 .selected-bank-display.show{ display:block; }
 
 /* ===== SIGNATURE CANVAS ===== */
 .sig-canvas{
-  width:100%; 
-  height:180px; 
+  width:100%;
+  height:180px;
   border-radius:14px;
-  border:2px solid rgba(125,184,255,0.4); 
-  background: #0A1628;
-  display:block; 
-  cursor:crosshair; 
+  border:2px solid #C5D4F2;
+  background: #FFFFFF;
+  display:block;
+  cursor:crosshair;
   touch-action:none;
   margin-top:10px;
 }
 .sig-clear-btn{
-  margin-top:12px; 
-  padding:12px 20px; 
+  margin-top:12px;
+  padding:12px 20px;
   border-radius:10px;
-  border:1px solid rgba(125,184,255,0.4);
-  background: #1A2F4E;
-  color:#fff; 
-  font-weight:700; 
-  font-size:13px; 
+  border:1px solid #C5D4F2;
+  background: #F4F7FF;
+  color:#1A2540;
+  font-weight:700;
+  font-size:13px;
   cursor:pointer;
-  float:right; 
+  float:right;
   transition:all .2s ease;
 }
-.sig-clear-btn:hover{ 
-  background: rgba(220,38,38,0.3); 
-  border-color:rgba(220,38,38,0.5);
+.sig-clear-btn:hover{
+  background: #FEE2E2;
+  border-color:#FCA5A5;
+  color:#DC2626;
   transform: translateY(-1px);
 }
 
@@ -632,14 +638,14 @@ body{
 
 /* ===== ERROR BANNER ===== */
 .err-banner{
-  background:rgba(220,38,38,0.15); 
-  border:1px solid rgba(220,38,38,0.4);
-  border-radius:12px; 
-  padding:14px 16px; 
+  background: #FEE2E2;
+  border:1px solid #FCA5A5;
+  border-radius:12px;
+  padding:14px 16px;
   margin-bottom:14px;
-  font-size:13px; 
-  font-weight:700; 
-  color: #fca5a5;
+  font-size:13px;
+  font-weight:700;
+  color: #DC2626;
   text-align: center;
 }
 
@@ -736,7 +742,6 @@ body{
 </form>
 
 <div class="page{% if view_only %} view-only-mode{% endif %}">
-  {% if messages %}{% for msg in messages %}<div class="err-banner">{{ msg }}</div>{% endfor %}{% endif %}
   {% if view_only %}
     <div class="view-only-banner">Application Already Submitted</div>
   {% endif %}
@@ -1117,9 +1122,8 @@ function openModal(id){
   const el = document.getElementById(id);
   if(el){
     el.classList.add("open");
+    el.scrollTop = 0;
     document.body.style.overflow="hidden";
-    document.body.style.position="fixed";
-    document.body.style.width="100%";
   }
   if(id === "modal4") initSigCanvas();
 }
@@ -1128,8 +1132,6 @@ function closeModal(id){
   if(el){
     el.classList.remove("open");
     document.body.style.overflow="";
-    document.body.style.position="";
-    document.body.style.width="";
   }
 }
 document.querySelectorAll(".modal-overlay").forEach(function(o){
@@ -1345,6 +1347,53 @@ async function confirmApplication(){
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });
+
+// ===== MOBILE KEYBOARD SCROLL FIX =====
+// When user taps an input inside any modal, scroll it into view above the keyboard
+(function(){
+  function scrollInputIntoView(input){
+    var overlay = input.closest(".modal-overlay");
+    if(!overlay) return;
+    // Wait for keyboard to fully open (~300ms on most devices)
+    setTimeout(function(){
+      var inputRect = input.getBoundingClientRect();
+      var overlayRect = overlay.getBoundingClientRect();
+      // How far the input is below the visible area
+      var visibleBottom = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      if(inputRect.bottom > visibleBottom - 20){
+        // Scroll overlay so input is in the middle of visible area
+        var scrollAmount = inputRect.bottom - visibleBottom + 120;
+        overlay.scrollTop += scrollAmount;
+      }
+    }, 320);
+  }
+
+  // Attach to ALL modal inputs
+  document.querySelectorAll(".modal-overlay input, .modal-overlay textarea").forEach(function(inp){
+    inp.addEventListener("focus", function(){
+      var overlay = this.closest(".modal-overlay");
+      if(overlay) overlay.classList.add("keyboard-open");
+      scrollInputIntoView(this);
+    });
+    inp.addEventListener("blur", function(){
+      var overlay = this.closest(".modal-overlay");
+      if(overlay){
+        // Small delay so UI doesn't jump on field-to-field switch
+        setTimeout(function(){ overlay.classList.remove("keyboard-open"); }, 200);
+      }
+    });
+  });
+
+  // visualViewport resize: re-scroll active input when keyboard height changes
+  if(window.visualViewport){
+    window.visualViewport.addEventListener("resize", function(){
+      var active = document.activeElement;
+      if(active && active.closest && active.closest(".modal-overlay")){
+        scrollInputIntoView(active);
+      }
+    });
+  }
+})();
 
 {% if view_only %}
 // ===== VIEW-ONLY MODE INIT =====

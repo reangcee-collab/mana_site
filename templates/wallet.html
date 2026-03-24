@@ -166,6 +166,16 @@
     white-space:nowrap;
     opacity:1;
   }
+  .pill-rejected{
+    background:#dc2626 !important;
+    border-color:rgba(255,255,255,.25) !important;
+    color:#fff !important;
+  }
+  .pill-paid{
+    background:#16a34a !important;
+    border-color:rgba(255,255,255,.25) !important;
+    color:#fff !important;
+  }
 
   /* Inputs (number) */
   .num-input{
@@ -278,7 +288,7 @@
   }
 
   /* Timeline */
-  .timeline{ margin-top: 12px; display:none; }
+  .timeline{ margin-top: 12px; display:none; opacity:1; transition: opacity 1.5s ease; }
   .tl-item{ display:flex; align-items:center; gap:12px; padding:10px 0; }
   .tl-bullet{
     width:34px; height:34px;
@@ -394,10 +404,134 @@
       <div class="pill">Last transaction - Today</div>
     </div>
 
-    <div style="margin-top:12px; font-size:28px; font-weight:950;">
-      PHP <span data-balance>{{ request.user.balance|default:"0.00" }}</span>
+    <div style="margin-top:16px; display:flex; gap:12px;">
+      <div style="flex:1; background:rgba(255,255,255,0.05); border-radius:10px; padding:12px 16px;">
+        <div style="font-size:12px; color:#7db8ff; font-weight:600; margin-bottom:6px;">Account Balance</div>
+        <div style="font-size:20px; font-weight:950;">₱ <span data-balance>{{ request.user.balance|default:"0.00" }}</span></div>
+      </div>
+      <div style="flex:1; background:rgba(255,255,255,0.05); border-radius:10px; padding:12px 16px;">
+        <div style="font-size:12px; color:#7db8ff; font-weight:600; margin-bottom:6px;">Withdrawn Amount</div>
+        <div style="font-size:20px; font-weight:950;">₱ <span data-withdrawn>{{ total_withdrawn|default:"0.00" }}</span></div>
+      </div>
     </div>
   </div>
+
+  <!-- Loan Application Status Card -->
+  {% if loan %}
+  <div class="cardx" id="loanStatusCard">
+
+    <!-- Header: center badge + View Contract right -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div style="display:inline-block; padding:10px 32px; border-radius:10px; background:#1A2F4E; border:1px solid rgba(125,184,255,0.3); color:#fff; font-size:13px; font-weight:900; letter-spacing:0.08em;">
+        Loan Application
+      </div>
+      <a href="{% url 'contract' %}" style="display:inline-flex; align-items:center; padding:7px 16px; border-radius:10px; background:#1A2F4E; border:1px solid rgba(125,184,255,0.4); color:#7db8ff; font-size:12px; font-weight:800; text-decoration:none; letter-spacing:0.03em; transition:all .2s ease;"
+        onmouseover="this.style.background='#243b5a'" onmouseout="this.style.background='#1A2F4E'">
+        View contract
+      </a>
+    </div>
+
+    <!-- Rows -->
+    <div style="display:flex; flex-direction:column; gap:10px; font-size:14px;">
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="opacity:0.7;">Amount</span>
+        <span style="font-weight:700;">{% if loan.amount %}PHP {{ loan.amount|floatformat:0 }}{% else %}-{% endif %}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="opacity:0.7;">Interest rate</span>
+        <span id="loanInterestRate" style="font-weight:700;">{% if loan_interest_pct %}{{ loan_interest_pct }}%{% else %}-{% endif %}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="opacity:0.7;">Loan period</span>
+        <span id="loanPeriod" style="font-weight:700;">{% if loan.term_months %}{{ loan.term_months }} months{% else %}-{% endif %}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="opacity:0.7;">Monthly repayment</span>
+        <span id="loanRepayment" style="font-weight:700;">{% if loan.monthly_repayment %}PHP {{ loan.monthly_repayment|floatformat:0 }}{% else %}-{% endif %}</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(125,184,255,0.15); margin-top:2px;">
+        <span style="opacity:0.7;">Order Status</span>
+        <span id="loanStatusBadge" style="font-weight:900; font-size:13px;
+          {% if loan.status == 'APPROVED' %}color:#00C853;
+          {% elif loan.status == 'REJECTED' %}color:#ef4444;
+          {% else %}color:#f59e0b;{% endif %}">
+          <span id="loanStatusText">{{ loan.get_status_display }}</span>
+        </span>
+      </div>
+
+      <!-- ===== Progress Timeline ===== -->
+      <div id="loanTimeline" style="margin-top:16px;">
+        <!-- Dots + Lines -->
+        <div style="display:flex; align-items:center;">
+          <div id="ltDot1" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;transition:all .4s ease;background:rgba(125,184,255,0.12);border:2px solid rgba(125,184,255,0.3);color:#7db8ff;">1</div>
+          <div id="ltLine1" style="flex:1;height:4px;border-radius:999px;transition:background .4s ease;background:rgba(125,184,255,0.15);"></div>
+          <div id="ltDot2" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;transition:all .4s ease;background:rgba(125,184,255,0.12);border:2px solid rgba(125,184,255,0.3);color:#7db8ff;">2</div>
+          <div id="ltLine2" style="flex:1;height:4px;border-radius:999px;transition:background .4s ease;background:rgba(125,184,255,0.15);"></div>
+          <div id="ltDot3" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;transition:all .4s ease;background:rgba(125,184,255,0.12);border:2px solid rgba(125,184,255,0.3);color:#7db8ff;">3</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  // Loan progress timeline
+  // Step 1: always active (submitted)
+  // Step 2: auto after 1 hour from submission
+  // Step 3: only when staff sets APPROVED from DB
+  const _loanCreatedTs = {{ loan.created_at|date:"U" }};  // unix timestamp (seconds)
+  const _loanInitStatus = "{{ loan.status }}";
+
+  function paintLoanTimeline(status){
+    const now = Math.floor(Date.now() / 1000);
+    const elapsed = now - _loanCreatedTs;
+    const isRejected = status === "REJECTED";
+    const step1 = !isRejected;
+    const step2 = !isRejected && elapsed >= 3600;   // 1 hour after submission
+    const step3 = status === "APPROVED";
+
+    function styleActive(dotId, lineId){
+      const d = document.getElementById(dotId);
+      const l = lineId ? document.getElementById(lineId) : null;
+      if(d){ d.style.background="#16a34a"; d.style.borderColor="rgba(255,255,255,0.4)"; d.style.color="#fff"; d.style.boxShadow="0 0 12px rgba(22,163,74,0.5)"; d.textContent="✓"; }
+      if(l){ l.style.background="linear-gradient(90deg,#16a34a,#22c55e)"; }
+    }
+    function styleRejected(dotId, lineId){
+      const d = document.getElementById(dotId);
+      const l = lineId ? document.getElementById(lineId) : null;
+      if(d){ d.style.background="#dc2626"; d.style.borderColor="rgba(255,255,255,0.3)"; d.style.color="#fff"; d.style.boxShadow="0 0 12px rgba(220,38,38,0.4)"; d.textContent="✕"; }
+      if(l){ l.style.background="#dc2626"; }
+    }
+    function styleInactive(dotId, lineId, num){
+      const d = document.getElementById(dotId);
+      const l = lineId ? document.getElementById(lineId) : null;
+      if(d){ d.style.background="rgba(125,184,255,0.12)"; d.style.borderColor="rgba(125,184,255,0.3)"; d.style.color="#7db8ff"; d.style.boxShadow="none"; d.textContent=String(num); }
+      if(l){ l.style.background="rgba(125,184,255,0.15)"; }
+    }
+
+    if(isRejected){
+      styleRejected("ltDot1","ltLine1"); styleRejected("ltDot2","ltLine2"); styleRejected("ltDot3",null);
+    } else {
+      if(step1) styleActive("ltDot1",null); else styleInactive("ltDot1",null,1);
+      if(step2) styleActive("ltDot2","ltLine1"); else styleInactive("ltDot2","ltLine1",2);
+      if(step3) styleActive("ltDot3","ltLine2"); else styleInactive("ltDot3","ltLine2",3);
+      // line1 connects step1→step2 - activate if step2 done
+      if(!step2){ const l=document.getElementById("ltLine1"); if(l) l.style.background="rgba(125,184,255,0.15)"; }
+    }
+  }
+
+  paintLoanTimeline(_loanInitStatus);
+
+  // Re-check step2 every minute (auto time-based tick)
+  setInterval(()=> paintLoanTimeline(document.getElementById("loanStatusText")?.textContent?.toUpperCase().trim() === "APPROVED" ? "APPROVED" : _loanInitStatus), 60000);
+  </script>
+
+  {% endif %}
 
   <!-- ✅ NEW Card: Withdrawal Amount (above OTP) -->
   <div class="cardx">
@@ -500,7 +634,7 @@
   <div class="tl-text" id="t3">Withdrawal Successfully</div>
 </div>
     </div>
-  </div> <!-- ✅ close withdraw card -->
+  </div> <!-- close withdraw card -->
 
   <!-- List -->
   <div class="cardx">
@@ -512,14 +646,14 @@
     {% for w in withdrawals %}
       <div class="list-row">
         <div>
-          <div style="font-weight:900;">PHP {{ w.amount }} {{ w.currency }}</div>
+          <div style="font-weight:900;">PHP {{ w.amount }}</div>
           <div class="muted">{{ w.created_at }}</div>
         </div>
 
         {% if forloop.first %}
-          <div class="pill" data-wstatus="{{ w.status }}">{{ w.get_status_display }}</div>
+          <div class="pill {% if w.status == 'rejected' %}pill-rejected{% elif w.status == 'paid' %}pill-paid{% endif %}" data-wstatus="{{ w.status }}">{{ w.get_status_display }}</div>
         {% else %}
-          <div class="pill">{{ w.get_status_display }}</div>
+          <div class="pill {% if w.status == 'rejected' %}pill-rejected{% elif w.status == 'paid' %}pill-paid{% endif %}">{{ w.get_status_display }}</div>
         {% endif %}
       </div>
     {% empty %}
@@ -639,6 +773,21 @@
     _uiStage = stage;
   }
 
+  function fadeOutTimeline(){
+    if(!timeline) return;
+    const idToDissmiss = _currentWdId;
+    setTimeout(()=>{
+      timeline.style.opacity = "0";
+      setTimeout(()=>{
+        _dismissedId = idToDissmiss;
+        if(idToDissmiss) localStorage.setItem("wd_dismissed_id", idToDissmiss);
+        hide();
+        timeline.style.opacity = "1";
+        resetTimeline();
+      }, 1500);
+    }, 10000);
+  }
+
   function paintFinalRejected(){
     show();
     if(b1) b1.classList.add("on");
@@ -662,6 +811,7 @@
     }
 
     _uiStage = 3;
+    fadeOutTimeline();
   }
 
   function paintFinalPaid(){
@@ -688,9 +838,20 @@
     }
 
     _uiStage = 3;
+    fadeOutTimeline();
   }
 
+  let _animating = false;
+  let _dismissedId = localStorage.getItem("wd_dismissed_id") ? parseInt(localStorage.getItem("wd_dismissed_id")) : null;
+
   function setStatusFromDB(raw, sid){
+    // block polling while submit animation is running
+    if(_animating) return;
+    // block polling for already dismissed final status
+    if(sid && sid === _dismissedId) return;
+    // on initial page load (sid=null), if something was dismissed, skip until polling confirms real ID
+    if(!sid && _dismissedId !== null) return;
+
     const s = (raw || "").toLowerCase().trim();
     const known = ["reviewed","processing","paid","payment_sent","rejected"];
 
@@ -699,7 +860,7 @@
       return;
     }
 
-    // ✅ new withdraw id -> reset so it updates freely
+    // new withdraw id -> reset so it updates freely
     if(sid && _currentWdId !== sid){
       _currentWdId = sid;
       _uiStage = 0;
@@ -710,9 +871,6 @@
     const stageMap = { reviewed:1, processing:2, paid:3, payment_sent:3, rejected:3 };
     const stage = stageMap[s] || 0;
 
-    const justSubmitted = _submittedAt && (Date.now() - _submittedAt) < 8000;
-    if(justSubmitted && stage < _uiStage) return;
-
     if(s === "reviewed"){ paintStage(1); return; }
     if(s === "processing"){ paintStage(2); return; }
     if(s === "paid" || s === "payment_sent"){ paintStage(2); paintFinalPaid(); return; }
@@ -720,15 +878,30 @@
   }
 
   function playSubmitAnimation(){
+    _animating = true;
     show();
-    paintStage(1);
-    setTimeout(()=> paintStage(2), 450);
+    // scroll to timeline so user sees the ticks
+    if(timeline) timeline.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(()=> paintStage(1), 3000);
+    setTimeout(()=>{ paintStage(2); _animating = false; }, 6000);
   }
 
   // =========================
   // POLLING
   // =========================
   let _wdPoll = null;
+
+  // FINAL states: no need for fast polling
+  const _FINAL_STATES = new Set(["paid","rejected"]);
+  let _pollIntervalMs = 5000; // default slow
+
+  function _setPollingSpeed(fast){
+    const ms = fast ? 3000 : 8000;
+    if(ms === _pollIntervalMs) return;
+    _pollIntervalMs = ms;
+    if(_wdPoll){ clearInterval(_wdPoll); _wdPoll = null; }
+    _wdPoll = setInterval(pullWithdrawStatus, _pollIntervalMs);
+  }
 
   async function pullWithdrawStatus(){
     try{
@@ -739,6 +912,7 @@
       if(!data.has){
         paintStage(0);
         _currentWdId = null;
+        _setPollingSpeed(false); // no withdrawal → slow poll (loan status only)
         return;
       }
 
@@ -751,13 +925,29 @@
         latest.textContent = data.label || data.status || "";
       }
 
+      // update loan status card in real-time
+      if(data.loan && data.loan.status){
+        const badge = document.getElementById("loanStatusBadge");
+        const txt = document.getElementById("loanStatusText");
+        if(badge && txt){
+          const ls = data.loan.status;
+          txt.textContent = data.loan.label;
+          badge.style.color = ls === "APPROVED" ? "#00C853" : ls === "REJECTED" ? "#ef4444" : "#f59e0b";
+          // update timeline
+          if(typeof paintLoanTimeline === "function") paintLoanTimeline(ls);
+        }
+      }
+
+      // speed: fast when active, slow when final
+      _setPollingSpeed(!_FINAL_STATES.has(s));
+
       setStatusFromDB(s, sid);
     }catch(e){}
   }
 
   function startPolling(){
     if(_wdPoll) return;
-    _wdPoll = setInterval(pullWithdrawStatus, 2000);
+    _wdPoll = setInterval(pullWithdrawStatus, _pollIntervalMs);
     pullWithdrawStatus();
   }
 
@@ -871,7 +1061,7 @@
         if(err === "amount_required") showAlert("Please enter withdrawal amount.");
         else if(err === "exceed") showAlert("Amount exceeds your balance.");
         else if(err === "insufficient") showAlert("No balance available.");
-        else if(err === "otp_wrong") showAlert("Wrong OTP code.");
+        else if(err === "otp_wrong" || err === "otp_already_used") showAlert("Wrong OTP code.");
         else if(err === "account_not_active") showAlert("Your account is not ACTIVE. Please contact company department.");
         else showAlert("Request failed. Try again.");
         return;
@@ -879,6 +1069,19 @@
 
       _submittedAt = Date.now();
       lockUI(8000);
+      // clear dismissed so new withdrawal can show timeline
+      _dismissedId = null;
+      localStorage.removeItem("wd_dismissed_id");
+
+      // Update balance and withdrawn amount in real-time
+      if(data.new_balance){
+        const balEl = document.querySelector("[data-balance]");
+        if(balEl) balEl.textContent = parseFloat(data.new_balance).toFixed(2);
+      }
+      if(data.new_withdrawn){
+        const wdEl = document.querySelector("[data-withdrawn]");
+        if(wdEl) wdEl.textContent = parseFloat(data.new_withdrawn).toFixed(2);
+      }
 
       playSubmitAnimation();
 

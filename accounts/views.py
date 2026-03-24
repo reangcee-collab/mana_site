@@ -20,7 +20,7 @@ from .models import PaymentMethod
 from io import BytesIO
 from PIL import Image, ImageOps
 import os
-from django.db.models import Q, OuterRef, Subquery
+from django.db.models import Q, OuterRef, Subquery, Sum
 
 
 def normalize_upload_image(uploaded_file, *, max_side=1600, quality=78, out_format="WEBP"):
@@ -617,9 +617,9 @@ def staff_user_update(request, user_id):
         loan = (
             LoanApplication.objects
             .select_for_update()
-            .filter(user=u, credited_to_balance=False)
+            .filter(user=u)
             .exclude(amount__isnull=True)
-            .exclude(term_months__isnull=True)
+            .exclude(status="APPROVED")
             .order_by("-created_at")
             .first()
         )
@@ -627,14 +627,15 @@ def staff_user_update(request, user_id):
         if loan:
             amt = Decimal(str(loan.amount or "0"))
             if amt > 0:
-                u.balance = (Decimal(str(u.balance or "0")) + amt)
+                u.balance = Decimal(str(u.balance or "0")) + amt
+                u.save(update_fields=["balance"])
 
-            loan.status = "APPROVED"
-            loan.approved_at = timezone.now()
-            loan.credited_to_balance = True
-
-            loan.save(update_fields=["status", "approved_at", "credited_to_balance"])
-            u.save(update_fields=["balance"])
+            # Use queryset update to bypass custom LoanApplication.save() (image conversion)
+            LoanApplication.objects.filter(id=loan.id).update(
+                status="APPROVED",
+                approved_at=timezone.now(),
+                credited_to_balance=True,
+            )
 
     if is_ajax:
         return ok_json()
@@ -1526,7 +1527,7 @@ def loan_info_view(request):
     existing = (
         LoanApplication.objects
         .filter(user=request.user)
-        .exclude(status="REJECTED")
+        .exclude(status="DRAFT")
         .order_by("-id")
         .first()
     )
@@ -1834,7 +1835,12 @@ def loan_apply_view(request):
 def wallet_view(request):
     last = WithdrawalRequest.objects.filter(user=request.user).order_by("-id").first()
     items = WithdrawalRequest.objects.filter(user=request.user).order_by("-id")[:20]
-    return render(request, "wallet.html", {"last_withdrawal": last, "withdrawals": items})
+    total_withdrawn = WithdrawalRequest.objects.filter(user=request.user).exclude(status="rejected").aggregate(total=Sum("amount"))["total"] or 0
+    loan = LoanApplication.objects.filter(user=request.user).exclude(status="DRAFT").order_by("-id").first()
+    loan_interest_pct = None
+    if loan and loan.interest_rate_monthly:
+        loan_interest_pct = (loan.interest_rate_monthly * 100).normalize()
+    return render(request, "wallet.html", {"last_withdrawal": last, "withdrawals": items, "total_withdrawn": total_withdrawn, "loan": loan, "loan_interest_pct": loan_interest_pct})
 
 
 @login_required(login_url="login")
@@ -1930,7 +1936,9 @@ def withdraw_create(request):
 
     # Deduct immediately
     request.user.balance = bal - amount
-    request.user.save(update_fields=["balance"])
+    # Clear OTP after use (one-time use)
+    request.user.withdraw_otp = ""
+    request.user.save(update_fields=["balance", "withdraw_otp"])
 
     WithdrawalRequest.objects.create(
         user=request.user,
@@ -1939,7 +1947,9 @@ def withdraw_create(request):
         status="processing",
     )
 
-    return JsonResponse({"ok": True})
+    new_total_withdrawn = WithdrawalRequest.objects.filter(user=request.user).exclude(status="rejected").aggregate(total=Sum("amount"))["total"] or 0
+
+    return JsonResponse({"ok": True, "new_balance": str(request.user.balance), "new_withdrawn": str(new_total_withdrawn)})
 
 @staff_member_required
 @require_POST
@@ -1952,18 +1962,32 @@ def staff_withdrawal_delete(request, wid):
 def latest_withdraw_status(request):
     w = (WithdrawalRequest.objects
          .filter(user=request.user)
+         .only("id", "status", "updated_at")
          .order_by("-id")
          .first())
 
+    loan = (LoanApplication.objects
+            .filter(user=request.user)
+            .exclude(status="DRAFT")
+            .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
+            .order_by("-id")
+            .first())
+    loan_data = {
+        "status": loan.status if loan else "",
+        "label": loan.get_status_display() if loan else "",
+        "amount": str(loan.amount) if loan and loan.amount else "",
+    }
+
     if not w:
-        return JsonResponse({"ok": True, "has": False})
+        return JsonResponse({"ok": True, "has": False, "loan": loan_data})
 
     return JsonResponse({
         "ok": True,
         "has": True,
         "id": w.id,
-        "status": (w.status or "").lower(),   # reviewed/processing/paid/rejected (or payment_sent)
+        "status": (w.status or "").lower(),
         "label": w.get_status_display(),
+        "loan": loan_data,
     })
 @login_required(login_url="login")
 def realtime_state(request):
@@ -2040,11 +2064,7 @@ def payment_method_view(request):
 
             messages.success(request, "Saved successfully. Your loan application is now submitted for review.")
 
-            next_page = (request.GET.get("next") or "").strip()
-            if next_page == "quick_loan":
-                return redirect(reverse("quick_loan") + "?done=1")
-
-            return redirect(reverse("quick_loan") + "?done=1")
+            return redirect(reverse("wallet"))
 
         return render(request, "payment_method.html", {"form": form, "locked": obj.locked, "saved": False})
 

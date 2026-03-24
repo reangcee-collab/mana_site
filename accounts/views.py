@@ -1547,7 +1547,7 @@ def loan_info_view(request):
 
     if existing:
         messages.info(request, "You already have an active application.")
-        return redirect("quick_loan")
+        return redirect("wallet")
 
     # Collect all form data
     full_name = (request.POST.get("full_name") or "").strip()
@@ -1672,7 +1672,7 @@ def loan_info_view(request):
             pm.locked = True
             pm.save()
 
-    return redirect(reverse("quick_loan") + "?done=1")
+    return redirect(reverse("wallet"))
 
 
 @login_required(login_url="login")

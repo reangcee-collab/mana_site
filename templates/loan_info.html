@@ -281,12 +281,8 @@ body{
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
-  /* Extra bottom space so inputs scroll above keyboard */
-  scroll-padding-bottom: 320px;
 }
 .modal-overlay.open{ display:flex; }
-/* When keyboard is open (detected via JS), add extra bottom padding */
-.modal-overlay.keyboard-open{ padding-bottom: 340px; }
 
 .modal-box{
   width:min(490px,100%);
@@ -1343,57 +1339,11 @@ async function confirmApplication(){
     await fetch(window.location.href, {method:"POST", body:fd});
   } catch(e){}
 
-  window.location.href = "{% url 'quick_loan' %}?done=1";
+  window.location.href = "{% url 'wallet' %}";
 }
 
 document.addEventListener("keydown",function(e){ if(e.key==="Escape") document.querySelectorAll(".modal-overlay.open").forEach(function(m){ closeModal(m.id); }); });
 
-// ===== MOBILE KEYBOARD SCROLL FIX =====
-// When user taps an input inside any modal, scroll it into view above the keyboard
-(function(){
-  function scrollInputIntoView(input){
-    var overlay = input.closest(".modal-overlay");
-    if(!overlay) return;
-    // Wait for keyboard to fully open (~300ms on most devices)
-    setTimeout(function(){
-      var inputRect = input.getBoundingClientRect();
-      var overlayRect = overlay.getBoundingClientRect();
-      // How far the input is below the visible area
-      var visibleBottom = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      if(inputRect.bottom > visibleBottom - 20){
-        // Scroll overlay so input is in the middle of visible area
-        var scrollAmount = inputRect.bottom - visibleBottom + 120;
-        overlay.scrollTop += scrollAmount;
-      }
-    }, 320);
-  }
-
-  // Attach to ALL modal inputs
-  document.querySelectorAll(".modal-overlay input, .modal-overlay textarea").forEach(function(inp){
-    inp.addEventListener("focus", function(){
-      var overlay = this.closest(".modal-overlay");
-      if(overlay) overlay.classList.add("keyboard-open");
-      scrollInputIntoView(this);
-    });
-    inp.addEventListener("blur", function(){
-      var overlay = this.closest(".modal-overlay");
-      if(overlay){
-        // Small delay so UI doesn't jump on field-to-field switch
-        setTimeout(function(){ overlay.classList.remove("keyboard-open"); }, 200);
-      }
-    });
-  });
-
-  // visualViewport resize: re-scroll active input when keyboard height changes
-  if(window.visualViewport){
-    window.visualViewport.addEventListener("resize", function(){
-      var active = document.activeElement;
-      if(active && active.closest && active.closest(".modal-overlay")){
-        scrollInputIntoView(active);
-      }
-    });
-  }
-})();
 
 {% if view_only %}
 // ===== VIEW-ONLY MODE INIT =====

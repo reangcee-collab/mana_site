@@ -1145,6 +1145,48 @@ function buildStatusGrid(){
 
   green.appendChild(approvedBtn);
 
+  // ✅ REJECTED LOAN button (red) — rejects user's latest loan application
+  const rejectedBtn = document.createElement("button");
+  rejectedBtn.type = "button";
+  rejectedBtn.className = "st-opt st-red";
+  rejectedBtn.innerHTML = `<span>Rejected</span><span class="st-ico">›</span>`;
+  rejectedBtn.addEventListener("click", () => {
+    if(!__STATUS_TARGET_BTN) return;
+    const userId = __STATUS_TARGET_BTN.dataset.userId;
+
+    // Pre-fill alert message box if empty
+    const aBox = document.getElementById("stAlertMsg");
+    if(aBox && !aBox.value.trim()){
+      aBox.value = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information.";
+    }
+
+    // Reject loan via AJAX
+    fetch(`/staff/users/${userId}/loan/reject/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "",
+      },
+    })
+    .then(r => r.json())
+    .then(d => {
+      if(d.ok){
+        rejectedBtn.innerHTML = `<span>Rejected ✓</span><span class="st-ico">›</span>`;
+        rejectedBtn.style.opacity = "0.7";
+      } else {
+        rejectedBtn.innerHTML = `<span>No active loan</span><span class="st-ico">›</span>`;
+      }
+    })
+    .catch(() => {});
+
+    // Scroll to message area
+    const body = document.getElementById("stBody");
+    const wrap = document.getElementById("stMsgWrap");
+    if(body && wrap){
+      body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
+    }
+  });
+  red.appendChild(rejectedBtn);
+
   // ✅ keep your normal status choices (optional)
   // If you want ONLY Approved and NOTHING else -> delete everything below this comment.
   const CHOICES = [

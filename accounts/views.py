@@ -644,6 +644,24 @@ def staff_user_update(request, user_id):
     return back_redirect()
 
 
+@staff_member_required
+@require_POST
+@transaction.atomic
+def staff_user_loan_reject(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+    loan = (
+        LoanApplication.objects
+        .select_for_update()
+        .filter(user=u)
+        .exclude(status__in=["REJECTED", "DRAFT"])
+        .order_by("-id")
+        .first()
+    )
+    if loan:
+        LoanApplication.objects.filter(id=loan.id).update(status="REJECTED")
+        return JsonResponse({"ok": True, "loan_id": loan.id})
+    return JsonResponse({"ok": False, "error": "no_active_loan"})
+
 
 from django.db.models import OuterRef, Subquery, Value, CharField
 from django.db.models.functions import Coalesce

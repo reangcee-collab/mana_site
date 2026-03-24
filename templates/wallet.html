@@ -459,14 +459,12 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(125,184,255,0.15); margin-top:2px;">
         <span style="opacity:0.7;">Order Status</span>
-        {% with acct=request.user.account_status|upper %}
         <span id="loanStatusBadge" style="font-weight:900; font-size:13px;
-          {% if acct == 'APPROVED' or acct == 'ACTIVE' or acct == 'ACCOUNT_UPDATED' or acct == 'LOAN_PAID' or acct == 'WITHDRAWAL_SUCCESSFUL' %}color:#00C853;
-          {% elif acct == 'APP_MAINTENANCE' or acct == 'INVALID_DETAIL' or acct == 'RENEW_DOCUMENT_REQUIRED' %}color:#f59e0b;
-          {% else %}color:#ef4444;{% endif %}">
-          <span id="loanStatusText">{{ request.user.custom_status_label|default:request.user.account_status }}</span>
+          {% if loan.status == 'APPROVED' %}color:#00C853;
+          {% elif loan.status == 'REJECTED' %}color:#ef4444;
+          {% else %}color:#f59e0b;{% endif %}">
+          <span id="loanStatusText">{% if loan.status == 'APPROVED' %}Approved{% elif loan.status == 'REJECTED' %}Rejected{% else %}Under Review{% endif %}</span>
         </span>
-        {% endwith %}
       </div>
 
       <!-- ===== Loan Description ===== -->
@@ -487,21 +485,19 @@
   </div>
 
   <script>
-  // Update Order Status badge from account_status set by staff
-  window.__updateOrderStatus = function(acctStatus, customLabel){
+  // Update Order Status from loan status via polling
+  function paintLoanTimeline(status){
     const badge = document.getElementById("loanStatusBadge");
     const txt = document.getElementById("loanStatusText");
     if(!badge || !txt) return;
-
-    const key = String(acctStatus || "").toUpperCase().replace(/[^A-Z0-9]+/g,"_");
-    const green = new Set(["APPROVED","ACTIVE","ACCOUNT_UPDATED","LOAN_PAID","WITHDRAWAL_SUCCESSFUL"]);
-    const yellow = new Set(["APP_MAINTENANCE","INVALID_DETAIL","RENEW_DOCUMENT_REQUIRED"]);
-
-    badge.style.color = green.has(key) ? "#00C853" : yellow.has(key) ? "#f59e0b" : "#ef4444";
-
-    const display = (customLabel || "").trim() || String(acctStatus || "").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
-    if(display) txt.textContent = display;
-  };
+    if(status === "APPROVED"){
+      badge.style.color = "#00C853"; txt.textContent = "Approved";
+    } else if(status === "REJECTED"){
+      badge.style.color = "#ef4444"; txt.textContent = "Rejected";
+    } else {
+      badge.style.color = "#f59e0b"; txt.textContent = "Under Review";
+    }
+  }
 
   const _DEFAULT_DESC = "Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.";
 
@@ -526,7 +522,6 @@
     }
   };
 
-  function paintLoanTimeline(status){ /* loan status used only for internal logic */ }
   </script>
 
   {% endif %}
@@ -911,6 +906,10 @@
         paintStage(0);
         _currentWdId = null;
         _setPollingSpeed(false); // no withdrawal → slow poll (loan status only)
+        // still update loan Order Status
+        if(data.loan && data.loan.status){
+          if(typeof paintLoanTimeline === "function") paintLoanTimeline(data.loan.status);
+        }
         return;
       }
 

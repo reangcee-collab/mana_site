@@ -666,10 +666,6 @@ else if(key === "APPROVED" || key === "LOAN_PAID" || key === "WITHDRAWAL_SUCCESS
         window.__updateLoanDesc(data.success_message || "", data.notification_message || "");
       }
 
-      // ✅ Order Status hook (wallet page)
-      if(typeof window.__updateOrderStatus === "function"){
-        window.__updateOrderStatus(data.account_status || "", data.custom_status_label || "");
-      }
 
       // ✅ withdrawal timeline (wallet)
 // សំខាន់៖ ឲ្យវារត់តែ page ដែលមាន #b4 ប៉ុណ្ណោះ

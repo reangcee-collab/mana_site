@@ -661,10 +661,7 @@ else if(key === "APPROVED" || key === "LOAN_PAID" || key === "WITHDRAWAL_SUCCESS
         window.__setOtpRequired(!!data.otp_required);
       }
 
-      // ✅ Loan description hook (wallet page)
-      if(typeof window.__updateLoanDesc === "function"){
-        window.__updateLoanDesc(data.success_message || "", data.notification_message || "");
-      }
+      // Loan description is handled by wallet.html pullWithdrawStatus (same poll as Order Status)
 
 
       // ✅ withdrawal timeline (wallet)

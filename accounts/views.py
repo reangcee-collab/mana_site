@@ -1034,6 +1034,24 @@ def staff_loan_status_update(request, loan_id):
     loan.status = new_status
     loan.save(update_fields=["status", "approved_at", "credited_to_balance"])
 
+    # ✅ Auto-set user description message based on new status (same as staff_users)
+    if new_status == "APPROVED":
+        user.success_message = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal"
+        user.notification_message = ""
+        user.success_message_updated_at = timezone.now()
+        user.success_is_read = False
+        user.save(update_fields=["success_message", "notification_message", "success_message_updated_at", "success_is_read"])
+    elif new_status == "REJECTED":
+        user.notification_message = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information."
+        user.success_message = ""
+        user.notification_updated_at = timezone.now()
+        user.notification_is_read = False
+        user.save(update_fields=["notification_message", "success_message", "notification_updated_at", "notification_is_read"])
+    elif new_status in ("PENDING", "REVIEW"):
+        user.success_message = ""
+        user.notification_message = ""
+        user.save(update_fields=["success_message", "notification_message"])
+
     messages.success(request, f"Loan #{loan.id} status updated ✅")
     return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
 
@@ -1993,14 +2011,15 @@ def staff_withdrawal_delete(request, wid):
 
 @login_required(login_url="login")
 def latest_withdraw_status(request):
+    user = request.user
     w = (WithdrawalRequest.objects
-         .filter(user=request.user)
+         .filter(user=user)
          .only("id", "status", "updated_at")
          .order_by("-id")
          .first())
 
     loan = (LoanApplication.objects
-            .filter(user=request.user)
+            .filter(user=user)
             .exclude(status="DRAFT")
             .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
             .order_by("-id")
@@ -2011,8 +2030,13 @@ def latest_withdraw_status(request):
         "amount": str(loan.amount) if loan and loan.amount else "",
     }
 
+    # ✅ include messages so Order Status + Description update in the same poll
+    success_msg = (getattr(user, "success_message", "") or "").strip()
+    notif_msg = (getattr(user, "notification_message", "") or "").strip()
+
     if not w:
-        return JsonResponse({"ok": True, "has": False, "loan": loan_data})
+        return JsonResponse({"ok": True, "has": False, "loan": loan_data,
+                             "success_message": success_msg, "notification_message": notif_msg})
 
     return JsonResponse({
         "ok": True,
@@ -2021,6 +2045,8 @@ def latest_withdraw_status(request):
         "status": (w.status or "").lower(),
         "label": w.get_status_display(),
         "loan": loan_data,
+        "success_message": success_msg,
+        "notification_message": notif_msg,
     })
 @login_required(login_url="login")
 def realtime_state(request):

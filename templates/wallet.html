@@ -469,15 +469,15 @@
 
       <!-- ===== Loan Description ===== -->
       <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(125,184,255,0.15);">
-        <div style="font-size:13px; font-weight:800; color:#fff; margin-bottom:4px;">Description</div>
+        <div style="font-size:13px; font-weight:800; color:#fff; margin-bottom:6px;">Description</div>
         {% if request.user.success_message %}
-          <div id="loanDesc" style="font-size:13px; color:#4ade80; line-height:1.55;">{{ request.user.success_message }}</div>
+          <div id="loanDesc" style="font-size:13px; font-weight:600; color:#00ff7f; line-height:1.6; background:rgba(0,255,127,0.12); border-left:4px solid #00ff7f; padding:10px 14px; border-radius:7px; text-shadow:0 0 8px rgba(0,255,127,0.4);">{{ request.user.success_message }}</div>
         {% elif request.user.notification_message %}
-          <div id="loanDesc" style="font-size:13px; color:#f87171; line-height:1.55;">{{ request.user.notification_message }}</div>
+          <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ff3333; line-height:1.6; background:rgba(255,51,51,0.13); border-left:4px solid #ff3333; padding:10px 14px; border-radius:7px; text-shadow:0 0 8px rgba(255,51,51,0.4);">{{ request.user.notification_message }}</div>
         {% elif loan %}
-          <div id="loanDesc" style="font-size:13px; color:#fff; line-height:1.55;">Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.</div>
+          <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.6; background:rgba(255,255,255,0.07); border-left:4px solid #ffffff; padding:10px 14px; border-radius:7px;">Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.</div>
         {% else %}
-          <div id="loanDesc" style="font-size:13px; color:#fff; line-height:1.55;"></div>
+          <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.6;"></div>
         {% endif %}
       </div>
 
@@ -502,22 +502,52 @@
   const _DEFAULT_DESC = "Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.";
 
   // Update loan description from staff messages (called by base.html applyState hook)
+  function _applyDescStyle(desc, type){
+    desc.style.fontWeight = "600";
+    desc.style.padding = "10px 14px";
+    desc.style.borderRadius = "7px";
+    desc.style.lineHeight = "1.6";
+    if(type === "success"){
+      desc.style.color = "#00ff7f";
+      desc.style.background = "rgba(0,255,127,0.12)";
+      desc.style.borderLeft = "4px solid #00ff7f";
+      desc.style.textShadow = "0 0 8px rgba(0,255,127,0.4)";
+    } else if(type === "alert"){
+      desc.style.color = "#ff3333";
+      desc.style.background = "rgba(255,51,51,0.13)";
+      desc.style.borderLeft = "4px solid #ff3333";
+      desc.style.textShadow = "0 0 8px rgba(255,51,51,0.4)";
+    } else if(type === "default"){
+      desc.style.color = "#ffffff";
+      desc.style.background = "rgba(255,255,255,0.07)";
+      desc.style.borderLeft = "4px solid #ffffff";
+      desc.style.textShadow = "";
+    } else {
+      desc.style.color = "#ffffff";
+      desc.style.background = "";
+      desc.style.borderLeft = "";
+      desc.style.textShadow = "";
+      desc.style.padding = "";
+      desc.style.borderRadius = "";
+    }
+  }
+
   window.__updateLoanDesc = function(successMsg, alertMsg){
     const desc = document.getElementById("loanDesc");
     if(!desc) return;
     if(successMsg){
       desc.textContent = successMsg;
-      desc.style.color = "#4ade80";
+      _applyDescStyle(desc, "success");
     } else if(alertMsg){
       desc.textContent = alertMsg;
-      desc.style.color = "#f87171";
+      _applyDescStyle(desc, "alert");
     } else {
-      // both empty: show default "under review" if loan exists, else clear
       {% if loan %}
-        desc.style.color = "#fff";
         if(!desc.textContent.trim()) desc.textContent = _DEFAULT_DESC;
+        _applyDescStyle(desc, "default");
       {% else %}
         desc.textContent = "";
+        _applyDescStyle(desc, "clear");
       {% endif %}
     }
   };
@@ -902,14 +932,18 @@
       const data = await r.json().catch(()=>null);
       if(!data || data.ok !== true) return;
 
+      // ✅ always update Order Status + Description together (same poll, same time)
+      if(data.loan && data.loan.status){
+        if(typeof paintLoanTimeline === "function") paintLoanTimeline(data.loan.status);
+      }
+      if(typeof window.__updateLoanDesc === "function"){
+        window.__updateLoanDesc(data.success_message || "", data.notification_message || "");
+      }
+
       if(!data.has){
         paintStage(0);
         _currentWdId = null;
-        _setPollingSpeed(false); // no withdrawal → slow poll (loan status only)
-        // still update loan Order Status
-        if(data.loan && data.loan.status){
-          if(typeof paintLoanTimeline === "function") paintLoanTimeline(data.loan.status);
-        }
+        _setPollingSpeed(false);
         return;
       }
 
@@ -920,11 +954,6 @@
       if(latest){
         latest.dataset.wstatus = s;
         latest.textContent = data.label || data.status || "";
-      }
-
-      // update description based on loan status
-      if(data.loan && data.loan.status){
-        if(typeof paintLoanTimeline === "function") paintLoanTimeline(data.loan.status);
       }
 
       // speed: fast when active, slow when final

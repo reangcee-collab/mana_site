@@ -988,7 +988,12 @@ def staff_loan_edit_save(request, loan_id):
     loan.monthly_repayment = total / Decimal(loan.term_months)
 
     loan.save(update_fields=["amount", "term_months", "interest_rate_monthly", "monthly_repayment"])
-    return JsonResponse({"ok": True})
+    return JsonResponse({
+        "ok": True,
+        "amount": str(loan.amount),
+        "term_months": loan.term_months,
+        "monthly_repayment": str(loan.monthly_repayment),
+    })
 
 @staff_member_required
 @require_GET
@@ -1982,9 +1987,7 @@ def wallet_view(request):
         .order_by("-id")
         .first()
     )
-    loan_interest_pct = None
-    if loan and loan.interest_rate_monthly:
-        loan_interest_pct = (loan.interest_rate_monthly * 100).normalize()
+    loan_interest_pct = "0.5" if loan and loan.interest_rate_monthly else None
 
     # ✅ Pass status_color and status_display (same as dashboard/profile)
     user = request.user

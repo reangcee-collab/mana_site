@@ -1388,6 +1388,22 @@ modifyTerm.value = data.term_months ?? "";
 
     if(data.ok){
       modifyMsg.textContent = "Saved ✅";
+      // Update the table row directly — no page reload needed
+      const btn = document.querySelector(`.js-modify-btn[data-loan-id="${currentModifyLoanId}"]`);
+      if(btn){
+        const row = btn.closest("tr");
+        if(row){
+          const amtCell = row.querySelector(".col-amount");
+          const termCell = row.querySelector(".col-term");
+          if(amtCell && data.amount){
+            const num = parseFloat(data.amount);
+            amtCell.textContent = num.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+          }
+          if(termCell && data.term_months){
+            termCell.textContent = data.term_months;
+          }
+        }
+      }
       setTimeout(()=>{ modifyModal.style.display="none"; }, 450);
     }else{
       modifyMsg.textContent = (data.error || "Save failed ❌");

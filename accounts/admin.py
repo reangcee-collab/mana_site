@@ -4,17 +4,9 @@ from django.db import transaction
 from .models import PaymentMethod
 from django.utils.html import format_html
 
-from .models import LoanApplication, LoanConfig, WithdrawalRequest
+from .models import LoanApplication, WithdrawalRequest
 
 User = get_user_model()
-
-
-@admin.register(LoanConfig)
-class LoanConfigAdmin(admin.ModelAdmin):
-    list_display = ("interest_rate_monthly", "min_amount", "max_amount", "updated_at")
-
-    def has_add_permission(self, request):
-        return not LoanConfig.objects.exists()
 
 
 @admin.register(LoanApplication)

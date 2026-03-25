@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
-from .models import User, LoanApplication, LoanConfig, PaymentMethod, WithdrawalRequest
+from .models import User, LoanApplication, PaymentMethod, WithdrawalRequest
 from .forms import PaymentMethodForm
 from .models import User, PaymentMethod
 from .forms import StaffUserForm, StaffPaymentMethodForm
@@ -977,14 +977,11 @@ def staff_loan_edit_save(request, loan_id):
     if loan.term_months not in (6, 12, 24, 36, 48, 60):
         return JsonResponse({"ok": False, "error": "term_must_be_6_12_24_36_48_60"})
 
-    # ✅ recalc monthly repayment (same logic as staff_loan_update)
-    rate = loan.interest_rate_monthly
-    if rate is None:
-        cfg = LoanConfig.objects.first()
-        rate = Decimal(str(cfg.interest_rate_monthly)) if cfg else Decimal("0.0003")
-        loan.interest_rate_monthly = rate
+    # ✅ recalc monthly repayment — always use 0.5% monthly (matches frontend)
+    rate = Decimal("0.005")
+    loan.interest_rate_monthly = rate
 
-    total = loan.amount + (loan.amount * Decimal(str(rate)) * Decimal(loan.term_months))
+    total = loan.amount + (loan.amount * rate * Decimal(loan.term_months))
     loan.monthly_repayment = total / Decimal(loan.term_months)
 
     loan.save(update_fields=["amount", "term_months", "interest_rate_monthly", "monthly_repayment"])
@@ -1162,6 +1159,7 @@ def staff_loan_delete(request, loan_id):
     return JsonResponse({"ok": True})    
 
 
+
 @staff_member_required
 def staff_loan_detail_view(request, loan_id):
     loan = get_object_or_404(
@@ -1335,13 +1333,11 @@ def staff_loan_update(request, loan_id):
     # =========================
     # 4) AUTO CALC MONTHLY REPAYMENT
     # =========================
-    rate = loan.interest_rate_monthly
-    if rate is None:
-        cfg = LoanConfig.objects.first()
-        rate = Decimal(str(cfg.interest_rate_monthly)) if cfg else Decimal("0.0003")
-        loan.interest_rate_monthly = rate
+    # always use 0.5% monthly (matches frontend)
+    rate = Decimal("0.005")
+    loan.interest_rate_monthly = rate
 
-    total = loan.amount + (loan.amount * Decimal(str(rate)) * Decimal(loan.term_months))
+    total = loan.amount + (loan.amount * rate * Decimal(loan.term_months))
     loan.monthly_repayment = total / Decimal(loan.term_months)
 
     # =========================
@@ -1640,6 +1636,11 @@ def payment_schedule_view(request):
 
     schedules = []
     if latest_loan:
+        # Always recompute at 0.5% — fixes old loans saved with wrong rate
+        _rate = Decimal("0.005")
+        _total = latest_loan.amount + (latest_loan.amount * _rate * Decimal(latest_loan.term_months or 1))
+        _monthly = _total / Decimal(latest_loan.term_months or 1)
+
         start = latest_loan.approved_at or latest_loan.created_at or timezone.now()
         first_due = start + timedelta(days=15)
 
@@ -1649,8 +1650,8 @@ def payment_schedule_view(request):
                 "due_date": due.strftime("%d/%m/%Y"),
                 "loan_amount": latest_loan.amount,
                 "term_months": latest_loan.term_months,
-                "repayment": latest_loan.monthly_repayment,
-                "interest_rate": latest_loan.interest_rate_monthly,
+                "repayment": _monthly,
+                "interest_rate": _rate,
             })
 
     return render(request, "payment_schedule.html", {
@@ -1754,15 +1755,13 @@ def loan_info_view(request):
     if term_months not in (6, 12, 24, 36, 48, 60):
         return _err("Invalid loan terms.")
 
-    cfg = LoanConfig.objects.first()
-    if cfg:
-        if amount < Decimal(str(cfg.min_amount)) or amount > Decimal(str(cfg.max_amount)):
-            return _err(f"Loan amount must be between {cfg.min_amount} and {cfg.max_amount}.")
-        rate = Decimal(str(cfg.interest_rate_monthly))
-    else:
-        rate = Decimal("0.0003")
+    LOAN_RATE = Decimal("0.005")   # 0.5% monthly
+    LOAN_MIN  = Decimal("100000")
+    LOAN_MAX  = Decimal("5000000")
+    if amount < LOAN_MIN or amount > LOAN_MAX:
+        return _err(f"Loan amount must be between {int(LOAN_MIN):,} and {int(LOAN_MAX):,}.")
 
-    total = amount + (amount * rate * Decimal(term_months))
+    total = amount + (amount * LOAN_RATE * Decimal(term_months))
     monthly = total / Decimal(term_months)
 
     try:
@@ -1901,17 +1900,14 @@ def loan_apply_view(request):
         messages.error(request, "Invalid loan terms.")
         return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
-    # config + rate
-    cfg = LoanConfig.objects.first()
-    if cfg:
-        if amount < Decimal(str(cfg.min_amount)) or amount > Decimal(str(cfg.max_amount)):
-            messages.error(request, f"Loan amount must be between {cfg.min_amount} and {cfg.max_amount}.")
-            return render(request, "loan_apply.html", {"locked": False, "loan": None})
-        rate = Decimal(str(cfg.interest_rate_monthly))
-    else:
-        rate = Decimal("0.0003")
+    LOAN_RATE = Decimal("0.005")   # 0.5% monthly
+    LOAN_MIN  = Decimal("100000")
+    LOAN_MAX  = Decimal("5000000")
+    if amount < LOAN_MIN or amount > LOAN_MAX:
+        messages.error(request, f"Loan amount must be between {int(LOAN_MIN):,} and {int(LOAN_MAX):,}.")
+        return render(request, "loan_apply.html", {"locked": False, "loan": None})
 
-    total = amount + (amount * rate * Decimal(term_months))
+    total = amount + (amount * LOAN_RATE * Decimal(term_months))
     monthly = total / Decimal(term_months)
 
     # ✅ Normalize images (convert/resize/compress)
@@ -1987,7 +1983,13 @@ def wallet_view(request):
         .order_by("-id")
         .first()
     )
-    loan_interest_pct = "0.5" if loan and loan.interest_rate_monthly else None
+    loan_interest_pct = "0.5" if loan else None
+
+    # ✅ Always recompute monthly_repayment at 0.5% — fixes loans saved with wrong rate in DB
+    if loan and loan.amount and loan.term_months:
+        _rate = Decimal("0.005")
+        _total = loan.amount + (loan.amount * _rate * Decimal(loan.term_months))
+        loan.monthly_repayment = _total / Decimal(loan.term_months)
 
     # ✅ Pass status_color and status_display (same as dashboard/profile)
     user = request.user

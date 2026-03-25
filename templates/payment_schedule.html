@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static humanize %}
 {% block title %}Payment Schedule{% endblock %}
 
 {% block content %}
@@ -232,18 +232,25 @@
   {% if latest_loan %}
     {% for s in schedules %}
       <div class="item">
-        <div class="row">
-          <div class="kv"><span>Date:</span> <b>{{ s.due_date }}</b></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(125,184,255,0.15);">
+          <span style="font-size:12px;color:#7db8ff;font-weight:600;">Due Date</span>
+          <b style="font-size:14px;color:#fff;">{{ s.due_date }}</b>
         </div>
-
-        <div class="row" style="margin-top:10px;">
-          <div class="kv"><span>Loan Amount:</span> <b>PHP {{ s.loan_amount }}</b></div>
-          <div class="kv"><span>Loan Period:</span> <b>{{ s.term_months }} months</b></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:#7db8ff;font-weight:600;">Loan Amount</span>
+          <b style="font-size:14px;color:#fff;">PHP {{ s.loan_amount|floatformat:0|intcomma }}</b>
         </div>
-
-        <div class="row" style="margin-top:10px;">
-          <div class="kv"><span>Repayment Amount:</span> <b class="repay">PHP {{ s.repayment }}</b></div>
-          <div class="kv"><span>Interest Rate:</span> <b>{{ s.interest_rate }}</b></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:#7db8ff;font-weight:600;">Loan Period</span>
+          <b style="font-size:14px;color:#fff;">{{ s.term_months }} months</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <span style="font-size:12px;color:#7db8ff;font-weight:600;">Interest Rate</span>
+          <b style="font-size:14px;color:#fff;">0.5%</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid rgba(125,184,255,0.15);">
+          <span style="font-size:12px;color:#7db8ff;font-weight:600;">Monthly Repayment</span>
+          <b style="font-size:15px;color:#ff6b6b;font-weight:950;">PHP {{ s.repayment|floatformat:0|intcomma }}</b>
         </div>
       </div>
     {% endfor %}

@@ -211,7 +211,7 @@ def dashboard_view(request):
 
     # Compute status display explicitly so template always shows correct value
     status_display = (fresh_user.custom_status_label or "").strip() or \
-                     (fresh_user.account_status or "").strip() or "ACTIVE"
+                     (fresh_user.account_status or "ACTIVE").strip().replace("_", " ").title()
     # status_color drives the CSS class (always based on account_status, not custom text)
     status_color = (fresh_user.account_status or "ACTIVE").strip().upper()
 
@@ -1585,7 +1585,7 @@ def profile_view(request):
     except User.DoesNotExist:
         fresh_user = request.user
     status_display = (fresh_user.custom_status_label or "").strip() or \
-                     (fresh_user.account_status or "").strip() or "ACTIVE"
+                     (fresh_user.account_status or "ACTIVE").strip().replace("_", " ").title()
     status_color = (fresh_user.account_status or "ACTIVE").strip().upper()
     return render(request, "profile.html", {"status_display": status_display, "status_color": status_color})
 

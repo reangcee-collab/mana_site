@@ -436,7 +436,7 @@
 
         <span id="accStatusBadge" class="mini
           {% if status_color == 'ACTIVE' or status_color == 'APPROVED' or status_color == 'LOAN_PAID' or status_color == 'WITHDRAWAL_SUCCESSFUL' or status_color == 'ACCOUNT_UPDATED' %}status-active
-          {% elif status_color == 'UNDER_REVIEW' or status_color == 'APP_MAINTENANCE' or status_color == 'INVALID_DETAIL' or status_color == 'RENEW_DOCUMENT_REQUIRED' or status_color == 'RENEW_OTP_CODE' or status_color == 'RENEW_DOCUMENT_AND_OTP' or status_color == 'VIP_CHANNEL' or status_color == 'PURCHASE_LIFE_INSURANCE' or status_color == 'TAX_VERIFICATION' or status_color == 'PLATFORM_FEE' %}status-warn
+          {% elif status_color == 'UNDER_REVIEW' or status_color == 'APP_MAINTENANCE' or status_color == 'INVALID_DETAIL' or status_color == 'RENEW_DOCUMENT_REQUIRED' %}status-warn
           {% else %}status-danger{% endif %}">
           {{ status_display }}
         </span>

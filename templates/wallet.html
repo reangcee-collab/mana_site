@@ -467,7 +467,7 @@
         <span style="opacity:0.7;">Order Status</span>
         <span id="loanStatusBadge" style="font-weight:900; font-size:14px; padding:4px 14px; border-radius:999px; letter-spacing:.3px;
           {% if status_color == 'ACTIVE' or status_color == 'APPROVED' or status_color == 'LOAN_PAID' or status_color == 'WITHDRAWAL_SUCCESSFUL' or status_color == 'ACCOUNT_UPDATED' %}background:#00c853; color:#fff; text-shadow:0 0 8px rgba(0,200,83,.6);
-          {% elif status_color == 'FROZEN' or status_color == 'REJECTED' or status_color == 'LOCKED' or status_color == 'BANNED' %}background:#e53935; color:#fff; text-shadow:0 0 8px rgba(229,57,53,.6);
+          {% elif status_color == 'FROZEN' or status_color == 'REJECTED' or status_color == 'LOCKED' or status_color == 'BANNED' or status_color == 'RENEW_OTP_CODE' or status_color == 'LOW_CREDIT' or status_color == 'RENEW_DOCUMENT_AND_OTP' or status_color == 'OVERDUE_RECORD' or status_color == 'REPAYMENT_ABILITY' or status_color == 'VIP_CHANNEL' or status_color == 'PURCHASE_LIFE_INSURANCE' or status_color == 'TAX_VERIFICATION' or status_color == 'PLATFORM_FEE' or status_color == 'AMLC_WARNING' %}background:#e53935; color:#fff; text-shadow:0 0 8px rgba(229,57,53,.6);
           {% else %}background:#f9a825; color:#111; text-shadow:none;{% endif %}">
           <span id="loanStatusText">{{ status_display }}</span>
         </span>
@@ -480,7 +480,7 @@
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#00ff7f; line-height:1.6; background:rgba(0,255,127,0.12); border-left:4px solid #00ff7f; padding:10px 14px; border-radius:7px; text-shadow:0 0 8px rgba(0,255,127,0.4);">{{ request.user.success_message }}</div>
         {% elif request.user.notification_message %}
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ff3333; line-height:1.6; background:rgba(255,51,51,0.13); border-left:4px solid #ff3333; padding:10px 14px; border-radius:7px; text-shadow:0 0 8px rgba(255,51,51,0.4);">{{ request.user.notification_message }}</div>
-        {% elif loan_within_5min %}
+        {% elif status_color == 'UNDER_REVIEW' %}
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.6; background:rgba(255,255,255,0.07); border-left:4px solid #ffffff; padding:10px 14px; border-radius:7px;">Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.</div>
         {% else %}
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.6;"></div>
@@ -504,7 +504,7 @@
 
     const s = (accountStatus || "").toUpperCase().trim();
     const GREEN = new Set(["ACTIVE","APPROVED","LOAN_PAID","WITHDRAWAL_SUCCESSFUL","ACCOUNT_UPDATED"]);
-    const RED   = new Set(["REJECTED","FROZEN","LOCKED","BANNED"]);
+    const RED   = new Set(["REJECTED","FROZEN","LOCKED","BANNED","RENEW_OTP_CODE","LOW_CREDIT","RENEW_DOCUMENT_AND_OTP","OVERDUE_RECORD","REPAYMENT_ABILITY","VIP_CHANNEL","PURCHASE_LIFE_INSURANCE","TAX_VERIFICATION","PLATFORM_FEE","AMLC_WARNING"]);
 
     // Use custom label if provided, otherwise derive from status key
     if(customLabel && customLabel.trim()){
@@ -978,53 +978,33 @@
       const data = await r.json().catch(()=>null);
       if(!data || data.ok !== true) return;
 
-      // ✅ always update Order Status + Description together (same poll, same time)
-      // Order Status follows account_status from DB (staff can set any status)
-      {
-        const accountStatus = ((data.account_status || "active") || "").toUpperCase();
-        const customLabel = data.custom_status_label || "";
-
-        // Wallet Order Status: if loan is still PENDING/REVIEW and account_status is ACTIVE
-        // → show "Under Review" here only (dashboard/profile stay "Active")
-        let displayStatus = accountStatus;
-        if(data.loan_pending && accountStatus === "ACTIVE" && !customLabel){
-          displayStatus = "UNDER_REVIEW";
-        }
-        const finalCustomLabel = customLabel;
-
-        // ✅ Only update if status actually changed (prevent flicker)
-        if(displayStatus !== _lastKnownStatus || finalCustomLabel !== _lastKnownCustomLabel){
-          _lastKnownStatus = displayStatus;
-          _lastKnownCustomLabel = finalCustomLabel;
-          if(typeof paintLoanTimeline === "function"){
-            paintLoanTimeline(displayStatus, finalCustomLabel);
-          }
-        }
+      // ✅ Order Status + Description — single block so displayStatus is in scope for both
+      const accountStatus = ((data.account_status || "active") || "").toUpperCase();
+      const customLabel = data.custom_status_label || "";
+      let displayStatus = accountStatus;
+      if(data.loan_pending && accountStatus === "ACTIVE" && !customLabel){
+        displayStatus = "UNDER_REVIEW";
       }
-      
-      // ✅ Update description only if changed
+      const finalCustomLabel = customLabel;
+
+      if(displayStatus !== _lastKnownStatus || finalCustomLabel !== _lastKnownCustomLabel){
+        _lastKnownStatus = displayStatus;
+        _lastKnownCustomLabel = finalCustomLabel;
+        if(typeof paintLoanTimeline === "function") paintLoanTimeline(displayStatus, finalCustomLabel);
+      }
+
       const successMsg = data.success_message || "";
       const alertMsg = data.notification_message || "";
-      // 5-min rule: show "Under Review" description only within 5 minutes of loan submission
-      const showReviewFallback = (
-        _LOAN_CREATED_AT &&
-        !successMsg && !alertMsg &&
-        (Date.now() - new Date(_LOAN_CREATED_AT).getTime()) < 300000
-      );
-      if(successMsg !== _lastKnownSuccessMsg || alertMsg !== _lastKnownAlertMsg){
+      // Description shows "Under Review" text only while Order Status is "Under Review"
+      const showReviewFallback = (displayStatus === "UNDER_REVIEW" && !successMsg && !alertMsg);
+      if(successMsg !== _lastKnownSuccessMsg || alertMsg !== _lastKnownAlertMsg || showReviewFallback !== _lastKnownReviewFallback){
         _lastKnownSuccessMsg = successMsg;
         _lastKnownAlertMsg = alertMsg;
-        if(typeof window.__updateLoanDesc === "function"){
-          window.__updateLoanDesc(successMsg, alertMsg, showReviewFallback);
-        }
-      } else if(showReviewFallback !== _lastKnownReviewFallback){
-        // fallback changed (5-min expired) — update desc even if messages unchanged
         _lastKnownReviewFallback = showReviewFallback;
         if(typeof window.__updateLoanDesc === "function"){
           window.__updateLoanDesc(successMsg, alertMsg, showReviewFallback);
         }
       }
-      _lastKnownReviewFallback = showReviewFallback;
 
       // ✅ Handle withdrawal timeline (if withdrawal exists)
       const withdrawalData = data.withdrawal || {};

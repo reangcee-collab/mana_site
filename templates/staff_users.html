@@ -711,14 +711,19 @@ td.col-active .active-select{
 
 /* Custom status card (cream/beige) */
 .st-msg-custom{
-  background: linear-gradient(90deg, #c8b89a, #e8d9c4);
+  background: linear-gradient(90deg, #1a3a5c, #1e4d7a);
 }
 .st-msg-custom .st-msgtitle{
-  color: #3d2b0e;
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: .5px;
 }
 .st-msg-custom .st-msginput{
-  color: #3d2b0e !important;
-  background: rgba(255,255,255,.55);
+  color: #ffffff !important;
+  background: rgba(255,255,255,.12);
+}
+.st-msg-custom .st-msginput::placeholder{
+  color: rgba(255,255,255,.5) !important;
 }
 
 /* ✅ Green / Red cards like the old photo */
@@ -979,7 +984,7 @@ async function confirmUserDelete(){
   <!-- BANNER MESSAGE (shows on profile/dashboard as banner when not empty) -->
   <div class="st-msgbox st-msg-status">
     <div class="st-msgtitle">BANNER MESSAGE</div>
-    <textarea id="stStatusMsg" class="st-msginput" placeholder="Write banner message here (empty = no banner)..."></textarea>
+    <textarea id="stStatusMsg" class="st-msginput" placeholder="Type Banner message..."></textarea>
   </div>
 
   <div class="st-msgactions">

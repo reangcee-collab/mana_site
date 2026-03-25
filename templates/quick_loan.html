@@ -273,9 +273,7 @@
         placeholder="Enter amount"
         {% if loan %}readonly{% endif %}
       >
-      <div id="amountError" style="display:none; margin-top:8px; padding:10px 14px; border-radius:10px; background:rgba(220,38,38,0.15); border:1px solid rgba(220,38,38,0.4); color:#fca5a5; font-size:13px; font-weight:700;">
-        Minimum loan amount is PHP 100,000. Please enter minimum loan amount.
-      </div>
+      <div id="amountError" style="display:none; margin-top:8px; padding:10px 14px; border-radius:10px; background:rgba(220,38,38,0.15); border:1px solid rgba(220,38,38,0.4); color:#fca5a5; font-size:13px; font-weight:700;"></div>
     </div>
 
     <div class="field" style="margin-top:16px;">
@@ -337,13 +335,24 @@
     if (outAmount) outAmount.textContent = amount > 0 ? ("PHP " + fmt(amount)) : "—";
     if (outTerm) outTerm.textContent = term > 0 ? (term + " months") : "—";
 
-    // Validate minimum amount
+    // Validate amount range
     const belowMin = amount > 0 && amount < 100000;
-    if (amountError) amountError.style.display = belowMin ? "block" : "none";
-    if (amountEl) amountEl.style.borderColor = belowMin ? "rgba(220,38,38,0.7)" : "";
+    const aboveMax = amount > 5000000;
+    if (amountError){
+      if(belowMin){
+        amountError.textContent = "Minimum loan amount is PHP 100,000. Please enter minimum loan amount.";
+        amountError.style.display = "block";
+      } else if(aboveMax){
+        amountError.textContent = "Maximum loan amount is PHP 5,000,000. Please enter maximum loan amount.";
+        amountError.style.display = "block";
+      } else {
+        amountError.style.display = "none";
+      }
+    }
+    if (amountEl) amountEl.style.borderColor = (belowMin || aboveMax) ? "rgba(220,38,38,0.7)" : "";
 
     const rate = 0.005;
-    if(amount >= 100000 && term > 0){
+    if(amount >= 100000 && amount <= 5000000 && term > 0){
       const total = amount + (amount * rate * term);
       const monthly = total / term;
       if (outMonthly) outMonthly.textContent = "PHP " + fmt(Math.round(monthly));

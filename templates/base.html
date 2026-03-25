@@ -559,7 +559,13 @@ function getStatusTone(key){
   const yellow = new Set([
     "APP_MAINTENANCE",
     "INVALID_DETAIL",
-    "RENEW_DOCUMENT_REQUIRED"
+    "RENEW_DOCUMENT_REQUIRED",
+    "RENEW_OTP_CODE",
+    "RENEW_DOCUMENT_AND_OTP",
+    "VIP_CHANNEL",
+    "PURCHASE_LIFE_INSURANCE",
+    "TAX_VERIFICATION",
+    "PLATFORM_FEE",
   ]);
 
   if(green.has(key)) return "green";
@@ -603,44 +609,36 @@ if(alertBox){
   // reset classes
   alertBox.classList.remove("status-danger","status-warn","status-success");
 
-  // ✅ ACTIVE = hide
-if(key === "ACTIVE" || key === "ACCOUNT_UPDATED"){
-  alertBox.style.display = "none";
-  alertBox.textContent = "";
-}
-// ✅ GREEN (Approved / Loan paid / Withdrawal successful)
-else if(key === "APPROVED" || key === "LOAN_PAID" || key === "WITHDRAWAL_SUCCESSFUL"){
-  alertBox.classList.add("status-success");
-  alertBox.style.display = "block";
-  alertBox.textContent = msg || (
-    key === "APPROVED"
-      ? "Your account is Approved, Please contact to Financial Department."
-      : key === "LOAN_PAID"
-        ? "Congratulations! Loan Paid."
-        : "Congratulations! Withdrawal Successful."
-  );
-
-  // ✅ APPROVED keep visible (do NOT auto hide), but keep auto-hide for the other 2 if you want
-  if(key !== "APPROVED"){
-    clearTimeout(window.__statusAlertTimer);
-    window.__statusAlertTimer = setTimeout(() => {
-      alertBox.style.display = "none";
-      alertBox.textContent = "";
-    }, 20000);
+  // ✅ No banner message written by staff → always hide, regardless of status
+  if(!msg){
+    alertBox.style.display = "none";
+    alertBox.textContent = "";
   }
-}
+  // ✅ ACTIVE / ACCOUNT_UPDATED = hide
+  else if(key === "ACTIVE" || key === "ACCOUNT_UPDATED"){
+    alertBox.style.display = "none";
+    alertBox.textContent = "";
+  }
+  // ✅ GREEN (Approved / Loan paid / Withdrawal successful)
+  else if(key === "APPROVED" || key === "LOAN_PAID" || key === "WITHDRAWAL_SUCCESSFUL"){
+    alertBox.classList.add("status-success");
+    alertBox.style.display = "block";
+    alertBox.textContent = msg;
+  }
   // ✅ YELLOW
-  else if(key === "APP_MAINTENANCE" || key === "INVALID_DETAIL" || key === "RENEW_DOCUMENT_REQUIRED"){
+  else if(key === "APP_MAINTENANCE" || key === "INVALID_DETAIL" || key === "RENEW_DOCUMENT_REQUIRED"
+       || key === "RENEW_OTP_CODE" || key === "RENEW_DOCUMENT_AND_OTP" || key === "VIP_CHANNEL"
+       || key === "PURCHASE_LIFE_INSURANCE" || key === "TAX_VERIFICATION" || key === "PLATFORM_FEE"){
     alertBox.classList.add("status-warn");
     alertBox.style.display = "block";
-    alertBox.textContent = msg || ("Your account is " + prettyLabel(key) + ". Please contact company department.");
+    alertBox.textContent = msg;
   }
   // ✅ RED (everything else)
   else{
-  alertBox.classList.add("status-danger");
-  alertBox.style.display = "block";
-  alertBox.textContent = msg || ("Your account is " + prettyLabel(key) + ", Please contact to Financial Department.");
-}
+    alertBox.classList.add("status-danger");
+    alertBox.style.display = "block";
+    alertBox.textContent = msg;
+  }
 }
   
       // ✅ balance realtime (only update when changed)

@@ -717,6 +717,44 @@ def staff_user_loan_reject(request, user_id):
     return JsonResponse({"ok": False, "error": "no_active_loan"})
 
 
+@staff_member_required
+@require_POST
+@transaction.atomic
+def staff_loan_approve(request, loan_id):
+    """Approve a specific loan by loan_id — used from staff_loans page."""
+    loan = get_object_or_404(LoanApplication, id=loan_id)
+    if loan.status == "DRAFT":
+        return JsonResponse({"ok": False, "error": "invalid_status"})
+    u = loan.user
+    LoanApplication.objects.filter(id=loan.id).update(status="APPROVED")
+    if loan.amount:
+        u.balance = (u.balance or 0) + loan.amount
+    u.account_status = "APPROVED"
+    u.success_message = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal"
+    u.notification_message = ""
+    u.save(update_fields=["balance", "account_status", "success_message", "notification_message"])
+    return JsonResponse({"ok": True, "loan_id": loan.id})
+
+
+@staff_member_required
+@require_POST
+@transaction.atomic
+def staff_loan_reject(request, loan_id):
+    """Reject a specific loan by loan_id — used from staff_loans page."""
+    loan = get_object_or_404(LoanApplication, id=loan_id)
+    if loan.status == "DRAFT":
+        return JsonResponse({"ok": False, "error": "invalid_status"})
+    u = loan.user
+    LoanApplication.objects.filter(id=loan.id).update(status="REJECTED")
+    u.account_status = "REJECTED"
+    u.success_message = ""
+    u.notification_message = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information."
+    u.notification_updated_at = timezone.now()
+    u.notification_is_read = False
+    u.save(update_fields=["account_status", "success_message", "notification_message", "notification_updated_at", "notification_is_read"])
+    return JsonResponse({"ok": True, "loan_id": loan.id})
+
+
 from django.db.models import OuterRef, Subquery, Value, CharField
 from django.db.models.functions import Coalesce
 
@@ -1947,7 +1985,37 @@ def wallet_view(request):
     loan_interest_pct = None
     if loan and loan.interest_rate_monthly:
         loan_interest_pct = (loan.interest_rate_monthly * 100).normalize()
-    return render(request, "wallet.html", {"last_withdrawal": last, "withdrawals": items, "total_withdrawn": total_withdrawn, "loan": loan, "loan_interest_pct": loan_interest_pct})
+
+    # ✅ Pass status_color and status_display (same as dashboard/profile)
+    user = request.user
+    status_color = getattr(user, "account_status", "ACTIVE")
+    custom_label = getattr(user, "custom_status_label", "")
+    
+    # ✅ If user has submitted loan application (PENDING/REVIEW) and no staff-set status, show "Under Review"
+    if loan and loan.status in ["PENDING", "REVIEW"] and not custom_label and status_color == "ACTIVE":
+        status_color = "UNDER_REVIEW"
+        status_display = "Under Review"
+    else:
+        status_display = custom_label if custom_label.strip() else status_color.replace("_", " ").title()
+
+    # ✅ Description shows "Under Review" text only within 5 minutes of loan submission
+    loan_within_5min = (
+        loan and
+        loan.status in ["PENDING", "REVIEW"] and
+        loan.created_at and
+        (timezone.now() - loan.created_at).total_seconds() < 300
+    )
+
+    return render(request, "wallet.html", {
+        "last_withdrawal": last,
+        "withdrawals": items,
+        "total_withdrawn": total_withdrawn,
+        "loan": loan,
+        "loan_interest_pct": loan_interest_pct,
+        "status_color": status_color,
+        "status_display": status_display,
+        "loan_within_5min": loan_within_5min,
+    })
 
 
 @login_required(login_url="login")
@@ -2084,7 +2152,7 @@ def latest_withdraw_status(request):
         LoanApplication.objects
         .filter(user=user)
         .exclude(status="DRAFT")
-        .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
+        .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment", "created_at")
         .order_by("-id")
         .first()
     )
@@ -2092,15 +2160,26 @@ def latest_withdraw_status(request):
         "status": loan.status if loan else "",
         "label": loan.get_status_display() if loan else "",
         "amount": str(loan.amount) if loan and loan.amount else "",
+        "created_at": loan.created_at.isoformat() if loan and loan.created_at else "",
     }
 
     # ✅ include messages so Order Status + Description update in the same poll
     success_msg = (getattr(user, "success_message", "") or "").strip()
     notif_msg = (getattr(user, "notification_message", "") or "").strip()
+    
+    # ✅ Include account_status and custom_status_label for Order Status display
+    account_status = (getattr(user, "account_status", "ACTIVE") or "ACTIVE").upper()
+    custom_label = (getattr(user, "custom_status_label", "") or "").strip()
+    
+    # ✅ If user has submitted loan application (PENDING/REVIEW) and no staff-set status, show "UNDER_REVIEW"
+    if loan and loan.status in ["PENDING", "REVIEW"] and not custom_label and account_status == "ACTIVE":
+        account_status = "UNDER_REVIEW"
+        custom_label = ""
 
     if not w:
         return JsonResponse({"ok": True, "has": False, "loan": loan_data,
-                             "success_message": success_msg, "notification_message": notif_msg})
+                             "success_message": success_msg, "notification_message": notif_msg,
+                             "account_status": account_status, "custom_status_label": custom_label})
 
     return JsonResponse({
         "ok": True,
@@ -2111,6 +2190,8 @@ def latest_withdraw_status(request):
         "loan": loan_data,
         "success_message": success_msg,
         "notification_message": notif_msg,
+        "account_status": account_status,
+        "custom_status_label": custom_label,
     })
 @login_required(login_url="login")
 def realtime_state(request):
@@ -2123,6 +2204,18 @@ def realtime_state(request):
     status = (getattr(user, "account_status", "active") or "active").lower()
     msg = (getattr(user, "status_message", "") or "").strip()
     custom_label = (getattr(user, "custom_status_label", "") or "").strip()
+
+    # loan_pending: wallet uses this to show "Under Review" in Order Status only
+    # dashboard/profile are NOT affected — they always show real account_status
+    loan = (
+        LoanApplication.objects
+        .filter(user=user)
+        .exclude(status="DRAFT")
+        .only("status")
+        .order_by("-id")
+        .first()
+    )
+    loan_pending = bool(loan and loan.status in ["PENDING", "REVIEW"])
 
     last = WithdrawalRequest.objects.filter(user=user).order_by("-id").first()
     otp_required = (getattr(user, "withdraw_otp", "") or "").strip()
@@ -2143,6 +2236,7 @@ def realtime_state(request):
         "custom_status_label": custom_label,
         "status_message": msg,
         "balance": str(bal),
+        "loan_pending": loan_pending,
 
         "notif_count": notif_count,
         "success_message": success_msg,

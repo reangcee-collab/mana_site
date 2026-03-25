@@ -2,6 +2,12 @@
 {% load static %}
 {% block title %}Wallet{% endblock %}
 
+{% block extra_head %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+{% endblock %}
+
 {% block content %}
 <style>
 /* ✅ Back button - blue color matching dashboard */
@@ -459,11 +465,11 @@
 
       <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid rgba(125,184,255,0.15); margin-top:2px;">
         <span style="opacity:0.7;">Order Status</span>
-        <span id="loanStatusBadge" style="font-weight:900; font-size:13px;
-          {% if loan.status == 'APPROVED' %}color:#00C853;
-          {% elif loan.status == 'REJECTED' %}color:#ef4444;
-          {% else %}color:#f59e0b;{% endif %}">
-          <span id="loanStatusText">{% if loan.status == 'APPROVED' %}Approved{% elif loan.status == 'REJECTED' %}Rejected{% else %}Under Review{% endif %}</span>
+        <span id="loanStatusBadge" style="font-weight:900; font-size:14px; padding:4px 14px; border-radius:999px; letter-spacing:.3px;
+          {% if status_color == 'ACTIVE' or status_color == 'APPROVED' or status_color == 'LOAN_PAID' or status_color == 'WITHDRAWAL_SUCCESSFUL' or status_color == 'ACCOUNT_UPDATED' %}background:#00c853; color:#fff; text-shadow:0 0 8px rgba(0,200,83,.6);
+          {% elif status_color == 'FROZEN' or status_color == 'REJECTED' or status_color == 'LOCKED' or status_color == 'BANNED' %}background:#e53935; color:#fff; text-shadow:0 0 8px rgba(229,57,53,.6);
+          {% else %}background:#f9a825; color:#111; text-shadow:none;{% endif %}">
+          <span id="loanStatusText">{{ status_display }}</span>
         </span>
       </div>
 
@@ -474,7 +480,7 @@
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#00ff7f; line-height:1.6; background:rgba(0,255,127,0.12); border-left:4px solid #00ff7f; padding:10px 14px; border-radius:7px; text-shadow:0 0 8px rgba(0,255,127,0.4);">{{ request.user.success_message }}</div>
         {% elif request.user.notification_message %}
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ff3333; line-height:1.6; background:rgba(255,51,51,0.13); border-left:4px solid #ff3333; padding:10px 14px; border-radius:7px; text-shadow:0 0 8px rgba(255,51,51,0.4);">{{ request.user.notification_message }}</div>
-        {% elif loan %}
+        {% elif loan_within_5min %}
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.6; background:rgba(255,255,255,0.07); border-left:4px solid #ffffff; padding:10px 14px; border-radius:7px;">Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.</div>
         {% else %}
           <div id="loanDesc" style="font-size:13px; font-weight:600; color:#ffffff; line-height:1.6;"></div>
@@ -485,21 +491,54 @@
   </div>
 
   <script>
-  // Update Order Status from loan status via polling
-  function paintLoanTimeline(status){
+  // Title-case helper (JS has no .title())
+  function _toTitle(str){
+    return str.toLowerCase().replace(/(?:^|_| )\w/g, c => c.replace("_"," ").toUpperCase());
+  }
+
+  // Update Order Status - follows account_status from DB (staff can set any status)
+  function paintLoanTimeline(accountStatus, customLabel){
     const badge = document.getElementById("loanStatusBadge");
     const txt = document.getElementById("loanStatusText");
     if(!badge || !txt) return;
-    if(status === "APPROVED"){
-      badge.style.color = "#00C853"; txt.textContent = "Approved";
-    } else if(status === "REJECTED"){
-      badge.style.color = "#ef4444"; txt.textContent = "Rejected";
+
+    const s = (accountStatus || "").toUpperCase().trim();
+    const GREEN = new Set(["ACTIVE","APPROVED","LOAN_PAID","WITHDRAWAL_SUCCESSFUL","ACCOUNT_UPDATED"]);
+    const RED   = new Set(["REJECTED","FROZEN","LOCKED","BANNED"]);
+
+    // Use custom label if provided, otherwise derive from status key
+    if(customLabel && customLabel.trim()){
+      txt.textContent = customLabel.trim();
+    } else if(s === "UNDER_REVIEW" || !s){
+      txt.textContent = "Under Review";
     } else {
-      badge.style.color = "#f59e0b"; txt.textContent = "Under Review";
+      txt.textContent = _toTitle(s);
+    }
+
+    // Apply pill background (vivid colors matching initial render)
+    badge.style.padding      = "4px 14px";
+    badge.style.borderRadius = "999px";
+    badge.style.fontWeight   = "900";
+    badge.style.fontSize     = "14px";
+    badge.style.letterSpacing = ".3px";
+    if(GREEN.has(s)){
+      badge.style.background  = "#00c853";
+      badge.style.color       = "#fff";
+      badge.style.textShadow  = "0 0 8px rgba(0,200,83,.6)";
+    } else if(RED.has(s)){
+      badge.style.background  = "#e53935";
+      badge.style.color       = "#fff";
+      badge.style.textShadow  = "0 0 8px rgba(229,57,53,.6)";
+    } else {
+      badge.style.background  = "#f9a825";
+      badge.style.color       = "#111";
+      badge.style.textShadow  = "none";
     }
   }
 
   const _DEFAULT_DESC = "Your Loan application is under review by the financial department please kindly wait for the update from your loan assistant.";
+  // Used to compute 5-minute window for "Under Review" description
+  const _LOAN_CREATED_AT = "{% if loan and loan.created_at %}{{ loan.created_at.isoformat }}{% endif %}";
 
   // Update loan description from staff messages (called by base.html applyState hook)
   function _applyDescStyle(desc, type){
@@ -532,7 +571,7 @@
     }
   }
 
-  window.__updateLoanDesc = function(successMsg, alertMsg){
+  window.__updateLoanDesc = function(successMsg, alertMsg, showReviewFallback){
     const desc = document.getElementById("loanDesc");
     if(!desc) return;
     if(successMsg){
@@ -541,14 +580,12 @@
     } else if(alertMsg){
       desc.textContent = alertMsg;
       _applyDescStyle(desc, "alert");
+    } else if(showReviewFallback){
+      desc.textContent = _DEFAULT_DESC;
+      _applyDescStyle(desc, "default");
     } else {
-      {% if loan %}
-        desc.textContent = _DEFAULT_DESC;
-        _applyDescStyle(desc, "default");
-      {% else %}
-        desc.textContent = "";
-        _applyDescStyle(desc, "clear");
-      {% endif %}
+      desc.textContent = "";
+      _applyDescStyle(desc, "clear");
     }
   };
 
@@ -910,9 +947,14 @@
   }
 
   // =========================
-  // POLLING
+  // POLLING - Use realtime_state for Order Status updates
   // =========================
   let _wdPoll = null;
+  let _lastKnownStatus = null;
+  let _lastKnownCustomLabel = null;
+  let _lastKnownSuccessMsg = null;
+  let _lastKnownAlertMsg = null;
+  let _lastKnownReviewFallback = null;
 
   // Always poll fast so Order Status / Description update immediately after staff changes
   const _FINAL_STATES = new Set(["paid","rejected"]);
@@ -928,37 +970,80 @@
 
   async function pullWithdrawStatus(){
     try{
-      const r = await fetch("{% url 'latest_withdraw_status' %}", { cache:"no-store" });
+      // ✅ Use realtime_state API for instant status updates (no cache)
+      const r = await fetch("{% url 'realtime_state' %}?t=" + Date.now(), { 
+        cache: "no-store",
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
       const data = await r.json().catch(()=>null);
       if(!data || data.ok !== true) return;
 
       // ✅ always update Order Status + Description together (same poll, same time)
-      // Messages take priority; no messages + non-final status → "Under Review"
+      // Order Status follows account_status from DB (staff can set any status)
       {
-        let displayStatus = (data.loan && data.loan.status) ? data.loan.status : "";
-        if(data.success_message) displayStatus = "APPROVED";
-        else if(data.notification_message) displayStatus = "REJECTED";
-        else displayStatus = "REVIEW"; // no messages → always Under Review
-        if(typeof paintLoanTimeline === "function") paintLoanTimeline(displayStatus);
-      }
-      if(typeof window.__updateLoanDesc === "function"){
-        window.__updateLoanDesc(data.success_message || "", data.notification_message || "");
-      }
+        const accountStatus = ((data.account_status || "active") || "").toUpperCase();
+        const customLabel = data.custom_status_label || "";
 
-      if(!data.has){
+        // Wallet Order Status: if loan is still PENDING/REVIEW and account_status is ACTIVE
+        // → show "Under Review" here only (dashboard/profile stay "Active")
+        let displayStatus = accountStatus;
+        if(data.loan_pending && accountStatus === "ACTIVE" && !customLabel){
+          displayStatus = "UNDER_REVIEW";
+        }
+        const finalCustomLabel = customLabel;
+
+        // ✅ Only update if status actually changed (prevent flicker)
+        if(displayStatus !== _lastKnownStatus || finalCustomLabel !== _lastKnownCustomLabel){
+          _lastKnownStatus = displayStatus;
+          _lastKnownCustomLabel = finalCustomLabel;
+          if(typeof paintLoanTimeline === "function"){
+            paintLoanTimeline(displayStatus, finalCustomLabel);
+          }
+        }
+      }
+      
+      // ✅ Update description only if changed
+      const successMsg = data.success_message || "";
+      const alertMsg = data.notification_message || "";
+      // 5-min rule: show "Under Review" description only within 5 minutes of loan submission
+      const showReviewFallback = (
+        _LOAN_CREATED_AT &&
+        !successMsg && !alertMsg &&
+        (Date.now() - new Date(_LOAN_CREATED_AT).getTime()) < 300000
+      );
+      if(successMsg !== _lastKnownSuccessMsg || alertMsg !== _lastKnownAlertMsg){
+        _lastKnownSuccessMsg = successMsg;
+        _lastKnownAlertMsg = alertMsg;
+        if(typeof window.__updateLoanDesc === "function"){
+          window.__updateLoanDesc(successMsg, alertMsg, showReviewFallback);
+        }
+      } else if(showReviewFallback !== _lastKnownReviewFallback){
+        // fallback changed (5-min expired) — update desc even if messages unchanged
+        _lastKnownReviewFallback = showReviewFallback;
+        if(typeof window.__updateLoanDesc === "function"){
+          window.__updateLoanDesc(successMsg, alertMsg, showReviewFallback);
+        }
+      }
+      _lastKnownReviewFallback = showReviewFallback;
+
+      // ✅ Handle withdrawal timeline (if withdrawal exists)
+      const withdrawalData = data.withdrawal || {};
+      const hasWithdrawal = withdrawalData.id !== null && withdrawalData.id !== undefined;
+      
+      if(!hasWithdrawal){
         paintStage(0);
         _currentWdId = null;
         _setPollingSpeed(false);
         return;
       }
 
-      const sid = data.id;
-      const s = (data.status || "").toLowerCase().trim();
+      const sid = withdrawalData.id;
+      const s = (withdrawalData.status || "").toLowerCase().trim();
 
       const latest = document.querySelector(".pill[data-wstatus]");
       if(latest){
         latest.dataset.wstatus = s;
-        latest.textContent = data.label || data.status || "";
+        latest.textContent = withdrawalData.status_label || withdrawalData.status || "";
       }
 
       // speed: fast when active, slow when final

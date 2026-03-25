@@ -742,10 +742,10 @@
   background: linear-gradient(180deg, #061127fd 0%, #0356C5 100%) !important;
 }
 
-/* FORCE badge color (prevent CSS override) */
-#accStatusBadge.status-active { background:#16a34a !important; color:#fff !important; }
-#accStatusBadge.status-warn   { background:#eab308 !important; color:#111 !important; }
-#accStatusBadge.status-danger { background:#dc2626 !important; color:#fff !important; }
+/* FORCE badge color — vivid, matches wallet Order Status */
+#accStatusBadge.status-active { background:#00c853 !important; color:#fff !important; box-shadow:0 0 8px rgba(0,200,83,.45) !important; }
+#accStatusBadge.status-warn   { background:#f9a825 !important; color:#111 !important; box-shadow:0 0 6px rgba(249,168,37,.4) !important; }
+#accStatusBadge.status-danger { background:#e53935 !important; color:#fff !important; box-shadow:0 0 8px rgba(229,57,53,.45) !important; }
 
 /* ===== Welcome text animation ===== */
 .welcome-text {
@@ -855,7 +855,7 @@
               class="status-badge
                 {% if status_color == 'ACTIVE' or status_color == 'APPROVED' or status_color == 'LOAN_PAID' or status_color == 'WITHDRAWAL_SUCCESSFUL' or status_color == 'ACCOUNT_UPDATED' %}
                   status-active
-                {% elif status_color == 'APP_MAINTENANCE' or status_color == 'INVALID_DETAIL' or status_color == 'RENEW_DOCUMENT_REQUIRED' %}
+                {% elif status_color == 'UNDER_REVIEW' or status_color == 'APP_MAINTENANCE' or status_color == 'INVALID_DETAIL' or status_color == 'RENEW_DOCUMENT_REQUIRED' or status_color == 'RENEW_OTP_CODE' or status_color == 'RENEW_DOCUMENT_AND_OTP' or status_color == 'VIP_CHANNEL' or status_color == 'PURCHASE_LIFE_INSURANCE' or status_color == 'TAX_VERIFICATION' or status_color == 'PLATFORM_FEE' %}
                   status-warn
                 {% else %}
                   status-danger

@@ -762,7 +762,7 @@ td.col-active .active-select{
 .st-jump:active{ transform: scale(.99); }
 .st-jump:hover{ opacity: .95; filter: brightness(1.03); }
 
-/* ✅ make STATUS MESSAGE card look neutral (optional) */
+/* BANNER MESSAGE card */
 .st-msg-status{
   background: rgba(255,255,255,.06);
 }
@@ -976,10 +976,10 @@ async function confirmUserDelete(){
     <div class="st-msgtitle">ALERT MESSAGE</div>
     <textarea id="stAlertMsg" class="st-msginput" placeholder="Type alert message..."></textarea>
   </div>
-  <!-- ✅ NEW: STATUS MESSAGE (this is for user banner) -->
+  <!-- BANNER MESSAGE (shows on profile/dashboard as banner when not empty) -->
   <div class="st-msgbox st-msg-status">
-    <div class="st-msgtitle">STATUS MESSAGE</div>
-    <textarea id="stStatusMsg" class="st-msginput" placeholder="Auto message will appear here..."></textarea>
+    <div class="st-msgtitle">BANNER MESSAGE</div>
+    <textarea id="stStatusMsg" class="st-msginput" placeholder="Write banner message here (empty = no banner)..."></textarea>
   </div>
 
   <div class="st-msgactions">
@@ -1128,78 +1128,7 @@ function buildStatusGrid(){
   yellow.innerHTML = "";
   red.innerHTML = "";
 
-  // ✅ APPROVED button — fill messages + set loan_action, then wait for staff to click Apply
-  const approvedBtn = document.createElement("button");
-  approvedBtn.type = "button";
-  approvedBtn.className = "st-opt st-green";
-  approvedBtn.innerHTML = `<span>Approved</span><span class="st-ico">›</span>`;
-  approvedBtn.addEventListener("click", () => {
-    if(!__STATUS_TARGET_BTN) return;
-    const userId = __STATUS_TARGET_BTN.dataset.userId;
-
-    // Mark loan_action so Apply will approve the loan + credit balance
-    const laH = document.getElementById("loanActionHidden-" + userId);
-    if(laH) laH.value = "APPROVE";
-
-    // Fill success message + sync hidden input
-    const approveMsg = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal";
-    const sBox = document.getElementById("stSuccessMsg");
-    const sH = document.getElementById("successHidden-" + userId);
-    if(sBox) sBox.value = approveMsg;
-    if(sH) sH.value = approveMsg;
-
-    // Clear alert message + sync hidden input
-    const aBox = document.getElementById("stAlertMsg");
-    const aH = document.getElementById("alertHidden-" + userId);
-    if(aBox) aBox.value = "";
-    if(aH) aH.value = "";
-
-    // Scroll to message section so staff can review before clicking Apply
-    const body = document.getElementById("stBody");
-    const wrap = document.getElementById("stMsgWrap");
-    if(body && wrap){
-      body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
-    }
-  });
-
-  green.appendChild(approvedBtn);
-
-  // ✅ REJECTED button — fill messages + set loan_action, then wait for staff to click Apply
-  const rejectedBtn = document.createElement("button");
-  rejectedBtn.type = "button";
-  rejectedBtn.className = "st-opt st-red";
-  rejectedBtn.innerHTML = `<span>Rejected</span><span class="st-ico">›</span>`;
-  rejectedBtn.addEventListener("click", () => {
-    if(!__STATUS_TARGET_BTN) return;
-    const userId = __STATUS_TARGET_BTN.dataset.userId;
-
-    // Mark loan_action so Apply will reject the loan
-    const laH = document.getElementById("loanActionHidden-" + userId);
-    if(laH) laH.value = "REJECT";
-
-    // Clear success message + sync hidden input
-    const sBox = document.getElementById("stSuccessMsg");
-    const sH = document.getElementById("successHidden-" + userId);
-    if(sBox) sBox.value = "";
-    if(sH) sH.value = "";
-
-    // Pre-fill alert message + sync hidden input
-    const rejMsg = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information.";
-    const aBox = document.getElementById("stAlertMsg");
-    const aH = document.getElementById("alertHidden-" + userId);
-    if(aBox) aBox.value = rejMsg;
-    if(aH) aH.value = rejMsg;
-
-    // Scroll to message section so staff can review before clicking Apply
-    const body = document.getElementById("stBody");
-    const wrap = document.getElementById("stMsgWrap");
-    if(body && wrap){
-      body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
-    }
-  });
-  red.appendChild(rejectedBtn);
-
-  // ✅ keep your normal status choices (optional)
+  // ✅ keep your normal status choices
   // If you want ONLY Approved and NOTHING else -> delete everything below this comment.
   const CHOICES = [
     {value:"ACTIVE", label:"Active"},

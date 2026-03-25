@@ -68,6 +68,8 @@ path("staff/users/<int:user_id>/delete/", staff_member_required(views.staff_user
 path("staff/users/<int:user_id>/loan/create/", staff_member_required(views.staff_create_loan_draft, login_url="/admin/login/"), name="staff_create_loan_draft"),
 path("staff/users/<int:user_id>/loan/approve/", staff_member_required(views.staff_user_loan_approve, login_url="/admin/login/"), name="staff_user_loan_approve"),
 path("staff/users/<int:user_id>/loan/reject/", staff_member_required(views.staff_user_loan_reject, login_url="/admin/login/"), name="staff_user_loan_reject"),
+path("staff/loans/<int:loan_id>/approve/", staff_member_required(views.staff_loan_approve, login_url="/admin/login/"), name="staff_loan_approve"),
+path("staff/loans/<int:loan_id>/reject/", staff_member_required(views.staff_loan_reject, login_url="/admin/login/"), name="staff_loan_reject"),
 path("api/latest-withdraw-status/", views.latest_withdraw_status, name="latest_withdraw_status"),
 # --- Modify Loan Amount ---
 path("staff/loans/<int:loan_id>/amount/get/", staff_member_required(views.staff_loan_amount_get, login_url="/admin/login/"), name="staff_loan_amount_get"),

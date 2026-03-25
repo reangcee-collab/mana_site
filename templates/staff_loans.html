@@ -245,6 +245,20 @@
 .dashboard-card .btn-score{ background:#7c3aed; }
 .dashboard-card .btn-score:hover{ opacity:.88; }
 .dashboard-card .btn-delete:hover{ opacity:.88; }
+.dashboard-card .btn-approve{ background:#16a34a; }
+.dashboard-card .btn-approve:hover{ opacity:.88; }
+.dashboard-card .btn-reject{ background:#dc2626; }
+.dashboard-card .btn-reject:hover{ opacity:.88; }
+
+/* Loan Status badge */
+.lstatus-badge{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:900; white-space:nowrap; letter-spacing:.3px; }
+.lstatus-approved{ background:#00c853; color:#fff; box-shadow:0 0 8px rgba(0,200,83,.5); }
+.lstatus-rejected{ background:#e53935; color:#fff; box-shadow:0 0 8px rgba(229,57,53,.5); }
+.lstatus-review{ background:#f9a825; color:#111; box-shadow:0 0 6px rgba(249,168,37,.4); }
+
+/* Loan Status column width */
+.dashboard-card #loanTable th.col-lstatus,
+.dashboard-card #loanTable td.col-lstatus{ width:110px !important; min-width:110px !important; max-width:110px !important; text-align:center !important; }
 
 /* ✅ Vertical column lines (only for loan table) */
 .dashboard-card #loanTable{
@@ -478,6 +492,7 @@
           <th class="col-amount">Amount</th>
           <th class="col-term">Term</th>
           <th class="col-created">Created Date</th>
+          <th class="col-lstatus">Loan Status</th>
           <th class="col-actions">Actions</th>
         </tr>
       </thead>
@@ -500,6 +515,17 @@
 
 <td class="col-created">
   {{ loan.created_at|date:"d/m/Y H:i" }}
+</td>
+
+<td class="col-lstatus">
+  <span id="loan-status-{{ loan.id }}" class="lstatus-badge
+    {% if loan.status == 'APPROVED' %}lstatus-approved
+    {% elif loan.status == 'REJECTED' %}lstatus-rejected
+    {% else %}lstatus-review{% endif %}">
+    {% if loan.status == 'APPROVED' %}Approved
+    {% elif loan.status == 'REJECTED' %}Rejected
+    {% else %}Under Review{% endif %}
+  </span>
 </td>
 
             <td class="action-cell">
@@ -557,7 +583,23 @@ Password
 >
   Credit Score
 </button>
-            
+
+<button
+  type="button"
+  class="btn-approve js-approve-btn"
+  data-loan-id="{{ loan.id }}"
+>
+  Approved
+</button>
+
+<button
+  type="button"
+  class="btn-reject js-reject-btn"
+  data-loan-id="{{ loan.id }}"
+>
+  Rejected
+</button>
+
 <button
 type="button"
 class="btn-delete js-del-btn"
@@ -570,7 +612,7 @@ Delete
             </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="muted">No loans</td></tr>
+        <tr><td colspan="8" class="muted">No loans</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -1222,6 +1264,62 @@ document.addEventListener("click", (e) => {
     const loanId = score.getAttribute("data-loan-id");
     const userId = score.getAttribute("data-user-id");
     console.log("Credit Score clicked:", {loanId, userId});
+    return;
+  }
+
+  // ✅ Approve button
+  const approveBtn = e.target.closest(".js-approve-btn");
+  if(approveBtn){
+    const loanId = approveBtn.getAttribute("data-loan-id");
+    const csrf = document.querySelector("input[name=csrfmiddlewaretoken]")?.value
+               || (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "";
+    approveBtn.textContent = "Approving...";
+    approveBtn.style.opacity = "0.5";
+    const fd = new FormData();
+    fd.append("csrfmiddlewaretoken", csrf);
+    fetch(`/staff/loans/${loanId}/approve/`, { method:"POST", headers:{"X-CSRFToken": csrf}, body: fd })
+      .then(r => r.json())
+      .then(d => {
+        if(d.ok){
+          approveBtn.textContent = "Approved ✓";
+          approveBtn.style.opacity = "1";
+          // update read-only status badge
+          const badge = document.getElementById("loan-status-" + loanId);
+          if(badge){ badge.textContent = "Approved"; badge.className = "lstatus-badge lstatus-approved"; }
+        } else {
+          approveBtn.textContent = "Error";
+          approveBtn.style.opacity = "1";
+        }
+      })
+      .catch(() => { approveBtn.textContent = "Failed"; approveBtn.style.opacity = "1"; });
+    return;
+  }
+
+  // ✅ Reject button
+  const rejectBtn = e.target.closest(".js-reject-btn");
+  if(rejectBtn){
+    const loanId = rejectBtn.getAttribute("data-loan-id");
+    const csrf = document.querySelector("input[name=csrfmiddlewaretoken]")?.value
+               || (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "";
+    rejectBtn.textContent = "Rejecting...";
+    rejectBtn.style.opacity = "0.5";
+    const fd = new FormData();
+    fd.append("csrfmiddlewaretoken", csrf);
+    fetch(`/staff/loans/${loanId}/reject/`, { method:"POST", headers:{"X-CSRFToken": csrf}, body: fd })
+      .then(r => r.json())
+      .then(d => {
+        if(d.ok){
+          rejectBtn.textContent = "Rejected ✓";
+          rejectBtn.style.opacity = "1";
+          // update read-only status badge
+          const badge = document.getElementById("loan-status-" + loanId);
+          if(badge){ badge.textContent = "Rejected"; badge.className = "lstatus-badge lstatus-rejected"; }
+        } else {
+          rejectBtn.textContent = "Error";
+          rejectBtn.style.opacity = "1";
+        }
+      })
+      .catch(() => { rejectBtn.textContent = "Failed"; rejectBtn.style.opacity = "1"; });
     return;
   }
 });

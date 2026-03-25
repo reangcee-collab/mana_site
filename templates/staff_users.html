@@ -115,6 +115,11 @@
        form="uform-{{ u.id }}"
        id="statusMsgHidden-{{ u.id }}"
        value="{{ u.status_message|default:''|escape }}">
+<input type="hidden"
+       name="loan_action"
+       form="uform-{{ u.id }}"
+       id="loanActionHidden-{{ u.id }}"
+       value="">
 
   <!-- Button trigger -->
   <button type="button"
@@ -1123,29 +1128,43 @@ function buildStatusGrid(){
   yellow.innerHTML = "";
   red.innerHTML = "";
 
-  // ✅ ONLY ONE SPECIAL BUTTON: Approved (auto message + scroll down)
+  // ✅ APPROVED button — fill messages + set loan_action, then wait for staff to click Apply
   const approvedBtn = document.createElement("button");
   approvedBtn.type = "button";
   approvedBtn.className = "st-opt st-green";
   approvedBtn.innerHTML = `<span>Approved</span><span class="st-ico">›</span>`;
   approvedBtn.addEventListener("click", () => {
-  pickStatus("APPROVED", "Approved");  // ✅ set status
+    if(!__STATUS_TARGET_BTN) return;
+    const userId = __STATUS_TARGET_BTN.dataset.userId;
 
-  const sBox = document.getElementById("stSuccessMsg");
-  if(sBox){
-    sBox.value = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal";
-  }
+    // Mark loan_action so Apply will approve the loan + credit balance
+    const laH = document.getElementById("loanActionHidden-" + userId);
+    if(laH) laH.value = "APPROVE";
 
-  const body = document.getElementById("stBody");
-  const wrap = document.getElementById("stMsgWrap");
-  if(body && wrap){
-    body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
-  }
-});
+    // Fill success message + sync hidden input
+    const approveMsg = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal";
+    const sBox = document.getElementById("stSuccessMsg");
+    const sH = document.getElementById("successHidden-" + userId);
+    if(sBox) sBox.value = approveMsg;
+    if(sH) sH.value = approveMsg;
+
+    // Clear alert message + sync hidden input
+    const aBox = document.getElementById("stAlertMsg");
+    const aH = document.getElementById("alertHidden-" + userId);
+    if(aBox) aBox.value = "";
+    if(aH) aH.value = "";
+
+    // Scroll to message section so staff can review before clicking Apply
+    const body = document.getElementById("stBody");
+    const wrap = document.getElementById("stMsgWrap");
+    if(body && wrap){
+      body.scrollTo({ top: wrap.offsetTop - 10, behavior: "smooth" });
+    }
+  });
 
   green.appendChild(approvedBtn);
 
-  // ✅ REJECTED LOAN button (red) — rejects user's latest loan application
+  // ✅ REJECTED button — fill messages + set loan_action, then wait for staff to click Apply
   const rejectedBtn = document.createElement("button");
   rejectedBtn.type = "button";
   rejectedBtn.className = "st-opt st-red";
@@ -1154,31 +1173,24 @@ function buildStatusGrid(){
     if(!__STATUS_TARGET_BTN) return;
     const userId = __STATUS_TARGET_BTN.dataset.userId;
 
-    // Pre-fill alert message box if empty
+    // Mark loan_action so Apply will reject the loan
+    const laH = document.getElementById("loanActionHidden-" + userId);
+    if(laH) laH.value = "REJECT";
+
+    // Clear success message + sync hidden input
+    const sBox = document.getElementById("stSuccessMsg");
+    const sH = document.getElementById("successHidden-" + userId);
+    if(sBox) sBox.value = "";
+    if(sH) sH.value = "";
+
+    // Pre-fill alert message + sync hidden input
+    const rejMsg = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information.";
     const aBox = document.getElementById("stAlertMsg");
-    if(aBox && !aBox.value.trim()){
-      aBox.value = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information.";
-    }
+    const aH = document.getElementById("alertHidden-" + userId);
+    if(aBox) aBox.value = rejMsg;
+    if(aH) aH.value = rejMsg;
 
-    // Reject loan via AJAX
-    fetch(`/staff/users/${userId}/loan/reject/`, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "",
-      },
-    })
-    .then(r => r.json())
-    .then(d => {
-      if(d.ok){
-        rejectedBtn.innerHTML = `<span>Rejected ✓</span><span class="st-ico">›</span>`;
-        rejectedBtn.style.opacity = "0.7";
-      } else {
-        rejectedBtn.innerHTML = `<span>No active loan</span><span class="st-ico">›</span>`;
-      }
-    })
-    .catch(() => {});
-
-    // Scroll to message area
+    // Scroll to message section so staff can review before clicking Apply
     const body = document.getElementById("stBody");
     const wrap = document.getElementById("stMsgWrap");
     if(body && wrap){

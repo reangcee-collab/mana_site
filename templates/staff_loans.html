@@ -276,7 +276,7 @@
 
 /* ===== STATUS BADGE STYLE (OVERRIDE staff_base underline) ===== */
 .dashboard-card #loanTable td:nth-child(6) select{
-  width: 100% !important;
+  display: none !important;
   background: #e5e7eb !important;
   color: #004182 !important;
 
@@ -387,8 +387,7 @@
 
 .dashboard-card #loanTable th.col-status,
 .dashboard-card #loanTable td.col-status{
-  width:120px !important;
-  min-width:120px !important;
+  display:none !important;
   max-width:120px !important;
   text-align:center !important;
 }
@@ -459,7 +458,7 @@
   <div class="card-h">
     <div>
       <div class="h1">Loan Applications</div>
-      <div class="muted">Edit status only</div>
+      <div class="muted">Manage loan applications</div>
     </div>
     <form method="get" style="display:flex;gap:10px;align-items:center;">
       <input name="q" value="{{ q }}" placeholder="Search phone..." style="width:240px;">
@@ -479,15 +478,12 @@
           <th class="col-amount">Amount</th>
           <th class="col-term">Term</th>
           <th class="col-created">Created Date</th>
-          <th class="col-status">Status</th>
           <th class="col-actions">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for loan in page.object_list %}
         <tr>
-          <form method="post" action="{% url 'staff_loan_status_update' loan.id %}">
-            {% csrf_token %}
             <td class="col-id">#{{ loan.id }}</td>
 
 <td class="col-name">{{ loan.full_name|default:"-" }}</td>
@@ -506,17 +502,6 @@
   {{ loan.created_at|date:"d/m/Y H:i" }}
 </td>
 
-<td class="col-status">
-  <select name="status">
-    {% for v,label in loan.STATUS_CHOICES %}
-      {% if v == "REVIEW" or v == "APPROVED" or v == "REJECTED" %}
-      <option value="{{ v }}" {% if loan.status == v %}selected{% endif %}>
-        {% if v == "REVIEW" %}Under review{% else %}{{ label }}{% endif %}
-      </option>
-      {% endif %}
-    {% endfor %}
-  </select>
-</td>
             <td class="action-cell">
               <div class="action-wrap">
             
@@ -581,14 +566,11 @@ data-phone="{{ loan.user.phone }}"
 >
 Delete
 </button>
-<button class="btn-save" type="submit">Save</button>
-            
               </div>
             </td>
-          </form>
         </tr>
         {% empty %}
-        <tr><td colspan="8" class="muted">No loans</td></tr>
+        <tr><td colspan="7" class="muted">No loans</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -606,42 +588,6 @@ Delete
 </div> <!-- table-wrap -->
 </div> <!-- content -->
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function(){
-      const selects = document.querySelectorAll("#loanTable select[name='status']");
-    
-      function paint(el){
-        // clear classes
-        el.classList.remove("approved","review","rejected");
-    
-        // clear previous forced styles
-        el.style.setProperty("background", "", "important");
-        el.style.setProperty("color", "", "important");
-        el.style.setProperty("border-bottom", "0", "important");
-    
-        const v = (el.value || "").toUpperCase();
-    
-        if(v === "APPROVED"){
-          el.classList.add("approved");
-          el.style.setProperty("background", "#22c55e", "important");
-          el.style.setProperty("color", "#ffffff", "important");
-        }else if(v === "REVIEW"){
-          el.classList.add("review");
-          el.style.setProperty("background", "#facc15", "important");
-          el.style.setProperty("color", "#111827", "important");
-        }else if(v === "REJECTED"){
-          el.classList.add("rejected");
-          el.style.setProperty("background", "#ef4444", "important");
-          el.style.setProperty("color", "#ffffff", "important");
-        }
-      }
-    
-      selects.forEach(s => {
-        paint(s);
-        s.addEventListener("change", function(){ paint(this); });
-      });
-    });
-    </script>
 
 <!-- ===== Bank Modal (Loans Page) ===== -->
 <div id="bankModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; align-items:center; justify-content:center; padding:18px 14px; box-sizing:border-box;">

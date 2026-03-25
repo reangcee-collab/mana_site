@@ -543,7 +543,7 @@
       _applyDescStyle(desc, "alert");
     } else {
       {% if loan %}
-        if(!desc.textContent.trim()) desc.textContent = _DEFAULT_DESC;
+        desc.textContent = _DEFAULT_DESC;
         _applyDescStyle(desc, "default");
       {% else %}
         desc.textContent = "";
@@ -914,12 +914,12 @@
   // =========================
   let _wdPoll = null;
 
-  // FINAL states: no need for fast polling
+  // Always poll fast so Order Status / Description update immediately after staff changes
   const _FINAL_STATES = new Set(["paid","rejected"]);
-  let _pollIntervalMs = 5000; // default slow
+  let _pollIntervalMs = 2000;
 
   function _setPollingSpeed(fast){
-    const ms = fast ? 3000 : 8000;
+    const ms = 2000; // always fast — loan status must reflect changes instantly
     if(ms === _pollIntervalMs) return;
     _pollIntervalMs = ms;
     if(_wdPoll){ clearInterval(_wdPoll); _wdPoll = null; }
@@ -933,8 +933,13 @@
       if(!data || data.ok !== true) return;
 
       // ✅ always update Order Status + Description together (same poll, same time)
-      if(data.loan && data.loan.status){
-        if(typeof paintLoanTimeline === "function") paintLoanTimeline(data.loan.status);
+      // Messages take priority; no messages + non-final status → "Under Review"
+      {
+        let displayStatus = (data.loan && data.loan.status) ? data.loan.status : "";
+        if(data.success_message) displayStatus = "APPROVED";
+        else if(data.notification_message) displayStatus = "REJECTED";
+        else displayStatus = "REVIEW"; // no messages → always Under Review
+        if(typeof paintLoanTimeline === "function") paintLoanTimeline(displayStatus);
       }
       if(typeof window.__updateLoanDesc === "function"){
         window.__updateLoanDesc(data.success_message || "", data.notification_message || "");
@@ -1083,49 +1088,6 @@
         else if(err === "account_not_active") showAlert("Your account is not ACTIVE. Please contact company department.");
         else if(err === "low_credit_score") showAlert("Your credit score is too low. Please contact support to improve your credit score.");
         else showAlert("Request failed. Try again.");
-        return;
-      }
-
-      // ✅ Wrong Amount flow
-      if(data.wrong_amount){
-        // 1) visually deduct balance
-        const balEl = document.querySelector("[data-balance]");
-        const origBalDisplay = balEl ? balEl.textContent : "";
-        if(balEl) balEl.textContent = (parseFloat(amount) > 0)
-          ? (parseFloat((data.new_balance||"0")) - parseFloat(amountRaw)).toFixed(2).replace(/\.00$/,"")
-          : origBalDisplay;
-
-        // 2) show Processing on button
-        const origBtnText = btn.innerHTML;
-        btn.innerHTML = "Processing...";
-        btn.style.opacity = "0.7";
-        btn.disabled = true;
-
-        // 3) after 4s → show Wrong Amount in red
-        setTimeout(()=>{
-          btn.innerHTML = "✗ &nbsp; Wrong Amount";
-          btn.style.background = "rgba(255,30,30,0.35)";
-          btn.style.color = "#ff4444";
-          btn.style.boxShadow = "0 0 14px rgba(255,30,30,0.5)";
-
-          // restore balance (refund)
-          if(balEl) balEl.textContent = parseFloat(data.new_balance||"0").toString().replace(/\.0+$/,"") || "0";
-
-          // 4) after 3 more seconds → restore button, clear OTP
-          setTimeout(()=>{
-            btn.innerHTML = origBtnText;
-            btn.style.background = "";
-            btn.style.color = "";
-            btn.style.boxShadow = "";
-            btn.disabled = false;
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
-            locked = false;
-            if(otpInput){ otpInput.value = ""; }
-            updateBtn();
-            showAlert("Wrong amount. Your OTP has expired — please request a new OTP code.");
-          }, 3000);
-        }, 4000);
         return;
       }
 

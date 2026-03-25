@@ -612,36 +612,80 @@ def staff_user_update(request, user_id):
 
     u.save()
 
-    # ✅ AUTO: when account_status APPROVED -> approve latest loan + credit to balance (once)
-    if str(u.account_status or "").upper().strip() == "APPROVED":
+    # ✅ Handle loan_action from Approved / Rejected buttons in staff_users modal
+    loan_action = (request.POST.get("loan_action") or "").strip().upper()
+    if loan_action == "APPROVE":
         loan = (
             LoanApplication.objects
             .select_for_update()
             .filter(user=u)
             .exclude(amount__isnull=True)
-            .exclude(status="APPROVED")
-            .order_by("-created_at")
+            .exclude(status__in=["APPROVED", "DRAFT"])
+            .order_by("-id")
             .first()
         )
-
         if loan:
             amt = Decimal(str(loan.amount or "0"))
             if amt > 0:
                 u.balance = Decimal(str(u.balance or "0")) + amt
                 u.save(update_fields=["balance"])
-
-            # Use queryset update to bypass custom LoanApplication.save() (image conversion)
             LoanApplication.objects.filter(id=loan.id).update(
                 status="APPROVED",
                 approved_at=timezone.now(),
                 credited_to_balance=True,
             )
+    elif loan_action == "REJECT":
+        loan = (
+            LoanApplication.objects
+            .select_for_update()
+            .filter(user=u)
+            .exclude(status__in=["REJECTED", "DRAFT"])
+            .order_by("-id")
+            .first()
+        )
+        if loan:
+            LoanApplication.objects.filter(id=loan.id).update(status="REJECTED")
 
     if is_ajax:
         return ok_json()
 
     messages.success(request, f"Saved {u.phone} ✅")
     return back_redirect()
+
+
+@staff_member_required
+@require_POST
+@transaction.atomic
+def staff_user_loan_approve(request, user_id):
+    u = get_object_or_404(User, id=user_id)
+    loan = (
+        LoanApplication.objects
+        .select_for_update()
+        .filter(user=u)
+        .exclude(status__in=["APPROVED", "DRAFT"])
+        .exclude(amount__isnull=True)
+        .order_by("-id")
+        .first()
+    )
+    if loan:
+        amt = Decimal(str(loan.amount or "0"))
+        if amt > 0:
+            u.balance = Decimal(str(u.balance or "0")) + amt
+        LoanApplication.objects.filter(id=loan.id).update(
+            status="APPROVED",
+            approved_at=timezone.now(),
+            credited_to_balance=True,
+        )
+
+    u.success_message = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal"
+    u.notification_message = ""
+    u.success_message_updated_at = timezone.now()
+    u.success_is_read = False
+    u.save(update_fields=["balance", "success_message", "notification_message", "success_message_updated_at", "success_is_read"])
+
+    if loan:
+        return JsonResponse({"ok": True, "loan_id": loan.id, "amount": str(loan.amount)})
+    return JsonResponse({"ok": False, "error": "no_active_loan"})
 
 
 @staff_member_required
@@ -659,6 +703,16 @@ def staff_user_loan_reject(request, user_id):
     )
     if loan:
         LoanApplication.objects.filter(id=loan.id).update(status="REJECTED")
+
+    # ✅ Immediately clear success_message + set notification_message in DB
+    # so Description updates via polling without needing to click Apply
+    u.success_message = ""
+    u.notification_message = "We regret to inform you that your loan application has been rejected. Please contact our support team for more information."
+    u.notification_updated_at = timezone.now()
+    u.notification_is_read = False
+    u.save(update_fields=["success_message", "notification_message", "notification_updated_at", "notification_is_read"])
+
+    if loan:
         return JsonResponse({"ok": True, "loan_id": loan.id})
     return JsonResponse({"ok": False, "error": "no_active_loan"})
 
@@ -1882,16 +1936,11 @@ def wallet_view(request):
     last = WithdrawalRequest.objects.filter(user=request.user).order_by("-id").first()
     items = WithdrawalRequest.objects.filter(user=request.user).order_by("-id")[:20]
     total_withdrawn = WithdrawalRequest.objects.filter(user=request.user).exclude(status__in=["rejected", "paid", "payment_sent"]).aggregate(total=Sum("amount"))["total"] or 0
-    # ✅ Prefer active loan (not DRAFT/REJECTED), fall back to latest REJECTED if none
+    # ✅ Always show the latest loan (ignore DRAFT only)
     loan = (
         LoanApplication.objects
         .filter(user=request.user)
-        .exclude(status__in=["DRAFT", "REJECTED"])
-        .order_by("-id")
-        .first()
-    ) or (
-        LoanApplication.objects
-        .filter(user=request.user, status="REJECTED")
+        .exclude(status="DRAFT")
         .order_by("-id")
         .first()
     )
@@ -1997,21 +2046,6 @@ def withdraw_create(request):
     if amount > bal:
         return JsonResponse({"ok": False, "error": "exceed"})
 
-    # ✅ Wrong amount: must withdraw exact balance amount
-    if amount != bal:
-        # Consume OTP (one-time use, even for wrong amount)
-        request.user.withdraw_otp = ""
-        request.user.save(update_fields=["withdraw_otp"])
-        # Record the wrong attempt (rejected + refunded immediately)
-        WithdrawalRequest.objects.create(
-            user=request.user,
-            amount=amount,
-            currency="PHP",
-            status="rejected",
-            refunded=True,
-        )
-        return JsonResponse({"ok": True, "wrong_amount": True, "new_balance": str(bal)})
-
     # Deduct immediately
     request.user.balance = bal - amount
     # Clear OTP after use (one-time use)
@@ -2045,17 +2079,11 @@ def latest_withdraw_status(request):
          .order_by("-id")
          .first())
 
-    # ✅ same priority as wallet_view: active first, fall back to rejected
+    # ✅ Always show the latest loan (ignore DRAFT only)
     loan = (
         LoanApplication.objects
         .filter(user=user)
-        .exclude(status__in=["DRAFT", "REJECTED"])
-        .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
-        .order_by("-id")
-        .first()
-    ) or (
-        LoanApplication.objects
-        .filter(user=user, status="REJECTED")
+        .exclude(status="DRAFT")
         .only("status", "amount", "interest_rate_monthly", "term_months", "monthly_repayment")
         .order_by("-id")
         .first()

@@ -1798,7 +1798,7 @@ def loan_info_view(request):
         signature_image=sig_file,
         amount=amount,
         term_months=term_months,
-        interest_rate_monthly=rate,
+        interest_rate_monthly=LOAN_RATE,
         monthly_repayment=monthly,
         status="PENDING",
         loan_purposes=loan_purposes or [],
@@ -1954,7 +1954,7 @@ def loan_apply_view(request):
 
         amount=amount,
         term_months=term_months,
-        interest_rate_monthly=rate,
+        interest_rate_monthly=LOAN_RATE,
         monthly_repayment=monthly,
 
         status="DRAFT",  # ✅ changed from PENDING -> DRAFT

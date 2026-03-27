@@ -164,7 +164,7 @@ def _to_webp(fieldfile, max_w=1400, quality=78):
 
         # Save to WEBP in memory
         buf = BytesIO()
-        img.save(buf, format="WEBP", quality=quality, method=6)
+        img.save(buf, format="WEBP", quality=quality, method=1)
         buf.seek(0)
 
         # new filename
@@ -201,7 +201,7 @@ class LoanApplication(models.Model):
 
     def save(self, *args, **kwargs):
         # Convert images to webp (safe: if conversion fails, keep original)
-        for fname in ("id_front", "id_back", "selfie_with_id", "signature_image"):
+        for fname in ("id_front", "id_back", "selfie_with_id"):
             f = getattr(self, fname)
             if f and f.name and not f.name.lower().endswith(".webp"):
                 new_file = _to_webp(f, max_w=1400, quality=78)

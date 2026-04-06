@@ -405,10 +405,47 @@
     goBtn.disabled = true;
     goBtn.style.opacity = ".65";
   {% else %}
+    // ===== PERSIST amount + term across page closes (localStorage) =====
+    const QL_KEY = "quickLoan_{{ request.user.id }}";
+    function saveQL(){
+      try {
+        localStorage.setItem(QL_KEY, JSON.stringify({
+          amount: amountEl ? amountEl.value : "",
+          term:   termEl   ? termEl.value   : ""
+        }));
+      } catch(e){}
+    }
+    function restoreQL(){
+      try {
+        const saved = JSON.parse(localStorage.getItem(QL_KEY) || "{}");
+        if(saved.amount && amountEl){
+          amountEl.value = saved.amount;
+        }
+        if(saved.term && termEl){
+          termEl.value = saved.term;
+          btns.forEach((b)=>{
+            if((b.dataset.term || "") === String(saved.term)){
+              b.classList.add("active");
+              if(hint) hint.textContent = saved.term + " months";
+            }
+          });
+        }
+      } catch(e){}
+    }
+
+    // Restore on load
+    restoreQL();
+
+    // Save on every change
+    if(amountEl) amountEl.addEventListener("input", saveQL);
+    btns.forEach((b)=>{ b.addEventListener("click", saveQL); });
+
     goBtn.addEventListener("click", ()=>{
       const amount = amountEl?.value || "";
       const term = termEl?.value || "";
       if(!amount || !term) return;
+      // Clear storage after navigating to application page
+      try { localStorage.removeItem(QL_KEY); } catch(e){}
       window.location.href = "{% url 'loan_info' %}?amount=" + encodeURIComponent(amount) + "&term=" + encodeURIComponent(term);
     });
   {% endif %}

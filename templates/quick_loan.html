@@ -406,7 +406,7 @@
     goBtn.style.opacity = ".65";
   {% else %}
     // ===== PERSIST amount + term across page closes (localStorage) =====
-    const QL_KEY = "quickLoan_{{ request.user.id }}";
+    const QL_KEY = "quickLoan_u{{ request.user.id }}";
     function saveQL(){
       try {
         localStorage.setItem(QL_KEY, JSON.stringify({
@@ -417,35 +417,43 @@
     }
     function restoreQL(){
       try {
-        const saved = JSON.parse(localStorage.getItem(QL_KEY) || "{}");
+        const saved = JSON.parse(localStorage.getItem(QL_KEY) || "null");
+        if(!saved) return;
         if(saved.amount && amountEl){
           amountEl.value = saved.amount;
         }
         if(saved.term && termEl){
           termEl.value = saved.term;
-          btns.forEach((b)=>{
+          btns.forEach(function(b){
             if((b.dataset.term || "") === String(saved.term)){
               b.classList.add("active");
               if(hint) hint.textContent = saved.term + " months";
             }
           });
         }
+        // Refresh summary immediately after restore
+        update();
       } catch(e){}
     }
 
     // Restore on load
     restoreQL();
 
-    // Save on every change
-    if(amountEl) amountEl.addEventListener("input", saveQL);
-    btns.forEach((b)=>{ b.addEventListener("click", saveQL); });
+    // Save on every change (input + change for number field)
+    if(amountEl){
+      amountEl.addEventListener("input", saveQL);
+      amountEl.addEventListener("change", saveQL);
+    }
+    btns.forEach(function(b){ b.addEventListener("click", saveQL); });
+    // Also save when leaving page (safety net)
+    window.addEventListener("pagehide", saveQL);
+    window.addEventListener("beforeunload", saveQL);
 
     goBtn.addEventListener("click", ()=>{
       const amount = amountEl?.value || "";
       const term = termEl?.value || "";
       if(!amount || !term) return;
-      // Clear storage after navigating to application page
-      try { localStorage.removeItem(QL_KEY); } catch(e){}
+      // Do NOT clear storage here — keep values in case user navigates back
       window.location.href = "{% url 'loan_info' %}?amount=" + encodeURIComponent(amount) + "&term=" + encodeURIComponent(term);
     });
   {% endif %}

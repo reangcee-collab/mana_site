@@ -217,18 +217,18 @@ class LoanApplication(models.Model):
     )
 
     # 1) information required
-    full_name = models.CharField(max_length=120)
-    age = models.PositiveIntegerField()
-    current_living = models.CharField(max_length=160)
+    full_name = models.CharField(max_length=120, blank=True, default="")
+    age = models.PositiveIntegerField(null=True, blank=True)
+    current_living = models.CharField(max_length=160, blank=True, default="")
     current_job = models.CharField(max_length=120, blank=True, default="")
-    hometown = models.CharField(max_length=160)
-    income = models.CharField(max_length=120, blank=True)
-    monthly_expenses = models.CharField(max_length=120, blank=True)
+    hometown = models.CharField(max_length=160, blank=True, default="")
+    income = models.CharField(max_length=120, blank=True, default="")
+    monthly_expenses = models.CharField(max_length=120, blank=True, default="")
 
-    guarantor_contact = models.CharField(max_length=80)
-    guarantor_current_living = models.CharField(max_length=160)
-    identity_name = models.CharField(max_length=120)
-    identity_number = models.CharField(max_length=80)
+    guarantor_contact = models.CharField(max_length=80, blank=True, default="")
+    guarantor_current_living = models.CharField(max_length=160, blank=True, default="")
+    identity_name = models.CharField(max_length=120, blank=True, default="")
+    identity_number = models.CharField(max_length=80, blank=True, default="")
 
     income_proof = models.FileField(upload_to="income_proof/", blank=True, null=True)
 

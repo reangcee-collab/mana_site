@@ -19,6 +19,7 @@ urlpatterns = [
 
     path("loan-apply/", views.loan_apply_view, name="loan_apply"),
     path("loan-info/", views.loan_info_view, name="loan_info"),
+    path("api/loan-draft/save/", views.loan_draft_save, name="loan_draft_save"),
     path("quick-loan/", views.quick_loan_view, name="quick_loan"),
 
     path("wallet/", views.wallet_view, name="wallet"),

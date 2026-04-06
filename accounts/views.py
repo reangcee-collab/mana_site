@@ -1685,13 +1685,92 @@ def loan_info_view(request):
                 "pm": pm,
                 "loan_purposes_json": json.dumps(existing.loan_purposes or []),
             })
+        # Check for in-progress DRAFT
+        draft = (
+            LoanApplication.objects
+            .filter(user=request.user, status="DRAFT")
+            .order_by("-id")
+            .first()
+        )
+        pm = getattr(request.user, "payment_method", None)
+        sections_done = _get_sections_done(draft, pm)
         amount = (request.GET.get("amount") or "").strip()
         term = (request.GET.get("term") or "").strip()
-        return render(request, "loan_info.html", {"amount": amount, "term": term})
+        return render(request, "loan_info.html", {
+            "amount": amount,
+            "term": term,
+            "draft": draft,
+            "draft_pm": pm,
+            "sections_done": sections_done,
+            "draft_purposes_json": json.dumps((draft.loan_purposes or []) if draft else []),
+        })
 
     if existing:
         messages.info(request, "You already have an active application.")
         return redirect("wallet")
+
+    # ── DRAFT FINALIZATION PATH ──────────────────────────────────────────
+    if request.POST.get("use_draft") == "1":
+        draft = LoanApplication.objects.filter(user=request.user, status="DRAFT").first()
+
+        def _derr(msg):
+            messages.error(request, msg)
+            qs = ""
+            _la = (request.POST.get("loan_amount") or "").strip()
+            _lt = (request.POST.get("loan_terms") or "").strip()
+            if _la and _lt:
+                qs = f"?amount={_la}&term={_lt}"
+            return redirect(reverse("loan_info") + qs)
+
+        if not draft:
+            return _derr("No draft found. Please fill all sections.")
+
+        missing = []
+        if not (draft.identity_name and draft.identity_number):
+            missing.append("Identity Information")
+        if not draft.id_front or not draft.id_back or not draft.selfie_with_id:
+            missing.append("ID Photos")
+        if not (draft.full_name and draft.age):
+            missing.append("Personal Information")
+        if not draft.signature_image:
+            missing.append("Signature")
+        _pm = getattr(request.user, "payment_method", None)
+        if not _pm or not (_pm.bank_name or _pm.bank_account):
+            missing.append("Beneficiary Information")
+        if missing:
+            return _derr("Please complete: " + ", ".join(missing))
+
+        loan_amount_raw = (request.POST.get("loan_amount") or "").strip()
+        term_raw = (request.POST.get("loan_terms") or "").strip()
+
+        try:
+            d_amount = Decimal(loan_amount_raw)
+        except (InvalidOperation, ValueError):
+            return _derr("Invalid loan amount.")
+        try:
+            d_term = int(term_raw)
+        except (ValueError, TypeError):
+            return _derr("Please choose loan terms.")
+        if d_term not in (6, 12, 24, 36, 48, 60):
+            return _derr("Invalid loan terms.")
+        LOAN_RATE = Decimal("0.005")
+        LOAN_MIN = Decimal("100000")
+        LOAN_MAX = Decimal("5000000")
+        if d_amount < LOAN_MIN or d_amount > LOAN_MAX:
+            return _derr(f"Loan amount must be between {int(LOAN_MIN):,} and {int(LOAN_MAX):,}.")
+
+        d_total = d_amount + (d_amount * LOAN_RATE * Decimal(d_term))
+        d_monthly = d_total / Decimal(d_term)
+
+        draft.amount = d_amount
+        draft.term_months = d_term
+        draft.interest_rate_monthly = LOAN_RATE
+        draft.monthly_repayment = d_monthly
+        draft.status = "PENDING"
+        draft.save(update_fields=["amount", "term_months", "interest_rate_monthly",
+                                   "monthly_repayment", "status"])
+        return redirect(reverse("wallet"))
+    # ── END DRAFT FINALIZATION ───────────────────────────────────────────
 
     # Collect all form data
     full_name = (request.POST.get("full_name") or "").strip()
@@ -1815,6 +1894,148 @@ def loan_info_view(request):
             pm.save()
 
     return redirect(reverse("wallet"))
+
+
+@login_required(login_url="login")
+@require_POST
+def loan_draft_save(request):
+    """AJAX endpoint: save a single section of the loan form to a DRAFT record.
+    Called from loan_info.html after each step is confirmed.
+    Returns JSON {ok, sections_done: [1,2,3,4]}
+    """
+    # Block if user already has a non-DRAFT application
+    existing = (
+        LoanApplication.objects
+        .filter(user=request.user)
+        .exclude(status="DRAFT")
+        .order_by("-id")
+        .first()
+    )
+    if existing:
+        return JsonResponse({"error": "Application already submitted."}, status=400)
+
+    section = request.POST.get("section", "")
+
+    # Get or create DRAFT
+    draft, _ = LoanApplication.objects.get_or_create(
+        user=request.user,
+        status="DRAFT",
+        defaults={
+            "full_name": "",
+            "identity_name": "",
+            "identity_number": "",
+        },
+    )
+
+    if section == "1":
+        identity_name = (request.POST.get("identity_name") or "").strip()
+        identity_number = (request.POST.get("identity_number") or "").strip()
+        if not identity_name or not identity_number:
+            return JsonResponse({"error": "Identity name and number required."}, status=400)
+
+        id_front_raw = request.FILES.get("id_front")
+        id_back_raw = request.FILES.get("id_back")
+        selfie_raw = request.FILES.get("selfie_with_id")
+
+        if not (id_front_raw and id_back_raw and selfie_raw):
+            return JsonResponse({"error": "All 3 ID photos required."}, status=400)
+
+        try:
+            draft.id_front = normalize_upload_image(id_front_raw, max_side=900, quality=82, out_format="WEBP")
+            draft.id_back = normalize_upload_image(id_back_raw, max_side=900, quality=82, out_format="WEBP")
+            draft.selfie_with_id = normalize_upload_image(selfie_raw, max_side=900, quality=82, out_format="WEBP")
+        except Exception:
+            return JsonResponse({"error": "Image upload error. Please try again."}, status=400)
+
+        draft.identity_name = identity_name
+        draft.identity_number = identity_number
+        draft.save(update_fields=["identity_name", "identity_number", "id_front", "id_back", "selfie_with_id"])
+
+    elif section == "2":
+        full_name = (request.POST.get("full_name") or "").strip()
+        age_raw = (request.POST.get("age") or "").strip()
+        current_living = (request.POST.get("current_living") or "").strip()
+        current_job = (request.POST.get("current_job") or "").strip()
+        hometown = (request.POST.get("hometown") or "").strip()
+        income = (request.POST.get("income") or "").strip()
+        monthly_expenses = (request.POST.get("monthly_expenses") or "").strip()
+        guarantor_contact = (request.POST.get("guarantor_contact") or "").strip()
+        guarantor_current_living = (request.POST.get("guarantor_current_living") or "").strip()
+        loan_purposes = request.POST.getlist("loan_purposes")
+
+        if not (full_name and age_raw and current_living and current_job and hometown
+                and monthly_expenses and guarantor_contact and guarantor_current_living):
+            return JsonResponse({"error": "Please fill all required fields."}, status=400)
+
+        try:
+            age = int(age_raw)
+            if age < 18 or age > 90:
+                raise ValueError
+        except ValueError:
+            return JsonResponse({"error": "Invalid age."}, status=400)
+
+        draft.full_name = full_name
+        draft.age = age
+        draft.current_living = current_living
+        draft.current_job = current_job
+        draft.hometown = hometown
+        draft.income = income
+        draft.monthly_expenses = monthly_expenses
+        draft.guarantor_contact = guarantor_contact
+        draft.guarantor_current_living = guarantor_current_living
+        draft.loan_purposes = loan_purposes or []
+        draft.save(update_fields=["full_name", "age", "current_living", "current_job",
+                                   "hometown", "income", "monthly_expenses",
+                                   "guarantor_contact", "guarantor_current_living", "loan_purposes"])
+
+    elif section == "3":
+        bank_name = (request.POST.get("bank_name") or "").strip()
+        bank_account = (request.POST.get("bank_account") or "").strip()
+        account_holder = (request.POST.get("account_holder") or "").strip()
+
+        pm, _ = PaymentMethod.objects.get_or_create(user=request.user)
+        if not pm.locked:
+            pm.bank_name = bank_name
+            pm.bank_account = bank_account
+            pm.wallet_name = account_holder
+            pm.save(update_fields=["bank_name", "bank_account", "wallet_name"])
+
+    elif section == "4":
+        signature_data = (request.POST.get("signature_data") or "").strip()
+        if not signature_data.startswith("data:image"):
+            return JsonResponse({"error": "Please draw your signature first."}, status=400)
+
+        try:
+            header, b64 = signature_data.split(";base64,", 1)
+            sig_file = ContentFile(base64.b64decode(b64), name=f"sig_draft_{request.user.id}.png")
+        except Exception:
+            return JsonResponse({"error": "Signature error. Please clear and draw again."}, status=400)
+
+        draft.signature_image = sig_file
+        draft.save(update_fields=["signature_image"])
+
+    else:
+        return JsonResponse({"error": "Invalid section."}, status=400)
+
+    # Return which sections are complete
+    pm = getattr(request.user, "payment_method", None)
+    sections_done = _get_sections_done(draft, pm)
+    return JsonResponse({"ok": True, "sections_done": sections_done})
+
+
+def _get_sections_done(draft, pm):
+    """Return list of completed section numbers (1-4) for a draft."""
+    done = []
+    if draft:
+        if draft.identity_name and draft.identity_number and draft.id_front:
+            done.append(1)
+        if draft.full_name and draft.age:
+            done.append(2)
+        if draft.signature_image:
+            done.append(4)
+    if pm and (pm.bank_name or pm.bank_account):
+        done.append(3)
+    return done
 
 
 @login_required(login_url="login")

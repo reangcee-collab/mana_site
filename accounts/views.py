@@ -936,6 +936,37 @@ def staff_loan_amount_get(request, loan_id):
         "amount": str(loan.amount or ""),
     })
 
+def _credit_approved_loan_if_needed(loan, user):
+    """Idempotently credit an APPROVED loan's amount into the user's balance.
+
+    Returns True if a credit was actually applied. Safe to call repeatedly:
+    it credits at most once per loan (guarded by loan.credited_to_balance)
+    and only when the loan is APPROVED with a positive amount. This is what
+    fixes "approved while amount was empty, amount set later via Modify Loan,
+    balance never credited".
+
+    Caller is responsible for persisting loan.credited_to_balance.
+    """
+    if (loan.status or "").upper() != "APPROVED":
+        return False
+    if getattr(loan, "credited_to_balance", False):
+        return False
+    try:
+        amt = Decimal(str(loan.amount or "0"))
+    except (InvalidOperation, ValueError):
+        amt = Decimal("0")
+    if amt <= 0:
+        return False
+    try:
+        bal = Decimal(str(user.balance or "0"))
+    except Exception:
+        bal = Decimal("0")
+    user.balance = bal + amt
+    user.save(update_fields=["balance"])
+    loan.credited_to_balance = True
+    return True
+
+
 @staff_member_required
 @csrf_protect
 @require_POST
@@ -956,6 +987,12 @@ def staff_loan_amount_save(request, loan_id):
         return JsonResponse({"ok": False, "error": "invalid_amount"})
 
     loan.save(update_fields=["amount"])
+
+    # If this loan was already approved but never credited (it was approved
+    # before the amount was entered), credit it now.
+    if _credit_approved_loan_if_needed(loan, loan.user):
+        loan.save(update_fields=["credited_to_balance"])
+
     return JsonResponse({"ok": True})
 
 @staff_member_required
@@ -1011,6 +1048,12 @@ def staff_loan_edit_save(request, loan_id):
     loan.monthly_repayment = total / Decimal(loan.term_months)
 
     loan.save(update_fields=["amount", "term_months", "interest_rate_monthly", "monthly_repayment"])
+
+    # If this loan was already approved but never credited (it was approved
+    # before the amount was entered), credit it now.
+    if _credit_approved_loan_if_needed(loan, loan.user):
+        loan.save(update_fields=["credited_to_balance"])
+
     return JsonResponse({
         "ok": True,
         "amount": str(loan.amount),
@@ -1143,8 +1186,10 @@ def staff_loan_status_update(request, loan_id):
 
                 user.balance = bal + amt
                 user.save(update_fields=["balance"])
-
-            loan.credited_to_balance = True
+                # Only mark as credited when a real amount was actually added.
+                # If amount was still empty at approval time, leave the flag
+                # False so it gets credited later when the amount is set.
+                loan.credited_to_balance = True
 
     # (Optional) if status changed away from APPROVED, don't reset credited flag
     # to prevent duplicate credit in the future.

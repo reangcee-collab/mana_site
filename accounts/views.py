@@ -1118,38 +1118,6 @@ from django.shortcuts import get_object_or_404, redirect
 
 @staff_member_required
 @require_POST
-def staff_loan_status_update(request, loan_id):
-    loan = get_object_or_404(LoanApplication.objects.select_related("user"), id=loan_id)
-
-    status = (request.POST.get("status") or "").strip().upper()
-    valid = {v for v, _ in LoanApplication.STATUS_CHOICES}
-
-    if status not in valid:
-        messages.error(request, "Invalid status ❌")
-        return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
-
-    old_status = (loan.status or "").upper()
-
-    # ✅ If changing to APPROVED (only once)
-    if status == "APPROVED" and old_status != "APPROVED":
-        user = loan.user
-
-        try:
-            current_balance = Decimal(str(user.balance or "0"))
-        except Exception:
-            current_balance = Decimal("0")
-
-        user.balance = current_balance + loan.amount
-        user.save(update_fields=["balance"])
-
-    loan.status = status
-    loan.save(update_fields=["status"])
-
-    messages.success(request, f"Loan #{loan.id} status updated ✅")
-    return redirect(request.META.get("HTTP_REFERER", "staff_loans"))
-
-@staff_member_required
-@require_POST
 @transaction.atomic
 def staff_loan_status_update(request, loan_id):
     loan = get_object_or_404(

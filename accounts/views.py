@@ -722,17 +722,43 @@ def staff_user_loan_reject(request, user_id):
 @transaction.atomic
 def staff_loan_approve(request, loan_id):
     """Approve a specific loan by loan_id — used from staff_loans page."""
-    loan = get_object_or_404(LoanApplication, id=loan_id)
+    loan = get_object_or_404(
+        LoanApplication.objects.select_for_update().select_related("user"),
+        id=loan_id,
+    )
     if loan.status == "DRAFT":
         return JsonResponse({"ok": False, "error": "invalid_status"})
+
     u = loan.user
-    LoanApplication.objects.filter(id=loan.id).update(status="APPROVED")
-    if loan.amount:
-        u.balance = (u.balance or 0) + loan.amount
+
+    # ✅ Credit the loan amount into the user's balance — ONLY ONCE.
+    if not getattr(loan, "credited_to_balance", False):
+        try:
+            amt = Decimal(str(loan.amount or "0"))
+        except (InvalidOperation, ValueError):
+            amt = Decimal("0")
+        if amt > 0:
+            try:
+                bal = Decimal(str(u.balance or "0"))
+            except Exception:
+                bal = Decimal("0")
+            u.balance = bal + amt
+        loan.credited_to_balance = True
+
+    if not loan.approved_at:
+        loan.approved_at = timezone.now()
+    loan.status = "APPROVED"
+    loan.save(update_fields=["status", "approved_at", "credited_to_balance"])
+
     u.account_status = "APPROVED"
     u.success_message = "Congratulation, Your loan credit have been approved, Please contact to the Financial Department to get the code for withdrawal"
     u.notification_message = ""
-    u.save(update_fields=["balance", "account_status", "success_message", "notification_message"])
+    u.success_message_updated_at = timezone.now()
+    u.success_is_read = False
+    u.save(update_fields=[
+        "balance", "account_status", "success_message",
+        "notification_message", "success_message_updated_at", "success_is_read",
+    ])
     return JsonResponse({"ok": True, "loan_id": loan.id})
 
 
